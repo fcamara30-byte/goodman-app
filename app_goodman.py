@@ -18,79 +18,97 @@ CO2 = {"Nada":1.0,"Bajo":1.0,"Medio":0.9,"Alto":0.8}
 H2S = {"Nada":1.0,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR = {"0":1.0,"1":1.0,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
+# ✅ NUEVO: CLORUROS (ajustar según tu Excel real)
+CLORUROS = {
+    "0 ppm": 1.0,
+    "Bajo": 1.0,
+    "Medio": 0.9,
+    "Alto": 0.8
+}
+
 # ======================
-# FUNCIÓN GOODMAN
+# FUNCIÓN
 # ======================
 
 def goodman(smin, uts_a, b, f):
     return (uts_a + b*smin) * f
 
 # ======================
-# INTERFAZ
+# LAYOUT
 # ======================
 
-st.title("📊 Goodman – Fatiga + Corrosión")
-
-material = st.selectbox("Material", list(materiales.keys()))
-co2 = st.selectbox("CO2", list(CO2.keys()))
-h2s = st.selectbox("H2S", list(H2S.keys()))
-bsr = st.selectbox("BSR", list(BSR.keys()))
-
-smin_user = st.slider("Smin", 0, 150, 30)
-smax_user = st.slider("Smax", 0, 150, 50)
+col1, col2 = st.columns([1,2])
 
 # ======================
-# CÁLCULOS
+# CONTROLES (IZQUIERDA)
 # ======================
 
-f = CO2[co2] * H2S[h2s] * BSR[bsr]
+with col1:
+    st.header("Inputs")
+
+    material = st.selectbox("Material", list(materiales.keys()))
+    co2 = st.selectbox("CO₂", list(CO2.keys()))
+    h2s = st.selectbox("H₂S", list(H2S.keys()))
+    bsr = st.selectbox("BSR", list(BSR.keys()))
+    cl = st.selectbox("Cloruros", list(CLORUROS.keys()))
+
+    smin_user = st.slider("Smin", 0, 150, 30)
+    smax_user = st.slider("Smax", 0, 150, 50)
+
+# ======================
+# CÁLCULO
+# ======================
+
+f = CO2[co2] * H2S[h2s] * BSR[bsr] * CLORUROS[cl]
 
 uts_a = materiales[material]["uts_a"]
 b = materiales[material]["b"]
 
-smin = np.linspace(0, 150, 200)
+smin = np.linspace(0,150,200)
 
 # ======================
-# GRÁFICO
+# GRÁFICO (DERECHA)
 # ======================
 
-fig, ax = plt.subplots(figsize=(6,6))
+with col2:
+    st.header("Diagrama de Goodman")
 
-# TODAS las curvas
-for mat in materiales:
-    y = (materiales[mat]["uts_a"] + materiales[mat]["b"] * smin) * f
-    ax.plot(smin, y, alpha=0.3)
+    fig, ax = plt.subplots(figsize=(6,6))
 
-# curva seleccionada
-y_sel = goodman(smin, uts_a, b, f)
-ax.plot(smin, y_sel, linewidth=3, label=material)
+    # todas las curvas
+    for mat in materiales:
+        y = (materiales[mat]["uts_a"] + materiales[mat]["b"] * smin) * f
+        ax.plot(smin, y, alpha=0.3)
 
-# línea 45°
-ax.plot(smin, smin, 'k--', label="45°")
+    # curva seleccionada
+    y_sel = goodman(smin, uts_a, b, f)
+    ax.plot(smin, y_sel, linewidth=3, label=material)
 
-# punto operativo
-ax.scatter(smin_user, smax_user, color="red", s=100)
+    # línea 45°
+    ax.plot(smin, smin, 'k--', label="45°")
 
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-ax.set_title("Diagrama de Goodman")
-ax.grid()
-ax.legend()
+    # punto
+    ax.scatter(smin_user, smax_user, color="red", s=100)
 
-# 🔥 CLAVE
-st.pyplot(fig)
+    ax.set_xlabel("Smin")
+    ax.set_ylabel("Smax")
+    ax.grid()
+    ax.legend()
+
+    st.pyplot(fig)
 
 # ======================
 # RESULTADOS
 # ======================
 
+st.subheader("Resultados")
+
 sadm_user = goodman(smin_user, uts_a, b, f)
 FS = sadm_user / smax_user if smax_user > 0 else 0
 
-st.subheader("Resultados")
-st.write("Factor corrosion total:", round(f, 3))
-st.write("Sadm:", round(sadm_user, 2))
-st.write("FS:", round(FS, 2))
+st.write("Factor total:", round(f,3))
+st.write("Sadm:", round(sadm_user,2))
+st.write("FS:", round(FS,2))
 
 if FS >= 1:
     st.success("✅ Seguro")
