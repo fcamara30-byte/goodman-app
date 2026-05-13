@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 st.set_page_config(layout="wide")
 
@@ -14,7 +15,7 @@ with col_brand:
     st.markdown("#### *Powered by Apex*")
 
 # ======================
-# MATERIALES (actualizado)
+# MATERIALES
 # ======================
 materiales = {
     "DA78": {"uts_a": 30.0, "b": 0.5625},
@@ -49,7 +50,7 @@ def factor_cloruros(ppm):
         return 1 - (0.000019 * (ppm ** 0.8))
 
 # ======================
-# FS MATERIAL
+# FS MATERIAL (Excel)
 # ======================
 def FS_material(mat, f):
 
@@ -74,8 +75,8 @@ def FS_material(mat, f):
 # ======================
 # GOODMAN
 # ======================
-def goodman(smin, uts_a, b, fs):
-    return (uts_a + b*smin) * fs
+def goodman(smin, uts, b, fs):
+    return (uts + b * smin) * fs
 
 # ======================
 # LAYOUT
@@ -115,7 +116,7 @@ with col2:
 
     fig, ax = plt.subplots(figsize=(7,3.8))
 
-    materiales_validos = []
+    ranking = []
 
     for mat in materiales:
 
@@ -128,18 +129,22 @@ with col2:
             fs_mat
         )
 
-        # Evaluación operativa
-        sadm_user = goodman(
+        sadm = goodman(
             smin_user,
             materiales[mat]["uts_a"],
             materiales[mat]["b"],
             fs_mat
         )
 
-        if smax_user <= sadm_user:
-            materiales_validos.append(mat)
+        margen = sadm - smax_user
 
-        # Graficado
+        ranking.append({
+            "Material": mat,
+            "FS": fs_mat,
+            "Sadm": sadm,
+            "Margen": margen
+        })
+
         if mat == material:
             ax.plot(smin, y, linewidth=3, color='blue')
             ax.text(smin[-1], y[-1], mat,
@@ -162,39 +167,35 @@ with col2:
     st.pyplot(fig)
 
     # ======================
-    # RESULTADOS FORMATO CUADRO
+    # RANKING
     # ======================
-    fs_sel = FS_material(material, f_base)
-    sadm_user = goodman(
-        smin_user,
-        materiales[material]["uts_a"],
-        materiales[material]["b"],
-        fs_sel
+    df = pd.DataFrame(ranking)
+
+    df = df.sort_values(by="Margen", ascending=False)
+
+    # % Goodman
+    df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
+
+    st.markdown("##### Ranking de Materiales")
+
+    st.dataframe(
+        df.style.format({
+            "FS": "{:.3f}",
+            "Sadm": "{:.1f}",
+            "Margen": "{:.1f}",
+            "%Goodman": "{:.1f}"
+        }),
+        use_container_width=True
     )
 
-    if sadm_user != smin_user:
-        goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
+    # ======================
+    # MEJOR OPCION
+    # ======================
+    mejor = df.iloc[0]
+
+    st.markdown("##### Recomendación")
+
+    if mejor["Margen"] >= 0:
+        st.success(f"Mejor opción: {mejor['Material']}")
     else:
-        goodman_pct = 0
-
-    st.markdown("###### Resultados")
-
-    c1, c2, c3, c4 = st.columns(4)
-
-    c1.metric("FS", f"{fs_sel:.3f}")
-    c2.metric("Factor Base", f"{f_base:.3f}")
-    c3.metric("Sadm (ksi)", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{goodman_pct:.1f}")
-
-    # ======================
-    # RECOMENDACION INTELIGENTE
-    # ======================
-    st.markdown("###### Recomendación")
-
-    if smax_user > sadm_user:
-
-        if len(materiales_validos) > 0:
-            st.warning("Recomendado usar: " + ", ".join(materiales_validos))
-        else:
-            st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
-
+        st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
