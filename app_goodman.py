@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 st.set_page_config(layout="wide")
 
 # ======================
-# HEADER
+# HEADER COMPACTO
 # ======================
 col_title, col_brand = st.columns([5,2])
 with col_title:
@@ -21,11 +21,11 @@ materiales = {
     "HS97": {"uts_a": 50.0, "b": 0.375},
     "CS propietario": {"uts_a": 44.64, "b": 0.375},
     "HS propietario": {"uts_a": 55.36, "b": 0.375},
-    "D New": {"uts_a": 42.86, "b": 0.375},
+    "D New": {"uts_a": 42.86, "b": 0.375}
 }
 
 # ======================
-# FACTORES CORROSION
+# FACTORES DE CORROSION
 # ======================
 CO2 = {"Nada":1.0,"Bajo":1.0,"Medio":0.9,"Alto":0.8}
 H2S = {"Nada":1.0,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
@@ -40,7 +40,7 @@ BSR = {
     "6":0.65
 }
 
-# Cloruros -> fórmula Excel real
+# Cloruros (fórmula Excel real)
 def factor_cloruros(ppm):
     if ppm < 9000:
         return 1.0
@@ -48,11 +48,10 @@ def factor_cloruros(ppm):
         return 1 - (0.000019 * (ppm ** 0.8))
 
 # ======================
-# FACTOR DE SERVICIO POR MATERIAL
+# FS POR MATERIAL (EXCEL REAL)
 # ======================
 def FS_material(mat, f_base):
 
-    # SIN CORROSION
     if f_base == 1:
         return 1
 
@@ -79,7 +78,7 @@ def goodman(smin, uts_a, b, fs):
 col1, col2 = st.columns([1,2])
 
 # ======================
-# INPUTS
+# INPUTS COMPACTOS
 # ======================
 with col1:
 
@@ -91,7 +90,7 @@ with col1:
 
     r2c1, r2c2 = st.columns(2)
     h2s = r2c1.selectbox("H₂S", list(H2S.keys()))
-    bsr = r2c2.selectbox("BSR", list(BSR.keys()))
+    bsr = r2c2.selectbox("BSR (caldos positivos)", list(BSR.keys()))
 
     cl_ppm = st.number_input("Cloruros ppm", 0, 200000, 0)
 
@@ -99,60 +98,65 @@ with col1:
     smax_user = st.slider("Smax", 0, 150, 50)
 
 # ======================
-# CALCULO FACTORES
+# CALCULO
 # ======================
 f_cl = factor_cloruros(cl_ppm)
-
 f_base = CO2[co2] * H2S[h2s] * BSR[bsr] * f_cl
 
 smin = np.linspace(0,150,200)
 
 # ======================
-# GRAFICO
+# GRAFICO COMPACTO
 # ======================
 with col2:
 
-    fig, ax = plt.subplots(figsize=(8,5))
+    fig, ax = plt.subplots(figsize=(7,3.8))  # ✅ más chico
 
     for mat in materiales:
 
         fs_mat = FS_material(mat, f_base)
 
-        y = goodman(smin,
-                    materiales[mat]["uts_a"],
-                    materiales[mat]["b"],
-                    fs_mat)
+        y = goodman(
+            smin,
+            materiales[mat]["uts_a"],
+            materiales[mat]["b"],
+            fs_mat
+        )
 
         if mat == material:
             ax.plot(smin, y, linewidth=3, color='blue')
             ax.text(smin[-1], y[-1], mat,
-                    fontsize=10, color='blue', weight='bold')
+                    fontsize=9, color='blue', weight='bold')
         else:
             ax.plot(smin, y, color='gray', alpha=0.2)
             ax.text(smin[-1], y[-1], mat,
-                    fontsize=7, color='gray', alpha=0.5)
+                    fontsize=6, color='gray', alpha=0.5)
 
     # línea 45°
     ax.plot(smin, smin, 'k--')
 
-    # punto operativo
-    ax.scatter(smin_user, smax_user, color="red", s=80)
+    # punto
+    ax.scatter(smin_user, smax_user, color="red", s=60)
 
     ax.set_xlim(0,150)
     ax.set_ylim(0,150)
 
-    ax.set_xlabel("Smin (ksi)")
-    ax.set_ylabel("Smax (ksi)")
+    ax.set_xlabel("Smin")
+    ax.set_ylabel("Smax")
+
     ax.grid()
+
+    plt.tight_layout()
 
     st.pyplot(fig)
 
     # ======================
-    # RESULTADOS
+    # RESULTADOS COMPACTOS
     # ======================
-    st.markdown("### Resultados")
+    st.markdown("#### Resultados")
 
     fs_sel = FS_material(material, f_base)
+
     sadm_user = goodman(
         smin_user,
         materiales[material]["uts_a"],
