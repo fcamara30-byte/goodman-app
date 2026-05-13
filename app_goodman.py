@@ -197,4 +197,4 @@ with col2:
             st.warning("Recomendado usar: " + ", ".join(materiales_validos))
         else:
             st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
-``
+
