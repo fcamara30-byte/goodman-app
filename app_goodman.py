@@ -2,6 +2,9 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 
+# ======================
+# CONFIG
+# ======================
 st.set_page_config(layout="wide")
 
 # ======================
@@ -25,7 +28,7 @@ materiales = {
 }
 
 # ======================
-# FACTORES DE CORROSION
+# FACTORES CORROSION
 # ======================
 CO2 = {"Nada":1.0,"Bajo":1.0,"Medio":0.9,"Alto":0.8}
 H2S = {"Nada":1.0,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
@@ -40,7 +43,7 @@ BSR = {
     "6":0.65
 }
 
-# Cloruros (fórmula Excel real)
+# Cloruros (Excel real)
 def factor_cloruros(ppm):
     if ppm < 9000:
         return 1.0
@@ -48,7 +51,7 @@ def factor_cloruros(ppm):
         return 1 - (0.000019 * (ppm ** 0.8))
 
 # ======================
-# FS POR MATERIAL (EXCEL REAL)
+# FS MATERIAL (EXCEL)
 # ======================
 def FS_material(mat, f_base):
 
@@ -70,7 +73,7 @@ def FS_material(mat, f_base):
 # GOODMAN
 # ======================
 def goodman(smin, uts_a, b, fs):
-    return (uts_a + b*smin) * fs
+    return (uts_a + b * smin) * fs
 
 # ======================
 # LAYOUT
@@ -98,7 +101,7 @@ with col1:
     smax_user = st.slider("Smax", 0, 150, 50)
 
 # ======================
-# CALCULO
+# CALCULOS
 # ======================
 f_cl = factor_cloruros(cl_ppm)
 f_base = CO2[co2] * H2S[h2s] * BSR[bsr] * f_cl
@@ -110,7 +113,7 @@ smin = np.linspace(0,150,200)
 # ======================
 with col2:
 
-    fig, ax = plt.subplots(figsize=(7,3.8))  # ✅ más chico
+    fig, ax = plt.subplots(figsize=(7,3.8))
 
     for mat in materiales:
 
@@ -132,10 +135,10 @@ with col2:
             ax.text(smin[-1], y[-1], mat,
                     fontsize=6, color='gray', alpha=0.5)
 
-    # línea 45°
+    # Línea 45°
     ax.plot(smin, smin, 'k--')
 
-    # punto
+    # Punto usuario
     ax.scatter(smin_user, smax_user, color="red", s=60)
 
     ax.set_xlim(0,150)
@@ -147,14 +150,11 @@ with col2:
     ax.grid()
 
     plt.tight_layout()
-
     st.pyplot(fig)
 
     # ======================
     # RESULTADOS COMPACTOS
     # ======================
-    st.markdown("#### Resultados")
-
     fs_sel = FS_material(material, f_base)
 
     sadm_user = goodman(
@@ -164,8 +164,19 @@ with col2:
         fs_sel
     )
 
-    c1, c2, c3 = st.columns(3)
+    # % GOODMAN (Excel real)
+    if sadm_user != smin_user:
+        goodman_pct = ((smax_user - smin_user) / (sadm_user - smin_user)) * 100
+    else:
+        goodman_pct = 0
+
+    # 📊 ULTRA COMPACTO (1 FILA)
+    st.markdown("##### Resultados")
+
+    c1, c2, c3, c4 = st.columns(4)
 
     c1.metric("FS", round(fs_sel,3))
     c2.metric("Factor base", round(f_base,3))
     c3.metric("Sadm", round(sadm_user,2))
+    c4.metric("%Goodman", round(goodman_pct,1))
+
