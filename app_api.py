@@ -31,7 +31,7 @@ with csl2:
     S = st.slider("Carrera (in)",0,300,168)
 
 # ======================
-# MATERIALES
+# MATERIALES (UTSa y b)
 # ======================
 materiales={
     "DA78":{"uts_a":30,"b":0.5625},
@@ -49,7 +49,6 @@ materiales={
 st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
-
 rod_sel={
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
@@ -73,12 +72,12 @@ bsr=c3.selectbox("BSR (Caldos +)",BSR.keys())
 cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def factor_cloruros(ppm):
-    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
 # ======================
-# FUNCIONES
+# FS POR MATERIAL
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
@@ -89,16 +88,12 @@ def FS_material(mat,f):
     if mat=="D New": return f*0.94
     return f*0.9
 
-def goodman(smin,uts,b,fs):
-    return (uts + b*smin)*fs
-
 # ======================
 # VARILLAS
 # ======================
 st.subheader("Varillas")
 
 c1,c2,c3 = st.columns(3)
-
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
 n34=c3.number_input('3/4"',10,300,80)
@@ -126,7 +121,7 @@ PPRL=Wr+Fh+1.45*Fd*Wr
 MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
 
 # ======================
-# CARGAS PRO (AGRUPADAS)
+# CARGAS AGRUPADAS
 # ======================
 st.subheader("Cargas")
 
@@ -136,15 +131,12 @@ st.markdown(f"""
 """)
 
 # ======================
-# RESULTADOS API
+# RESULTADOS
 # ======================
-st.subheader("Resultados por tramo")
-
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
-
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
@@ -162,51 +154,25 @@ for d in pct:
     Smin=Smin_psi/1000
 
     mat=rod_sel[d]
-    fs=FS_material(mat,f_base)
 
-    Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
+    fs=FS_material(mat,f_base)
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+
+    Sadm = utsa*fs + b*Smin
 
     G=(Smax-Smin)/(Sadm-Smin)*100
     gvals.append(G)
 
     rows.append({
-        "ROD TYPE":mat,
-        "DIAM (in)":d,
-        "MAX LOAD (lb)":int(Pmax),
-        "MIN LOAD (lb)":int(Pmin),
-        "MAX STRESS (psi)":f"{Smax_psi:,.0f}",
-        "MIN STRESS (psi)":f"{Smin_psi:,.0f}",
-        "GOODMAN (%)":int(G)
+        "Rod":d,
+        "Mat":mat,
+        "Smin":Smin,
+        "Smax":Smax
     })
 
-st.dataframe(pd.DataFrame(rows),use_container_width=True)
-
 # ======================
-# RANKING (FIX BUG)
-# ======================
-st.subheader("Ranking")
-
-ranking=[]
-
-for r in rows:
-
-    Smin=float(r["MIN STRESS (psi)"].replace(",",""))/1000
-    Smax=float(r["MAX STRESS (psi)"].replace(",",""))/1000
-
-    for mat in materiales:
-        fs=FS_material(mat,f_base)
-        Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
-        ranking.append([mat,Sadm-Smax])
-
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
-
-df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
-
-st.dataframe(df_rank,use_container_width=True)
-
-# ======================
-# GOODMAN (YA CORRECTO)
+# GOODMAN PRO
 # ======================
 st.subheader("Diagrama de Goodman")
 
@@ -215,28 +181,43 @@ fig,ax=plt.subplots()
 
 curvas=[]
 
-for r in rows:
-    mat=r["ROD TYPE"]
+for d in pct:
+    mat=rod_sel[d]
     fs=FS_material(mat,f_base)
-    uts=materiales[mat]["uts_a"]
+    utsa=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
 
-    y=(uts+b*x)*fs
+    y=utsa*fs + b*x
     curvas.append(y)
-    ax.plot(x,y,label=mat)
+
+    ax.plot(x,y,label=f"{d}-{mat}")
 
 y_safe=np.minimum.reduce(curvas)
-ax.fill_between(x,0,y_safe,alpha=0.1,color="green")
 
+# ✅ ZONA SEGURA CORRECTA
+ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2,color="green")
+
+# puntos
 for r in rows:
-    smin=float(r["MIN STRESS (psi)"].replace(",",""))/1000
-    smax=float(r["MAX STRESS (psi)"].replace(",",""))/1000
-    ax.scatter(smin,smax,s=60)
+    ax.scatter(r["Smin"],r["Smax"],s=60)
 
+# punto crítico
+crit=rows[gvals.index(max(gvals))]
+ax.scatter(crit["Smin"],crit["Smax"],
+           color="red",s=140,edgecolor="black",label="Crítico")
+
+# línea 45°
 ax.plot(x,x,color="black")
 
 ax.set_xlim(0)
 ax.set_ylim(0)
+
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+# mostrar FS
+ax.text(0.05,0.95,f"FS base: {f_base:.2f}",transform=ax.transAxes)
+
 ax.legend(fontsize=8)
 
 st.pyplot(fig)
@@ -245,8 +226,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-
-st.caption(
-    "Las conclusiones y resultados son orientativas, basadas en las fórmulas de API RP11L "
-    "y en la experiencia de uso de varillas en fluidos corrosivos."
-)
+st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
