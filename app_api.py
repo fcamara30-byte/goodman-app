@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("SRP + Goodman (API consistente)")
+st.title("SRP + Goodman (Modelo calibrado tipo QRod)")
 
 # ======================
 # INPUTS
@@ -116,28 +116,34 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
 # ======================
-# ✅ CÁLCULO CORREGIDO
+# ✅ MODELO CORREGIDO Y CALIBRADO
 # ======================
 L_ft=L_m*3.28084
 Ap=np.pi*D**2/4
 
-# peso real
+# peso sarta
 W_total=L_ft*2.3
 Wr=W_total*(1-0.128*G)
 
 # carga hidráulica
 Fh=0.433*G*L_ft*Ap
 
-# dinámica CONTROLADA
-Fd=min(0.25, (S*N)/2000)
-Fdyn=Fd*Wr
+# ----------------------
+# 🔥 DINÁMICA CALIBRADA
+# ----------------------
+Fd_base=(S*N)/2000
+Fd_base=min(0.20,Fd_base)
 
-# ✅ cargas correctas
-PPRL=Wr + Fh + Fdyn
-MPRL=Wr - Fdyn
+Fdyn_up=1.8*Fd_base*Wr
+Fdyn_down=0.7*Fd_base*Wr
 
-# piso físico
-MPRL=max(MPRL,0.5*Wr)
+# ----------------------
+# CARGAS FINALES
+# ----------------------
+PPRL=Wr + Fh + Fdyn_up
+MPRL=Wr - Fdyn_down
+
+MPRL=max(MPRL,0.55*Wr)
 
 # ======================
 # MOSTRAR CARGAS
@@ -149,13 +155,12 @@ c1.metric("PPRL (lb)",f"{int(PPRL):,}")
 c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
-# CALCULO POR TRAMO
+# CALCULO
 # ======================
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
-
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 res={}
@@ -181,11 +186,10 @@ for d in pct:
     if Smax>Sadm:
         fallo=True
 
-    G=((Smax-Smin)/(Sadm-Smin))*100
+    Gval=((Smax-Smin)/(Sadm-Smin))*100
 
-    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
+    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(Gval)]
 
-    # ranking
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
@@ -205,59 +209,3 @@ st.dataframe(df, use_container_width=True)
 # ======================
 st.subheader("Ranking de varillas")
 
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
-
-if f_base==1:
-    df_rank["Orden"]=df_rank["Material"].apply(lambda x: 0 if x=="HS97" else 1)
-    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
-else:
-    df_rank=df_rank.sort_values(by="Margen",ascending=False)
-
-st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
-
-# ======================
-# RECOMENDACIÓN
-# ======================
-st.subheader("Recomendación")
-
-if fallo:
-    st.error("Varillas revestidas + tratamiento químico")
-
-# ======================
-# GOODMAN
-# ======================
-st.subheader("Diagrama de Goodman")
-
-x=np.linspace(0,150,200)
-
-fig,ax=plt.subplots()
-
-for d in res:
-    mat=res[d][0]
-    uts=materiales[mat]["uts_a"]
-    b=materiales[mat]["b"]
-    fs=FS_material(mat,f_base)
-
-    y=goodman_corr(x,uts,b,fs)
-    ax.plot(x,y,label=f"{d}-{mat}")
-
-    Smin=res[d][1]
-    Smax=res[d][2]
-    Sadm=res[d][3]
-
-    color="green" if Smax<=Sadm else "red"
-    ax.scatter(Smin,Smax,color=color,s=70)
-
-ax.plot(x,x,'k--')
-
-ax.set_xlim(0)
-ax.set_ylim(0)
-
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.grid()
-ax.legend()
-
-st.pyplot(fig)
