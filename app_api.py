@@ -273,4 +273,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod
+st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod")
