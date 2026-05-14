@@ -77,6 +77,7 @@ H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
 c1,c2,c3,c4=st.columns(4)
+
 co2=c1.selectbox("CO2",CO2.keys())
 h2s=c2.selectbox("H2S",H2S.keys())
 bsr=c3.selectbox("BSR",BSR.keys())
@@ -183,7 +184,6 @@ c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 res={}
-ranking=[]
 fallo=False
 
 for d in pct:
@@ -212,10 +212,13 @@ st.markdown("### Resultados")
 
 df=pd.DataFrame(res,index=["Material","Smin","Smax","Sadm","Goodman (%)"]).T
 
-def highlight(val):
-    return "color: blue; font-weight: bold"
+# formato seguro (sin romper streamlit)
+df_display=df.copy()
+df_display["Goodman (%)"]=df_display["Goodman (%)"].apply(
+    lambda x: f"<b><span style='color:blue'>{x}</span></b>"
+)
 
-st.dataframe(df.style.applymap(highlight,subset=["Goodman (%)"]).set_properties(**{'text-align': 'center'}))
+st.write(df_display.to_html(escape=False), unsafe_allow_html=True)
 
 # ======================
 # RECOMENDACION
