@@ -1,153 +1,172 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-# ======================
-# TITULO
-# ======================
-st.title("API RP 11L – Cálculo de Cargas en Varillas")
+st.title("Diseño API RP 11L + Goodman (DA78)")
 
 # ======================
 # INPUTS
 # ======================
-col1, col2 = st.columns(2)
+c1, c2 = st.columns(2)
 
-with col1:
-    st.subheader("Datos del pozo")
-
+with c1:
     L_m = st.number_input("Profundidad (m)", 500, 5000, 2000)
     H_m = st.number_input("Nivel dinámico (m)", 100, 4000, 1500)
     G = st.slider("Gravedad específica", 0.6, 1.2, 1.0)
 
-with col2:
-    st.subheader("Bomba y operación")
-
+with c2:
     D = st.slider("Diámetro bomba (in)", 1.0, 3.0, 1.5)
     S = st.slider("Carrera (in)", 50, 200, 100)
     N = st.slider("SPM", 1, 20, 10)
 
 # ======================
-# PROPIEDADES VARILLAS (API)
+# TABLA API (EJEMPLO REAL)
+# 🔴 ACA TENES QUE COMPLETAR CON LA 4.1
 # ======================
-rods = {
-    "1":   {"area":0.786, "peso":2.90},
-    "7/8": {"area":0.601, "peso":2.22},
-    "3/4": {"area":0.442, "peso":1.63}
+tabla_api = {
+    "85": {
+        "diametros": ["1", "7/8", "3/4"],
+        "porcentajes": [0.34, 0.37, 0.29]
+    },
+    "76": {
+        "diametros": ["7/8", "3/4"],
+        "porcentajes": [0.70, 0.30]
+    }
+}
+
+rod_no = st.selectbox("Rod Number (API Table 4.1)", list(tabla_api.keys()))
+
+# ======================
+# PROPIEDADES VARILLAS (TABLA 4.3 API)
+# ======================
+areas = {
+    "3/4": 0.442,
+    "7/8": 0.601,
+    "1": 0.786
+}
+
+peso = {
+    "3/4": 1.63,
+    "7/8": 2.22,
+    "1": 2.90
 }
 
 # ======================
 # CALCULO STRING
 # ======================
-def calcular_string(L_m, G):
+L_ft = L_m * 3.28084
 
-    L_ft = L_m * 3.28084
+data = tabla_api[rod_no]
 
-    # distribución típica
-    frac_sup = 0.3
-    frac_mid = 0.4
-    frac_fondo = 0.3
+varilla_largo = 25  # ft
+string = []
 
-    L_sup = L_ft * frac_sup
-    L_mid = L_ft * frac_mid
-    L_fondo = L_ft * frac_fondo
+for d, frac in zip(data["diametros"], data["porcentajes"]):
 
-    W = (
-        L_sup * rods["1"]["peso"] +
-        L_mid * rods["7/8"]["peso"] +
-        L_fondo * rods["3/4"]["peso"]
-    )
+    L_seg = L_ft * frac
+    n = int(L_seg / varilla_largo)
 
-    Wri = W * (1 - 0.128 * G)
-
-    A_min = rods["3/4"]["area"]
-    A_top = rods["1"]["area"]
-
-    return W, Wri, A_min, A_top
+    string.append({
+        "diam": d,
+        "L": L_seg,
+        "n": n
+    })
 
 # ======================
-# CALCULO API
+# PESO TOTAL
 # ======================
-def calcular_cargas(L_m, H_m, D, S, N, G):
-
-    L_ft = L_m * 3.28084
-    H_ft = H_m * 3.28084
-
-    W, Wri, A_min, A_top = calcular_string(L_m, G)
-
-    # área bomba
-    A_pump = np.pi * (D**2) / 4
-
-    # carga fluido API
-    Fo = 0.433 * G * H_ft * A_pump
-
-    # ======================
-    # APROX DINAMICA (provisional)
-    # ======================
-    Fi = Fo * (1.1 + 0.01 * N)
-    F2 = Fo * (0.6)
-
-    PPRL = Wri + Fi
-    MPRL = Wri - F2
-
-    # tensiones
-    Smax = PPRL / A_min / 1000
-    Smin = MPRL / A_min / 1000
-
-    Stress_top = PPRL / A_top / 1000
-
-    return PPRL, MPRL, Smax, Smin, Stress_top, W, Wri
+W = sum(s["L"] * peso[s["diam"]] for s in string)
+Wri = W * (1 - 0.128 * G)
 
 # ======================
-# CALCULAR
+# CARGA DE FLUIDO
 # ======================
-PPRL, MPRL, Smax, Smin, Stress_top, W, Wri = calcular_cargas(L_m, H_m, D, S, N, G)
+H_ft = H_m * 3.28084
+A_pump = np.pi * (D**2) / 4
+
+Fo = 0.433 * G * H_ft * A_pump
+
+# ======================
+# DINAMICA (aprox inicial)
+# ======================
+Fi = Fo * (1.1 + 0.01 * N)
+F2 = Fo * 0.6
+
+PPRL = Wri + Fi
+MPRL = Wri - F2
+
+# ======================
+# GOODMAN DA78
+# ======================
+uts = 30
+b = 0.5625
+fs = 1
+
+def goodman(smin):
+    return (uts + b * smin) * fs
 
 # ======================
 # RESULTADOS
 # ======================
-st.subheader("Resultados")
+st.subheader("Distribución real de varillas")
 
-c1, c2, c3 = st.columns(3)
+for s in string:
+    st.write(f"{s['diam']}\" → {s['n']} varillas")
 
-c1.metric("PPRL (lb)", f"{PPRL:,.0f}")
-c2.metric("MPRL (lb)", f"{MPRL:,.0f}")
-c3.metric("Peso varillas (lb)", f"{W:,.0f}")
+st.subheader("Evaluación por tramo (Goodman DA78)")
 
-c4, c5, c6 = st.columns(3)
+resultados = []
 
-c4.metric("Smax (ksi)", f"{Smax:.1f}")
-c5.metric("Smin (ksi)", f"{Smin:.1f}")
-c6.metric("Stress cabeza (ksi)", f"{Stress_top:.1f}")
+for s in string:
+
+    A = areas[s["diam"]]
+
+    Smax = PPRL / A / 1000
+    Smin = MPRL / A / 1000
+
+    Sadm = goodman(Smin)
+
+    resultados.append((s["diam"], Smin, Smax))
+
+    if Smax <= Sadm:
+        st.success(f"{s['diam']}\" OK | Smax={Smax:.1f} ksi")
+    else:
+        st.error(f"{s['diam']}\" FALLA | Smax={Smax:.1f} ksi")
 
 # ======================
-# GRAFICO SIMPLE
+# GRAFICO GOODMAN
 # ======================
-st.subheader("Condición de carga")
+st.subheader("Diagrama de Goodman – DA78")
 
-fig, ax = plt.subplots()
+smin = np.linspace(0,150,200)
+sadm_curve = goodman(smin)
 
-ax.scatter(Smin, Smax, color="red")
+fig, ax = plt.subplots(figsize=(6,4))
+
+ax.plot(smin, sadm_curve, linewidth=3, label="DA78")
+ax.plot(smin, smin, 'k--')
+
+for r in resultados:
+    ax.scatter(r[1], r[2], label=f'{r[0]}"', s=80)
+
+ax.set_xlim(0,150)
+ax.set_ylim(0,150)
+
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-
-ax.set_xlim(0, max(Smax*1.2, 1))
-ax.set_ylim(0, max(Smax*1.2, 1))
-
 ax.grid()
+ax.legend()
 
 st.pyplot(fig)
 
 # ======================
-# INFO STRING
+# OUTPUT CARGAS
 # ======================
-st.subheader("Configuración de varillas")
+st.subheader("Cargas")
 
-df = pd.DataFrame({
-    "Tramo": ["Superficie", "Medio", "Fondo"],
-    "Diámetro": ['1"', '7/8"', '3/4"']
-})
-
-st.dataframe(df, use_container_width=True)
+c1, c2, c3 = st.columns(3)
+c1.metric("PPRL (lb)", f"{PPRL:,.0f}")
+c2.metric("MPRL (lb)", f"{MPRL:,.0f}")
+c3.metric("Peso varillas (lb)", f"{W:,.0f}")
