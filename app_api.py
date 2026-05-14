@@ -245,4 +245,4 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
-``
+
