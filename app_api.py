@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIAL POR TRAMO
+# MATERIAL
 # ======================
 st.subheader("Material por tramo")
 
@@ -99,8 +99,8 @@ total=L1+L78+L34
 # ======================
 st.subheader("Control de longitud")
 
-long_m=total*0.3048
-dif=long_m-L_m
+long_m = total*0.3048
+dif = long_m - L_m
 
 st.dataframe(pd.DataFrame({
     "Longitud pozo (m)":[int(L_m)],
@@ -122,31 +122,35 @@ Fh=0.433*G*L_ft*Ap
 
 Fd=min((S*N)/2600,0.15)
 
-PPRL=Wr+Fh+1.45*Fd*Wr
+# ======================
+# PPRL (NO TOCAR)
+# ======================
+PPRL = Wr + Fh + 1.45 * Fd * Wr
 
 # ======================
-# 🔥 MPRL MODELO V3 (MEJORADO)
+# 🔥 MPRL MODELO FINAL v5
 # ======================
 E = 30_000_000
-Aeq = 0.65
+Aeq = 0.58
 L_in = L_ft * 12
 
 kr = (Aeq * E) / L_in
 
-# dinámica no lineal
-C = 0.55
-alpha = 0.75
+# dinámica calibrada
+C = 0.52
+alpha = 0.78
 dx = C * S * (Fd**alpha)
 
-# efecto longitud
-prop_L = (L_ft / 6000) ** 0.3
+# longitud calibrada
+prop_L = (L_ft / 6000) ** 0.22
 
-# efecto hidráulico (clave)
-prop_F = (Fh / Wr) ** 0.15
+# hidráulica calibrada
+prop_F = (Fh / Wr) ** 0.08
 
-# carga dinámica total
-dF = kr * dx * prop_L * (1 + prop_F)
+# alivio total calibrado
+dF = kr * dx * prop_L * (1 + 0.35 * prop_F)
 
+# resultado final
 MPRL = max(Wr - dF, 0)
 
 # ======================
@@ -160,7 +164,7 @@ st.markdown(f"""
 """)
 
 # ======================
-# RESULTADOS
+# RESULTADOS POR TRAMO
 # ======================
 st.subheader("Resultados por tramo")
 
@@ -266,4 +270,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado.")
+st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod.")
