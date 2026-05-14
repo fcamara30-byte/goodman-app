@@ -65,7 +65,7 @@ def f_cl(ppm):
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 # ======================
-# FS POR MATERIAL
+# FS MATERIAL
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
@@ -93,6 +93,23 @@ L34=n34*25
 total=L1+L78+L34
 
 # ======================
+# CONTROL DE LONGITUD
+# ======================
+st.subheader("Control de longitud")
+
+long_m = total * 0.3048
+dif = long_m - L_m
+
+st.dataframe(
+    pd.DataFrame({
+        "Longitud pozo (m)": [int(L_m)],
+        "Longitud sarta (m)": [int(long_m)],
+        "Δ longitud (m)": [int(dif)]
+    }),
+    use_container_width=True
+)
+
+# ======================
 # MODELO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
@@ -110,13 +127,13 @@ PPRL=Wr+Fh+1.45*Fd*Wr
 MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
 
 # ======================
-# CARGAS
+# CARGAS CON UNIDADES
 # ======================
 st.subheader("Cargas")
 
 st.markdown(f"""
-### **PPRL: {int(PPRL):,} lb**  
-### **MPRL: {int(MPRL):,} lb**
+### **PPRL (lb): {int(PPRL):,}**  
+### **MPRL (lb): {int(MPRL):,}**
 """)
 
 # ======================
@@ -133,7 +150,6 @@ W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
 ranking=[]
-gvals=[]
 
 for d in pct:
 
@@ -155,16 +171,15 @@ for d in pct:
     Sadm = utsa*fs + b*Smin
 
     G=(Smax-Smin)/(Sadm-Smin)*100
-    gvals.append(G)
 
     rows.append({
-        "TRAMO":d,
-        "MAT":mat,
-        "MAX LOAD":int(Pmax),
-        "MIN LOAD":int(Pmin),
+        "Tramo":d,
+        "Material":mat,
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
         "Smax (ksi)":round(Smax,1),
         "Smin (ksi)":round(Smin,1),
-        "GOODMAN (%)":int(G)
+        "Goodman (%)":int(G)
     })
 
 df=pd.DataFrame(rows)
@@ -224,17 +239,22 @@ for d in pct:
 
     ax.plot(x,y,label=f"{d}-{mat}")
 
+# zona segura correcta
 y_safe=np.minimum.reduce(curvas)
-
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.15,color="green")
 
+# puntos
 for r in rows:
     ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],s=60)
 
+# línea 45°
 ax.plot(x,x,color="black")
 
 ax.set_xlim(0)
 ax.set_ylim(0)
+
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
 
 ax.legend(fontsize=8)
 
@@ -245,4 +265,3 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
-
