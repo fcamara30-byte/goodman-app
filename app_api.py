@@ -4,7 +4,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("SRP + Goodman (Modelo calibrado tipo QRod)")
+
+st.title("Cálculo de Solicitaciones en Sistemas SRP")
+
+# ======================
+# ESTILO VISUAL
+# ======================
+st.markdown("""
+<style>
+div[data-testid="stMetric"] {
+    text-align: center;
+    padding: 8px;
+}
+div[data-testid="stMetricValue"] {
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+}
+div[data-testid="stMetricLabel"] {
+    text-align: center;
+    font-size: 14px;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # ======================
 # INPUTS
@@ -12,13 +34,13 @@ st.title("SRP + Goodman (Modelo calibrado tipo QRod)")
 c1,c2=st.columns(2)
 
 with c1:
-    L_m=st.number_input("Profundidad pozo (m)",500,5000,1800)
-    G=st.slider("Gravedad específica",0.6,1.2,0.95)
+    L_m = st.number_input("Profundidad pozo (m)",500,5000,1800)
+    G = st.slider("Gravedad específica",0.6,1.2,0.95)
 
 with c2:
-    D=st.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
-    S=st.slider("Carrera (in)",50,200,168)
-    N=st.slider("SPM",1,20,6)
+    D = st.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+    S = st.slider("Carrera (in)",50,200,168)
+    N = st.slider("SPM",1,20,6)
 
 # ======================
 # MATERIALES
@@ -34,12 +56,11 @@ materiales={
 }
 
 # ======================
-# SELECCIÓN
+# MATERIAL POR TRAMO
 # ======================
-st.subheader("Material por tramo")
+st.markdown("### Material por tramo")
 
 c1,c2,c3=st.columns(3)
-
 rod_sel={
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
@@ -47,16 +68,15 @@ rod_sel={
 }
 
 # ======================
-# CORROSIÓN
+# CORROSION
 # ======================
-st.subheader("Ambiente")
+st.markdown("### Ambiente")
 
 CO2={"Nada":1,"Bajo":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
 c1,c2,c3,c4=st.columns(4)
-
 co2=c1.selectbox("CO2",CO2.keys())
 h2s=c2.selectbox("H2S",H2S.keys())
 bsr=c3.selectbox("BSR",BSR.keys())
@@ -65,7 +85,7 @@ cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 def factor_cloruros(ppm):
     return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
 
-f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
+f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
 st.write("Factor de servicio:", round(f_base,3))
 
@@ -78,13 +98,13 @@ def FS_material(mat,f):
     if mat=="D New": return f*0.94
     return f*0.9
 
-def goodman_corr(smin, uts, b, fs):
+def goodman_corr(smin,uts,b,fs):
     return (uts + b*smin)*fs
 
 # ======================
 # VARILLAS
 # ======================
-st.subheader("Varillas")
+st.markdown("### Varillas")
 
 c1,c2=st.columns([1,2])
 
@@ -99,15 +119,27 @@ L34=n34*25
 
 total=L1+L78+L34
 
-# control longitud
+# ======================
+# CONTROL DE LONGITUD
+# ======================
 long_m=total*0.3048
 dif=long_m-L_m
 
 with c2:
-    a,b,c=st.columns(3)
-    a.metric("Pozo (m)",round(L_m,1))
-    b.metric("Sarta (m)",round(long_m,1))
-    c.metric("Dif (m)",round(dif,1))
+    st.markdown("### Control de longitud de sarta")
+
+    c1,c2,c3=st.columns(3)
+
+    c1.metric("Profundidad (m)",f"{L_m:.1f}")
+    c2.metric("Sarta (m)",f"{long_m:.1f}")
+    c3.metric("Diferencia (m)",f"{dif:.1f}")
+
+    if abs(dif)<10:
+        st.success("✅ Ajuste correcto")
+    elif dif<0:
+        st.warning("⚠️ Sarta corta")
+    else:
+        st.error("❌ Sarta larga")
 
 # ======================
 # PROPIEDADES
@@ -116,39 +148,30 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
 # ======================
-# ✅ MODELO CORREGIDO Y CALIBRADO
+# MODELO CALIBRADO
 # ======================
 L_ft=L_m*3.28084
 Ap=np.pi*D**2/4
 
-# peso sarta
 W_total=L_ft*2.3
 Wr=W_total*(1-0.128*G)
 
-# carga hidráulica
 Fh=0.433*G*L_ft*Ap
 
-# ----------------------
-# 🔥 DINÁMICA CALIBRADA
-# ----------------------
 Fd_base=(S*N)/2000
 Fd_base=min(0.20,Fd_base)
 
 Fdyn_up=1.8*Fd_base*Wr
 Fdyn_down=0.7*Fd_base*Wr
 
-# ----------------------
-# CARGAS FINALES
-# ----------------------
 PPRL=Wr + Fh + Fdyn_up
 MPRL=Wr - Fdyn_down
-
 MPRL=max(MPRL,0.55*Wr)
 
 # ======================
-# MOSTRAR CARGAS
+# CARGAS
 # ======================
-st.subheader("Cargas")
+st.markdown("### Cargas en cabeza de pozo")
 
 c1,c2=st.columns(2)
 c1.metric("PPRL (lb)",f"{int(PPRL):,}")
@@ -159,24 +182,16 @@ c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 # ======================
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
-W1=pct["1"]*L_ft*peso["1"]
-W78=pct["7/8"]*L_ft*peso["7/8"]
-W_up={"1":0,"7/8":W1,"3/4":W1+W78}
-
 res={}
 ranking=[]
 fallo=False
 
 for d in pct:
 
-    Pmax=PPRL-W_up[d]
-    Pmin=max(MPRL-0.5*W_up[d],0)
-
-    Smax=Pmax/areas[d]/1000
-    Smin=Pmin/areas[d]/1000
+    Smax=PPRL/areas[d]/1000
+    Smin=MPRL/areas[d]/1000
 
     mat=rod_sel[d]
-
     uts=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
     fs=FS_material(mat,f_base)
@@ -190,40 +205,22 @@ for d in pct:
 
     res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(Gval)]
 
-    for mat in materiales:
-        uts=materiales[mat]["uts_a"]
-        fs=FS_material(mat,f_base)
-        Sadm=goodman_corr(Smin,uts,materiales[mat]["b"],fs)
-        ranking.append([mat,Sadm-Smax])
-
 # ======================
 # RESULTADOS
 # ======================
-st.subheader("Resultados")
+st.markdown("### Resultados")
 
 df=pd.DataFrame(res,index=["Material","Smin","Smax","Sadm","Goodman (%)"]).T
-st.dataframe(df, use_container_width=True)
 
-# ======================
-# RANKING
-# ======================
-st.subheader("Ranking de varillas")
+def highlight(val):
+    return "color: blue; font-weight: bold"
 
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
-
-if f_base==1:
-    df_rank["Orden"]=df_rank["Material"].apply(lambda x: 0 if x=="HS97" else 1)
-    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
-else:
-    df_rank=df_rank.sort_values(by="Margen",ascending=False)
-
-st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
+st.dataframe(df.style.applymap(highlight,subset=["Goodman (%)"]).set_properties(**{'text-align': 'center'}))
 
 # ======================
 # RECOMENDACION
 # ======================
-st.subheader("Recomendación")
+st.markdown("### Recomendación")
 
 if fallo:
     st.error("Varillas revestidas + tratamiento químico")
@@ -231,7 +228,7 @@ if fallo:
 # ======================
 # GOODMAN
 # ======================
-st.subheader("Diagrama de Goodman")
+st.markdown("### Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
@@ -245,22 +242,19 @@ for d in res:
     y=goodman_corr(x,uts,b,fs)
     ax.plot(x,y,label=f"{d}-{mat}")
 
-    Smin=res[d][1]
-    Smax=res[d][2]
-    Sadm=res[d][3]
+    color="green" if res[d][2]<=res[d][3] else "red"
+    ax.scatter(res[d][1],res[d][2],color=color,s=70)
 
-    color="green" if Smax<=Sadm else "red"
-    ax.scatter(Smin,Smax,color=color,s=70)
-
-ax.plot(x,x,'k--')
-
-ax.set_xlim(0)
-ax.set_ylim(0)
-
+ax.plot(x,x,'k--',label="Límite")
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-
-ax.grid()
+ax.grid(alpha=0.3)
 ax.legend()
 
 st.pyplot(fig)
+
+# ======================
+# DISCLAIMER
+# ======================
+st.markdown("---")
+st.caption("Las conclusiones y resultados son orientativas basadas en las formulas de API RP11L mas la experiencia de uso de varillas en fluidos corrosivos.")
