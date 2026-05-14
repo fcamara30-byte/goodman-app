@@ -4,15 +4,17 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
+
 st.title("Cálculo de Solicitaciones en Sistemas SRP")
 
 # ======================
-# ESTILO COMPACTO
+# ESTILO
 # ======================
 st.markdown("""
 <style>
 div[data-baseweb="input"] {max-width:90px;}
 div[data-baseweb="select"] {max-width:140px;}
+th {font-weight:bold !important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -44,12 +46,11 @@ materiales={
 }
 
 # ======================
-# MATERIAL
+# MATERIALES POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
-
 rod_sel={
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
@@ -98,7 +99,6 @@ def goodman(smin,uts,b,fs):
 st.subheader("Varillas")
 
 c1,c2,c3 = st.columns(3)
-
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
 n34=c3.number_input('3/4"',10,300,80)
@@ -111,18 +111,16 @@ total=L1+L78+L34
 # ======================
 # CONTROL LONGITUD
 # ======================
+st.subheader("Control de longitud")
+
 long_m=total*0.3048
 dif=long_m-L_m
 
-st.subheader("Control de longitud")
-
-df_long=pd.DataFrame({
+st.dataframe(pd.DataFrame({
     "Longitud pozo (m)":[int(L_m)],
     "Longitud sarta (m)":[int(long_m)],
     "Δ longitud (m)":[int(dif)]
-})
-
-st.dataframe(df_long,use_container_width=True)
+}),use_container_width=True)
 
 # ======================
 # MODELO
@@ -131,6 +129,7 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
+
 Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
@@ -144,14 +143,13 @@ MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
 # CARGAS
 # ======================
 st.subheader("Cargas")
-
 st.dataframe(pd.DataFrame({
     "PPRL (lb)":[int(PPRL)],
     "MPRL (lb)":[int(MPRL)]
 }),use_container_width=True)
 
 # ======================
-# RESULTADOS API
+# RESULTADOS (FORMATO API)
 # ======================
 st.subheader("Resultados por tramo")
 
@@ -163,8 +161,7 @@ W78=pct["7/8"]*L_ft*peso["7/8"]
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
-
-g_values=[]
+gvals=[]
 
 for d in pct:
 
@@ -183,16 +180,16 @@ for d in pct:
     Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
 
     G=(Smax-Smin)/(Sadm-Smin)*100
-    g_values.append(G)
+    gvals.append(G)
 
     rows.append({
-        "Rod Type":mat,
-        "Rod Diam (in)":d,
-        "Max Load (lb)":int(Pmax),
-        "Min Load (lb)":int(Pmin),
-        "Max Stress (psi)":f"{Smax_psi:.0f}",
-        "Min Stress (psi)":f"{Smin_psi:.0f}",
-        "Goodman (%)":int(G)
+        "ROD TYPE":mat,
+        "DIAM (in)":d,
+        "MAX LOAD (lb)":int(Pmax),
+        "MIN LOAD (lb)":int(Pmin),
+        "MAX STRESS (psi)":f"{Smax_psi:,.0f}",
+        "MIN STRESS (psi)":f"{Smin_psi:,.0f}",
+        "GOODMAN (%)":int(G)
     })
 
 st.dataframe(pd.DataFrame(rows),use_container_width=True)
@@ -205,17 +202,15 @@ st.subheader("Ranking")
 ranking=[]
 
 for r in rows:
-
-    Smin=float(r["Min Stress (psi)"])/1000
-    Smax=float(r["Max Stress (psi)"])/1000
+    Smin=float(r["MIN STRESS (psi)"])/1000
+    Smax=float(r["MAX STRESS (psi)"])/1000
 
     for mat in materiales:
         fs=FS_material(mat,f_base)
         Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
         ranking.append([mat,Sadm-Smax])
 
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"]).groupby("Material").mean().reset_index()
 
 if f_base==1:
     df_rank["Orden"]=df_rank["Material"].apply(lambda x:0 if x=="HS97" else 1)
@@ -228,47 +223,44 @@ df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 st.dataframe(df_rank.drop(columns="Orden",errors="ignore"),use_container_width=True)
 
 # ======================
-# GOODMAN PRO
+# GOODMAN PRO (CORREGIDO)
 # ======================
 st.subheader("Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
 
-max_G=max(g_values)
-crit_idx=g_values.index(max_G)
-crit_row=rows[crit_idx]
-
+# curvas
 for r in rows:
-
-    mat=r["Rod Type"]
+    mat=r["ROD TYPE"]
     fs=FS_material(mat,f_base)
     uts=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
-
-    y=(uts + b*x)*fs
-    ax.plot(x,y,label=mat)
+    ax.plot(x,(uts + b*x)*fs,label=mat)
 
 # zona segura
-y_safe=min([(materiales[r["Rod Type"]]["uts_a"] + materiales[r["Rod Type"]]["b"]*x)*FS_material(r["Rod Type"],f_base) for r in rows])
+curvas=[(materiales[r["ROD TYPE"]]["uts_a"] + materiales[r["ROD TYPE"]]["b"]*x)*FS_material(r["ROD TYPE"],f_base) for r in rows]
+y_safe=np.minimum.reduce(curvas)
 ax.fill_between(x,0,y_safe,alpha=0.1,color="green")
 
-# puntos
+# puntos + crítico
+maxg=max(gvals)
+crit=rows[gvals.index(maxg)]
+
 for r in rows:
-    smin=float(r["Min Stress (psi)"])/1000
-    smax=float(r["Max Stress (psi)"])/1000
+    smin=float(r["MIN STRESS (psi)"])/1000
+    smax=float(r["MAX STRESS (psi)"])/1000
     ax.scatter(smin,smax,s=60)
 
-# punto crítico
-smin=float(crit_row["Min Stress (psi)"])/1000
-smax=float(crit_row["Max Stress (psi)"])/1000
-ax.scatter(smin,smax,color="red",s=140,edgecolor="black",label="Crítico")
+ax.scatter(float(crit["MIN STRESS (psi)"])/1000,
+           float(crit["MAX STRESS (psi)"])/1000,
+           color="red",s=140,edgecolor="black",label="Crítico")
 
-# línea 45°
 ax.plot(x,x,color="black")
 
 ax.set_xlim(0)
 ax.set_ylim(0)
+
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
