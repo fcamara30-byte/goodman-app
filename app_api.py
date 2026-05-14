@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("SRP Diseño + Goodman (calibrado tipo QRod)")
+st.title("SRP Diseño + Goodman (optimizado tipo QRod)")
 
 # ======================
 # INPUTS
@@ -12,12 +12,12 @@ c1, c2 = st.columns(2)
 
 with c1:
     L_m = st.number_input("Profundidad (m)", 500, 5000, 1800)
-    H_m = st.number_input("Nivel dinámico (m)", 100, 4000, 1500)
     G = st.slider("Gravedad específica", 0.6, 1.2, 0.95)
 
 with c2:
     D = st.selectbox("Bomba (in)", [1.5,1.75,2,2.25,2.5])
-    N = st.slider("SPM", 1, 20, 8)
+    S = st.slider("Carrera (in)", 50, 200, 168)
+    N = st.slider("SPM", 1, 20, 6)
 
 # ======================
 # PROPIEDADES
@@ -35,130 +35,156 @@ def goodman(smin):
 # CONVERSIONES
 # ======================
 L_ft = L_m * 3.28084
-H_ft = H_m * 3.28084
 
 # ======================
-# CARGA FLUIDO
+# FO REAL
 # ======================
 A_pump = np.pi * D**2 / 4
-Fo = 0.433 * G * H_ft * A_pump
+Fo = 0.433 * G * L_ft * A_pump
 
 # ======================
-# PESO TOTAL VARILLAS
+# PESO
 # ======================
 W_total = L_ft * 2.3
 Wri = W_total * (1 - 0.128 * G)
 
 # ======================
-# DINAMICA DEPENDIENTE DE SPM
+# DINAMICA REALISTA
 # ======================
 ratio = Fo / (Fo + 12000)
 
-Fi = Fo * (2.0 - 1.2 * ratio)
+f_speed = min(N/10,1)
+f_stroke = S/100
 
-# 🔥 FACTOR DE VELOCIDAD (CLAVE)
-f_speed = min(N/10, 1)
-
-F2 = Fo * (0.5 + 0.2 * ratio) * f_speed
+Fi = Fo*(2.0 - 1.2*ratio) * f_stroke
+F2 = Fo*(0.5 + 0.2*ratio) * f_speed * f_stroke
 
 PPRL = Wri + Fi
 MPRL = Wri - F2
 
 # ======================
-# DISTRIBUCION DE SARTA
+# INICIAL TAPER
 # ======================
-pct = {"1":0.35,"7/8":0.40,"3/4":0.25}
+pct = {"1":0.33,"7/8":0.33,"3/4":0.34}
 
 # ======================
-# EVALUACION REAL
+# EVALUACION
 # ======================
-def evaluar():
+def evaluar(pct):
 
-    L1 = pct["1"] * L_ft
-    L78 = pct["7/8"] * L_ft
-    L34 = pct["3/4"] * L_ft
+    L1 = pct["1"]*L_ft
+    L78 = pct["7/8"]*L_ft
 
-    W1 = L1 * peso["1"]
-    W78 = L78 * peso["7/8"]
+    W1 = L1*peso["1"]
+    W78 = L78*peso["7/8"]
 
     W_up = {
-        "1": 0,
-        "7/8": W1,
-        "3/4": W1 + W78
+        "1":0,
+        "7/8":W1,
+        "3/4":W1+W78
     }
 
-    # 🔥 ATENUACION DINAMICA
     beta = {
-        "1": 1.0,
-        "7/8": 0.7,
-        "3/4": 0.4
+        "1":1.0,
+        "7/8":0.7,
+        "3/4":0.4
     }
 
-    res = {}
+    res={}
 
-    for d in ["1","7/8","3/4"]:
+    for d in pct:
 
         Pmax = PPRL - W_up[d]
+        Pmin = MPRL - beta[d]*W_up[d]
 
-        Pmin = MPRL - beta[d] * W_up[d]
-
-        # evitar compresión ficticia
-        Pmin = max(Pmin, 0)
+        Pmin = max(Pmin,0)
 
         A = areas[d]
 
-        Smax = Pmax / A / 1000
-        Smin = Pmin / A / 1000
+        Smax = Pmax/A/1000
+        Smin = Pmin/A/1000
 
         Sadm = goodman(Smin)
 
         g = ((Smax - Smin)/(Sadm - Smin))*100
 
         res[d] = {
-            "Pmax":Pmax,
-            "Pmin":Pmin,
+            "g":g,
             "Smax":Smax,
             "Smin":Smin,
-            "g":g,
-            "L":pct[d]*L_ft,
-            "n":int((pct[d]*L_ft)/25)
+            "Pmax":Pmax,
+            "Pmin":Pmin
         }
 
     return res
 
-res = evaluar()
+# ======================
+# OPTIMIZACION TAPER
+# ======================
+def optimizar(pct, n_iter=80):
+
+    for _ in range(n_iter):
+
+        res = evaluar(pct)
+
+        g_vals = {d:res[d]["g"] for d in res}
+
+        d_max = max(g_vals, key=g_vals.get)
+        d_min = min(g_vals, key=g_vals.get)
+
+        step = 0.01
+
+        if pct[d_min] > 0.1:
+            pct[d_min] -= step
+            pct[d_max] += step
+
+        total = sum(pct.values())
+        for d in pct:
+            pct[d] /= total
+
+    return pct
+
+pct = optimizar(pct)
+res = evaluar(pct)
 
 # ======================
-# OUTPUT CARGAS
+# OUTPUT
 # ======================
 st.subheader("Cargas vástago")
 
 c1,c2,c3 = st.columns(3)
-c1.metric("PPRL",f"{PPRL:,.0f} lb")
-c2.metric("MPRL",f"{MPRL:,.0f} lb")
-c3.metric("Fo",f"{Fo:,.0f} lb")
+c1.metric("PPRL",f"{PPRL:,.0f}")
+c2.metric("MPRL",f"{MPRL:,.0f}")
+c3.metric("Fo",f"{Fo:,.0f}")
 
 # ======================
-# RESULTADOS POR TRAMO
+# RESULTADOS
 # ======================
-st.subheader("Resultados por tramo")
+st.subheader("Resultados + taper optimizado")
 
 for d in res:
 
-    r = res[d]
-
-    st.write(f'### {d}" → {r["n"]} varillas')
-
     c1,c2,c3,c4,c5 = st.columns(5)
 
-    c1.write(f"Pmax: {r['Pmax']:.0f}")
-    c2.write(f"Pmin: {r['Pmin']:.0f}")
-    c3.write(f"Smax: {r['Smax']:.1f}")
-    c4.write(f"Smin: {r['Smin']:.1f}")
-    c5.write(f"Goodman: {r['g']:.1f}%")
+    c1.write(f'{d}"')
+    c2.write(f"{pct[d]*100:.1f}%")
+    c3.write(f"Smax {res[d]['Smax']:.1f}")
+    c4.write(f"Smin {res[d]['Smin']:.1f}")
+    c5.write(f"G {res[d]['g']:.1f}%")
 
 # ======================
-# GRAFICO GOODMAN
+# CHEQUEO
+# ======================
+st.subheader("Balance Goodman")
+
+gvals = [res[d]["g"] for d in res]
+
+st.write(f"Min: {min(gvals):.1f}%")
+st.write(f"Max: {max(gvals):.1f}%")
+st.write(f"Δ: {(max(gvals)-min(gvals)):.1f}%")
+
+# ======================
+# GOODMAN
 # ======================
 st.subheader("Diagrama Goodman")
 
@@ -167,15 +193,16 @@ y = goodman(x)
 
 fig, ax = plt.subplots()
 
-ax.plot(x, y, label="Límite Goodman")
-ax.plot(x, x, '--', label="45°")
+ax.plot(x,y,label="Goodman")
+ax.plot(x,x,'--')
 
 for d in res:
-    ax.scatter(res[d]["Smin"], res[d]["Smax"], s=50)
+    ax.scatter(res[d]["Smin"], res[d]["Smax"])
     ax.text(res[d]["Smin"], res[d]["Smax"], d)
 
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
+ax.set_xlabel("Smin")
+ax.set_ylabel("Smax")
+
 ax.grid()
 ax.legend()
 
