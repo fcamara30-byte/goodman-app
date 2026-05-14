@@ -274,7 +274,7 @@ ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
 ax.legend(fontsize=8)
-
+ax.text(0.02,0.95,f"f_base = {f_base:.2f}",transform=ax.transAxes)
 st.pyplot(fig)
 
 # ======================
