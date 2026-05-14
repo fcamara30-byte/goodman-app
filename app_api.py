@@ -272,9 +272,7 @@ ax.set_ylim(0,x_max)
 
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-
-ax.legend(fontsize=8)
-ax.text(0.02,0.95,f"f_base = {factor Servicio:.2f}",transform=ax.transAxes)
+ax.text(0.02,0.95,f"f_base = {f_servicio:.2f}",transform=ax.transAxes)
 st.pyplot(fig)
 
 # ======================
