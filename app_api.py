@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("Diseño SRP + Goodman + Cartas dinamométricas (calibrado QRod)")
+st.title("SRP – Modelo simplificado corregido")
 
 # ======================
 # INPUTS
@@ -18,7 +18,7 @@ with c1:
 with c2:
     D = st.selectbox("Diámetro bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.5])
     N = st.slider("SPM",1,20,8)
-    S = st.slider("Carrera vástago superficie (in)",50,200,100)
+    S = st.slider("Carrera superficie (in)",50,200,100)
 
 # ======================
 # PROPIEDADES
@@ -35,183 +35,121 @@ def goodman(smin):
 # ======================
 # CONVERSIONES
 # ======================
-L_ft = L_m * 3.28084
-H_ft = H_m * 3.28084
+L_ft = L_m*3.28084
+H_ft = H_m*3.28084
 
 # ======================
 # CARGA FLUIDO
 # ======================
-A_pump = np.pi * D**2 / 4
+A_pump = np.pi * D**2/4
 Fo = 0.433 * G * H_ft * A_pump
 
 # ======================
-# PESO VARILLAS
+# PESO
 # ======================
 W = L_ft * 2.3
-Wri = W * (1 - 0.128 * G)
+Wri = W*(1-0.128*G)
 
 # ======================
-# RIGIDEZ (aprox)
+# DINAMICA (ESTABLE)
 # ======================
-kr = 200 + 400*(1/(L_ft/5000 + 1))
+ratio = Fo / (Fo + 12000)
 
-# ======================
-# FACTOR ELASTICO
-# ======================
-FoSkr = Fo / (kr * S)
-
-# ======================
-# DINAMICA (CALIBRADA)
-# ======================
-Fi = Fo * (2.2 - 1.6 * FoSkr)
-F2 = Fo * (0.4 + 0.5 * FoSkr)
+Fi = Fo*(2.0 - 1.2*ratio)
+F2 = Fo*(0.5 + 0.2*ratio)
 
 PPRL = Wri + Fi
 MPRL = Wri - F2
 
 # ======================
-# STRETCH Y CARRERA BOMBA
-# ======================
-Stretch = PPRL / kr
-Overtravel = Fi / kr
-
-Sp = S - Stretch - Overtravel
-Sp = max(Sp, 0)
-
-# ======================
-# OUTPUT CARGAS
+# OUTPUT
 # ======================
 st.subheader("Cargas")
 
-cA,cB,cC,cD = st.columns(4)
-cA.metric("PPRL",f"{PPRL:,.0f} lb")
-cB.metric("MPRL",f"{MPRL:,.0f} lb")
-cC.metric("Fo",f"{Fo:,.0f} lb")
-cD.metric("Fo/Skr",f"{FoSkr:.3f}")
-
-# ======================
-# CARRERAS
-# ======================
-st.subheader("Carreras")
-
 c1,c2,c3 = st.columns(3)
-c1.metric("Stroke superficie",f"{S:.1f} in")
-c2.metric("Stroke bomba",f"{Sp:.1f} in")
-c3.metric("Stretch total",f"{Stretch:.1f} in")
+c1.metric("PPRL",f"{PPRL:,.0f} lb")
+c2.metric("MPRL",f"{MPRL:,.0f} lb")
+c3.metric("Fo",f"{Fo:,.0f} lb")
 
 # ======================
-# DISTRIBUCION
+# GOODMAN (SIMPLE BIEN)
 # ======================
-pct = {"1":0.35,"7/8":0.40,"3/4":0.25}
+st.subheader("Goodman por diámetro")
 
-# ======================
-# EVALUACION VARILLAS
-# ======================
-def evaluar(pct):
+for d in ["1","7/8","3/4"]:
 
-    L1 = pct["1"]*L_ft
-    L78 = pct["7/8"]*L_ft
-    L34 = pct["3/4"]*L_ft
+    A = areas[d]
 
-    W1 = L1*peso["1"]
-    W78 = L78*peso["7/8"]
-    W34 = L34*peso["3/4"]
+    Smax = PPRL/A/1000
+    Smin = MPRL/A/1000
 
-    Pmax = {
-        "1": PPRL,
-        "7/8": PPRL - W1,
-        "3/4": PPRL - (W1 + W78)
-    }
+    Sadm = goodman(Smin)
+    g = ((Smax-Smin)/(Sadm-Smin))*100
 
-    Pmin = {
-        "1": MPRL,
-        "7/8": MPRL + 0.2*W34,
-        "3/4": MPRL + 0.4*W34
-    }
-
-    res = {}
-
-    for d in pct:
-        Smax = Pmax[d]/areas[d]/1000
-        Smin = Pmin[d]/areas[d]/1000
-
-        Sadm = goodman(Smin)
-        g = ((Smax - Smin)/(Sadm - Smin))*100
-
-        res[d] = {"Smin":Smin,"Smax":Smax,"g":g}
-
-    return res
-
-res = evaluar(pct)
-
-# ======================
-# RESULTADOS
-# ======================
-st.subheader("Resultados por tramo")
-
-for d in res:
     c1,c2,c3 = st.columns(3)
-    c1.write(f'{d}" Smin: {res[d]["Smin"]:.1f} ksi')
-    c2.write(f'{d}" Smax: {res[d]["Smax"]:.1f} ksi')
-    c3.write(f'Goodman: {res[d]["g"]:.1f}%')
+    c1.write(f'{d}" Smin: {Smin:.1f} ksi')
+    c2.write(f'{d}" Smax: {Smax:.1f} ksi')
+    c3.write(f'Goodman: {g:.1f}%')
 
 # ======================
-# GOODMAN
+# GOODMAN GRAFICO
 # ======================
 st.subheader("Diagrama Goodman")
 
 x = np.linspace(0,150,200)
 
-fig_g, ax_g = plt.subplots()
-ax_g.plot(x,goodman(x))
-ax_g.plot(x,x,'--')
+fig,ax = plt.subplots()
+ax.plot(x,goodman(x))
+ax.plot(x,x,'--')
 
-for d in res:
-    ax_g.scatter(res[d]["Smin"],res[d]["Smax"],s=20)
+for d in ["1","7/8","3/4"]:
+    ax.scatter(MPRL/areas[d]/1000, PPRL/areas[d]/1000, s=20)
 
-ax_g.grid()
-st.pyplot(fig_g)
-
-# ======================
-# CARTAS DINAMOMETRICAS
-# ======================
-st.subheader("Cartas dinamométricas")
-
-theta = np.linspace(0,2*np.pi,200)
-
-# superficie
-x_sup = S/2*(1-np.cos(theta))
-P_sup = MPRL + (PPRL - MPRL)*(1-np.cos(theta))/2
-P_sup += 0.12*(PPRL-MPRL)*np.sin(theta)
-
-# fondo
-Sp_eff = max(Sp,1)
-x_pump = (Sp_eff/S)*x_sup
-P_pump = P_sup*(Sp_eff/S)*0.9
+ax.grid()
+st.pyplot(fig)
 
 # ======================
-# GRAFICOS
+# CARTAS REALISTAS
+# ======================
+st.subheader("Cartas dinamométricas (corregidas)")
+
+x = np.linspace(0, S, 200)
+
+# 📌 superficie (forma física)
+P_up = np.linspace(MPRL, PPRL, 100)
+P_down = np.linspace(PPRL*0.9, MPRL*1.05, 100)
+
+x_up = np.linspace(0, S, 100)
+x_down = np.linspace(S, 0, 100)
+
+x_surf = np.concatenate([x_up, x_down])
+P_surf = np.concatenate([P_up, P_down])
+
+# 📌 fondo (suavizado y menor carga)
+P_downhole = P_surf * 0.75
+
+# ======================
+# PLOTS
 # ======================
 col1,col2 = st.columns(2)
 
 with col1:
     fig1, ax1 = plt.subplots()
-    ax1.plot(x_sup,P_sup)
-    ax1.set_title("Carta superficie",fontsize=10)
-    ax1.set_xlabel("Posición (in)")
+    ax1.plot(x_surf,P_surf)
+    ax1.set_title("Carta superficie")
+    ax1.set_xlabel("Stroke (in)")
     ax1.set_ylabel("Carga (lb)")
     ax1.grid()
     st.pyplot(fig1)
 
 with col2:
     fig2, ax2 = plt.subplots()
-    ax2.plot(x_pump,P_pump)
-    ax2.set_title("Carta fondo",fontsize=10)
-    ax2.set_xlabel("Posición bomba (in)")
+    ax2.plot(x_surf,P_downhole)
+    ax2.set_title("Carta fondo")
+    ax2.set_xlabel("Stroke (in)")
     ax2.set_ylabel("Carga (lb)")
     ax2.grid()
     st.pyplot(fig2)
-
 
 
 
