@@ -3,7 +3,7 @@ import numpy as np
 
 st.set_page_config(layout="wide")
 
-st.title("Diseño de sarta SRP (Goodman balanceado real)")
+st.title("Diseño de sarta SRP (correcto - balance masa)")
 
 # ======================
 # INPUTS
@@ -38,16 +38,20 @@ L_ft = L_m * 3.28084
 H_ft = H_m * 3.28084
 
 # ======================
-# CARGAS
+# CARGA FLUIDO
 # ======================
 A_pump = np.pi * D**2 / 4
 Fo = 0.433 * G * H_ft * A_pump
 
-# peso varillas (promedio)
-W = L_ft * 2.3
-Wri = W * (1 - 0.128 * G)
+# ======================
+# PESO TOTAL VARILLAS
+# ======================
+W_total = L_ft * 2.3
+Wri = W_total * (1 - 0.128 * G)
 
-# dinámica (estable y coherente)
+# ======================
+# DINAMICA
+# ======================
 ratio = Fo / (Fo + 12000)
 
 Fi = Fo * (2.0 - 1.2 * ratio)
@@ -62,72 +66,65 @@ MPRL = Wri - F2
 pct = {"1": 0.35, "7/8": 0.40, "3/4": 0.25}
 
 # ======================
-# FUNCION DE EVALUACION REAL
+# EVALUACION REAL
 # ======================
 def evaluar(pct):
 
+    # longitudes
     L1 = pct["1"] * L_ft
     L78 = pct["7/8"] * L_ft
     L34 = pct["3/4"] * L_ft
 
-    # pesos acumulados
+    # pesos
     W1 = L1 * peso["1"]
     W78 = L78 * peso["7/8"]
+    W34 = L34 * peso["3/4"]
 
-    # cargas reales por tramo
-    P = {
-        "1": PPRL,
-        "7/8": PPRL - W1,
-        "3/4": PPRL - (W1 + W78)
+    # pesos acumulados (arriba del punto)
+    W_up = {
+        "1": 0,
+        "7/8": W1,
+        "3/4": W1 + W78
     }
 
     resultados = {}
 
-    for d in P:
+    for d in ["1", "7/8", "3/4"]:
+
+        # cargas reales en ese punto
+        Pmax = PPRL - W_up[d]
+        Pmin = MPRL - W_up[d]
 
         A = areas[d]
 
-        Smax = P[d] / A / 1000
-        Smin = MPRL / A / 1000
+        Smax = Pmax / A / 1000
+        Smin = Pmin / A / 1000
 
-        Sadm = goodman(Smin)
+        # si entra en compresión → no se calcula Goodman
+        if Pmin <= 0:
+            g = None
+        else:
+            Sadm = goodman(Smin)
+            g = ((Smax - Smin) / (Sadm - Smin)) * 100
 
-        g = ((Smax - Smin) / (Sadm - Smin)) * 100
-
-        resultados[d] = g
+        resultados[d] = {
+            "L": pct[d] * L_ft,
+            "n": int((pct[d] * L_ft) / 25),
+            "Pmax": Pmax,
+            "Pmin": Pmin,
+            "Smax": Smax,
+            "Smin": Smin,
+            "g": g
+        }
 
     return resultados
 
-# ======================
-# BALANCE REAL DE GOODMAN
-# ======================
-for _ in range(80):
-
-    g_vals = evaluar(pct)
-
-    d_max = max(g_vals, key=g_vals.get)
-    d_min = min(g_vals, key=g_vals.get)
-
-    step = 0.01
-
-    if pct[d_min] > 0.10:   # evita desaparecer tramos
-        pct[d_min] -= step
-        pct[d_max] += step
-
-    # normalizar
-    total = sum(pct.values())
-    for d in pct:
-        pct[d] /= total
-
-# ======================
-# RESULTADOS FINALES
-# ======================
 res = evaluar(pct)
 
 # ======================
 # OUTPUT
 # ======================
-st.subheader("Cargas")
+st.subheader("Cargas (vástago)")
 
 c1, c2, c3 = st.columns(3)
 c1.metric("PPRL", f"{PPRL:,.0f} lb")
@@ -135,25 +132,37 @@ c2.metric("MPRL", f"{MPRL:,.0f} lb")
 c3.metric("Fo", f"{Fo:,.0f} lb")
 
 # ======================
-# DISEÑO DE SARTA
+# RESULTADOS POR TRAMO
 # ======================
-st.subheader("Diseño de sarta (balanceado)")
+st.subheader("Resultados por tramo")
 
-for d in pct:
+for d in res:
 
-    L_tramo = pct[d] * L_ft
-    n = int(L_tramo / 25)
+    r = res[d]
 
-    st.write(f'{d}" → {pct[d]*100:.1f}% | {n} varillas | Goodman: {res[d]:.1f}%')
+    st.write(f'### {d}" → {r["n"]} varillas')
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    c1.write(f"Pmax: {r['Pmax']:.0f} lb")
+    c2.write(f"Pmin: {r['Pmin']:.0f} lb")
+
+    c3.write(f"Smax: {r['Smax']:.1f} ksi")
+    c4.write(f"Smin: {r['Smin']:.1f} ksi")
+
+    if r["g"] is None:
+        st.error("⚠️ Compresión → diseño inválido en este tramo")
+    else:
+        st.write(f"Goodman: {r['g']:.1f}%")
 
 # ======================
-# CONTROL DE CALIDAD
+# CHEQUEO
 # ======================
-st.subheader("Chequeo de equilibrio")
+valid = [v["g"] for v in res.values() if v["g"] is not None]
 
-gvals = list(res.values())
+if len(valid) > 0:
+    st.subheader("Chequeo de equilibrio")
 
-st.write(f"mín Goodman: {min(gvals):.1f}%")
-st.write(f"máx Goodman: {max(gvals):.1f}%")
-st.write(f"diferencia: {(max(gvals)-min(gvals)):.1f}%")
-
+    st.write(f"mín Goodman: {min(valid):.1f}%")
+    st.write(f"máx Goodman: {max(valid):.1f}%")
+    st.write(f"diferencia: {(max(valid)-min(valid)):.1f}%")
