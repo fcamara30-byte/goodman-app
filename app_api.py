@@ -38,7 +38,7 @@ areas = {"1":0.786,"7/8":0.601,"3/4":0.442}
 peso  = {"1":2.90,"7/8":2.22,"3/4":1.63}
 
 # ======================
-# SELECCIÓN DE ACERO
+# SELECCIÓN ACERO
 # ======================
 st.subheader("Selección de acero")
 
@@ -87,7 +87,7 @@ df_input = pd.DataFrame({
     "Varillas":[80,80,80]
 })
 
-df_edit = st.data_editor(df_input, num_rows="fixed")
+df_edit = st.data_editor(df_input, num_rows="fixed", use_container_width=True)
 
 # ======================
 # RECONSTRUIR LONGITUD
@@ -121,6 +121,7 @@ def evaluar(pct):
     res={}
 
     for d in pct:
+
         Pmax = PPRL - W_up[d]
         Pmin = max(MPRL - beta[d]*W_up[d],0)
 
@@ -128,6 +129,7 @@ def evaluar(pct):
         Smin = Pmin/areas[d]/1000
 
         Sadm = goodman(Smin, rod_type[d])
+
         G = ((Smax-Smin)/(Sadm-Smin))*100
 
         res[d]={
@@ -147,76 +149,4 @@ res = evaluar(pct)
 # ======================
 # TOTAL VARILLAS
 # ======================
-total_varillas = df_edit["Varillas"].sum()
-st.markdown(f"### Total de varillas: **{total_varillas}**")
-
-# ======================
-# TABLA RESULTADOS
-# ======================
-data=[]
-
-for d in res:
-    r=res[d]
-
-    data.append({
-        "Diámetro":d,
-        "Varillas":r["n"],
-        "Longitud (m)":round(r["L"]*0.3048,1),
-        "Pmax (lb)":int(r["Pmax"]),
-        "Pmin (lb)":int(r["Pmin"]),
-        "Smax (ksi)":round(r["Smax"],1),
-        "Smin (ksi)":round(r["Smin"],1),
-        "Goodman (%)":int(r["G"])
-    })
-
-df=pd.DataFrame(data)
-
-# centrado + bold
-st.dataframe(
-    df.style.set_properties(**{'text-align': 'center'})
-             .applymap(lambda v: "font-weight: bold" if isinstance(v,int) else "", subset=["Goodman (%)"]),
-    use_container_width=True
-)
-
-# ======================
-# BALANCE
-# ======================
-gvals=[res[d]["G"] for d in res]
-
-st.subheader("Balance de Goodman")
-st.write(f"Mínimo: **{int(min(gvals))}%**")
-st.write(f"Máximo: **{int(max(gvals))}%**")
-st.write(f"Diferencia: **{int(max(gvals)-min(gvals))}%**")
-
-# ======================
-# GOODMAN GRAPH
-# ======================
-st.subheader("Diagrama de Goodman")
-
-x=np.linspace(0,150,200)
-
-fig,ax=plt.subplots()
-
-# curva referencia
-y=115+0.56*x
-ax.plot(x,y,label="Goodman referencia")
-
-ax.plot(x,x,'--')
-
-for d in res:
-    ax.scatter(res[d]["Smin"],res[d]["Smax"])
-    ax.text(res[d]["Smin"],res[d]["Smax"],d,fontsize=7)
-
-# eje desde origen ✅
-ax.set_xlim(left=0)
-ax.set_ylim(bottom=0)
-
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.grid(alpha=0.3)
-ax.legend()
-
-st.pyplot(fig)
-
 
