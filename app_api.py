@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("SRP + Goodman (API dinámico estable)")
+st.title("SRP + Goodman (Modelo consistente API)")
 
 # ======================
 # INPUTS
@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIAL POR TRAMO
+# SELECCIÓN POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -47,7 +47,7 @@ rod_sel={
 }
 
 # ======================
-# CORROSION
+# CORROSIÓN (NO TOCAR)
 # ======================
 st.subheader("Ambiente")
 
@@ -63,7 +63,7 @@ bsr=c3.selectbox("BSR",BSR.keys())
 cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def factor_cloruros(ppm):
-    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
@@ -79,7 +79,7 @@ def FS_material(mat,f):
     return f*0.9
 
 def goodman_corr(smin,uts,b,fs):
-    return (uts+b*smin)*fs
+    return (uts + b*smin)*fs
 
 # ======================
 # VARILLAS
@@ -99,6 +99,7 @@ L34=n34*25
 
 total=L1+L78+L34
 
+# CONTROL LONGITUD
 long_m=total*0.3048
 dif=long_m-L_m
 
@@ -109,32 +110,38 @@ with c2:
     c.metric("Dif (m)",round(dif,1))
 
 # ======================
-# SRP - API DINAMICO ESTABLE
+# PROPIEDADES
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
-Ap=np.pi*D**2/4
 
-Fo=0.433*G*L_ft*Ap
+# ======================
+# 🔥 API CORRECTO (ESTA ES LA CLAVE)
+# ======================
 
-Vp=2*S*N
-
-Fd=1 + 0.002*Vp + 0.0000007*(Vp**2)
-
-Fi=Fo*Fd
-
-# 🔥 FIX CLAVE (NO rompe cargas)
-F2=Fo*(0.15 + 0.15*(Fd-1))
-
+# peso varillas
 W_total=L_ft*2.3
-Wri=W_total*(1-0.128*G)
+Wr=W_total*(1-0.128*G)
 
-# 🔥 FIX CLAVE (no MPRL negativo absurdo)
-MPRL=max(Wri-F2,0.15*Wri)
-PPRL=Wri+Fi
+# carga hidráulica (bomba)
+Ap=np.pi*D**2/4
+Fh=0.433*G*L_ft*Ap
 
+# dinámica física (API coherente)
+Fd=(S*N/100)*(S*N/L_ft)
+
+# cargas reales
+PPRL=Wr + Fh + Fd*Wr
+MPRL=Wr - Fd*Wr
+
+# estabilizar (NO permitir locuras)
+MPRL=max(MPRL,0.3*Wr)
+
+# ======================
+# MOSTRAR CARGAS
+# ======================
 st.subheader("Cargas")
 
 c1,c2=st.columns(2)
@@ -142,13 +149,12 @@ c1.metric("PPRL (lb)",f"{int(PPRL):,}")
 c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
-# CALCULO
+# CALCULO POR TRAMO
 # ======================
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
-
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 res={}
@@ -158,7 +164,7 @@ fallo=False
 for d in pct:
 
     Pmax=PPRL-W_up[d]
-    Pmin=max(MPRL-0.6*W_up[d],0)
+    Pmin=max(MPRL-0.5*W_up[d],0)
 
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
@@ -174,10 +180,11 @@ for d in pct:
     if Smax>Sadm:
         fallo=True
 
-    Gval=((Smax-Smin)/(Sadm-Smin))*100
+    G=((Smax-Smin)/(Sadm-Smin))*100
 
-    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(Gval)]
+    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
 
+    # ranking global
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
@@ -209,7 +216,7 @@ else:
 st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
 
 # ======================
-# RECOMENDACION
+# RECOMENDACIÓN (TU REGLA EXACTA)
 # ======================
 st.subheader("Recomendación")
 
@@ -222,6 +229,7 @@ if fallo:
 st.subheader("Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
+
 fig,ax=plt.subplots()
 
 for d in res:
@@ -252,5 +260,4 @@ ax.grid()
 ax.legend()
 
 st.pyplot(fig)
-
 
