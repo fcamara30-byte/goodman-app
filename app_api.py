@@ -3,8 +3,11 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# ======================
+# CONFIG
+# ======================
 st.set_page_config(layout="wide")
-st.title("Calculo de Solicitaciones (Versión Beta)")
+st.title("SRP + Goodman (API dinámico)")
 
 # ======================
 # INPUTS
@@ -21,7 +24,7 @@ with c2:
     N=st.slider("SPM",1,20,6)
 
 # ======================
-# MATERIALES COMPLETOS
+# MATERIALES
 # ======================
 materiales={
     "DA78":{"uts_a":30,"b":0.5625},
@@ -34,7 +37,7 @@ materiales={
 }
 
 # ======================
-# SELECCION POR TRAMO
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -68,6 +71,9 @@ f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
 st.write(f"Factor de servicio: {round(f_base,3)}")
 
+# ======================
+# FUNCIONES
+# ======================
 def FS_material(mat,f):
     if f==1: return 1
     if mat=="HS97": return f
@@ -96,8 +102,9 @@ L1=n1*25
 L78=n78*25
 L34=n34*25
 
-total_ft=L1+L78+L34
-long_m=total_ft*0.3048
+total=L1+L78+L34
+
+long_m=total*0.3048
 dif=long_m-L_m
 
 with c2:
@@ -107,21 +114,23 @@ with c2:
     c.metric("Dif (m)",round(dif,1))
 
 # ======================
-# SRP
+# API DINAMICO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
 
-A=np.pi*D**2/4
-Fo=0.433*G*L_ft*A
+Ap=np.pi*D**2/4
 
-No=1800/np.sqrt(L_ft)
-Nr=N/No
+Fo=0.433*G*L_ft*Ap
 
-Fi=Fo*(1+0.3*Nr)
-F2=Fo*(0.3*Nr)
+Vp=2*S*N  # velocidad pistón
+
+Fd=1 + 0.002*Vp + 0.000001*(Vp**2)
+
+Fi=Fo*Fd
+F2=Fo*(0.3*Fd)
 
 W_total=L_ft*2.3
 Wri=W_total*(1-0.128*G)
@@ -138,7 +147,7 @@ c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 # ======================
 # CALCULO
 # ======================
-pct={"1":L1/total_ft,"7/8":L78/total_ft,"3/4":L34/total_ft}
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
@@ -168,11 +177,11 @@ for d in pct:
     if Smax>Sadm:
         fallo=True
 
-    G=((Smax-Smin)/(Sadm-Smin))*100
+    Gval=((Smax-Smin)/(Sadm-Smin))*100
 
-    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
+    res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(Gval)]
 
-    # ✅ ranking GLOBAL
+    # ranking global
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
@@ -184,68 +193,5 @@ for d in pct:
 # ======================
 st.subheader("Resultados")
 
-df=pd.DataFrame(res,index=["Material","Smin (ksi)","Smax (ksi)","Sadm (ksi)","Goodman (%)"]).T
-st.dataframe(df)
 
-# ======================
-# RANKING GLOBAL
-# ======================
-st.subheader("Ranking de varillas")
-
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
-df_rank=df_rank.sort_values(by="Margen",ascending=False)
-
-st.dataframe(df_rank)
-
-# ======================
-# RECOMENDACION
-# ======================
-st.subheader("Recomendación")
-
-if fallo:
-    st.error("Varillas revestidas + tratamiento químico")
-else:
-    if f_base==1:
-        st.success("HS97 lidera (sin corrosión)")
-    else:
-        mejor=df_rank.iloc[0]
-        st.success(f"Mejor opción: {mejor['Material']}")
-
-# ======================
-# GOODMAN
-# ======================
-st.subheader("Diagrama de Goodman")
-
-x=np.linspace(0,150,200)
-fig,ax=plt.subplots()
-
-for d in res:
-    mat=res[d][0]
-    uts=materiales[mat]["uts_a"]
-    b=materiales[mat]["b"]
-    fs=FS_material(mat,f_base)
-
-    y=goodman_corr(x,uts,b,fs)
-    ax.plot(x,y,label=f"{d}-{mat}")
-
-    Smin=res[d][1]
-    Smax=res[d][2]
-    Sadm=res[d][3]
-
-    color="green" if Smax<=Sadm else "red"
-    ax.scatter(Smin,Smax,color=color,s=70)
-
-ax.plot(x,x,'k--')
-
-ax.set_xlim(0)
-ax.set_ylim(0)
-
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.grid()
-ax.legend()
-
-st.pyplot(fig)
 
