@@ -12,30 +12,25 @@ st.title("Diseño automático de varillas + Goodman (DA78)")
 c1, c2 = st.columns(2)
 
 with c1:
-    L_m = st.number_input("Profundidad (m)", 500, 5000, 2000)
+    L_m = st.number_input("Profundidad (m)", 500, 5000, 1800)
     H_m = st.number_input("Nivel dinámico (m)", 100, 4000, 1500)
-    G = st.slider("Gravedad específica", 0.6, 1.2, 1.0)
+    G = st.slider("Gravedad específica", 0.6, 1.2, 0.96)
 
 with c2:
     D = st.selectbox("Diámetro bomba (in)", [1.5,1.75,2,2.25,2.5,2.75,3.5])
     S = st.slider("Carrera (in)", 50, 200, 100)
-    N = st.slider("SPM", 1, 20, 10)
+    N = st.slider("SPM", 1, 20, 5)
 
 # ======================
-# PROPIEDADES VARILLAS
+# PROPIEDADES
 # ======================
-areas = {"3/4":0.442, "7/8":0.601, "1":0.786}
-peso = {"3/4":1.63, "7/8":2.22, "1":2.90}
+areas = {"1":0.786, "7/8":0.601, "3/4":0.442}
 
-# ======================
-# GOODMAN
-# ======================
 UTS = 30
 b = 0.5625
-FS = 1
 
 def goodman(smin):
-    return (UTS + b * smin) * FS
+    return UTS + b*smin
 
 # ======================
 # CARGAS
@@ -46,37 +41,33 @@ H_ft = H_m * 3.28084
 A_pump = np.pi * D**2 / 4
 Fo = 0.433 * G * H_ft * A_pump
 
-# peso promedio
 W = L_ft * 2.0
 Wri = W * (1 - 0.128 * G)
 
-Fi = Fo * (1.1 + 0.01 * N)
+Fi = Fo * (1.1 + 0.01*N)
 F2 = Fo * 0.6
 
 PPRL = Wri + Fi
 MPRL = Wri - F2
 
 # ======================
-# CALCULO GOODMAN %
+# GOODMAN %
 # ======================
-def calc(g_area):
+def calc(area):
 
-    Smax = PPRL / g_area / 1000
-    Smin = MPRL / g_area / 1000
+    Smax = PPRL / area / 1000
+    Smin = MPRL / area / 1000
 
     Sadm = goodman(Smin)
 
-    if Sadm != Smin:
-        pct = ((Smax - Smin)/(Sadm - Smin))*100
-    else:
-        pct = 0
+    pct = ((Smax - Smin)/(Sadm - Smin))*100
 
     return Smin, Smax, pct
 
 # ======================
 # DISTRIBUCION BASE
 # ======================
-tabla_base = {
+tabla = {
     1.5: {"1":0.0,"7/8":0.4,"3/4":0.6},
     1.75:{"1":0.2,"7/8":0.35,"3/4":0.45},
     2.0: {"1":0.25,"7/8":0.40,"3/4":0.35},
@@ -91,41 +82,28 @@ tabla_base = {
 # ======================
 def balancear(pct):
 
-    diam = ["1","7/8","3/4"]
+    for _ in range(30):
 
-    for _ in range(40):
+        g_vals = {}
 
-        valores = []
-
-        for d in diam:
+        for d in pct:
             if pct[d] <= 0:
-                valores.append(0)
                 continue
-
             _,_,g = calc(areas[d])
-            valores.append(g)
+            g_vals[d] = g
 
-        max_i = valores.index(max(valores))
-        min_i = valores.index(min(valores))
+        if len(g_vals) < 2:
+            return pct
 
-        d_max = diam[max_i]
-        d_min = diam[min_i]
+        d_max = max(g_vals, key=g_vals.get)
+        d_min = min(g_vals, key=g_vals.get)
 
-        # si el máximo está en falla, forzar corrección
-        if valores[max_i] > 100:
+        # mover material
+        transf = 0.02
 
-            transf = 0.03
-
-            if pct[d_min] > transf:
-                pct[d_min] -= transf
-                pct[d_max] += transf
-
-        else:
-            transf = 0.015
-
-            if pct[d_min] > transf:
-                pct[d_min] -= transf
-                pct[d_max] += transf
+        if pct[d_min] > transf:
+            pct[d_min] -= transf
+            pct[d_max] += transf
 
         # normalizar
         total = sum(pct.values())
@@ -139,31 +117,91 @@ def balancear(pct):
 # ======================
 usar_auto = st.checkbox("Balance automático")
 
-base = tabla_base[D]
+pct = tabla[D].copy()
 
 if usar_auto:
-    pct = balancear(base.copy())
-else:
-    pct = base
+    pct = balancear(pct)
 
 # ======================
 # RESULTADOS
 # ======================
 st.subheader("Distribución y solicitaciones")
 
-g_vals = []
-resultados = []
+g_lista = []
+puntos = []
 
 for d in ["1","7/8","3/4"]:
 
-    if pct[d] <= 0:
+    if pct[d] <= 0.01:
         continue
 
-    A = areas[d]
+    Smin, Smax, g = calc(areas[d])
 
-    Smin, Smax, g = calc(A)
+    g_lista.append(g)
+    puntos.append((Smin,Smax,d))
 
-    g_vals.append(g)
-    resultados.append((d,Smin,Smax))
+    st.markdown(f"### {d}\" → {pct[d]*100:.0f}%")
+
+    c1,c2,c3 = st.columns(3)
+    c1.metric("Smin", f"{Smin:.1f} ksi")
+    c2.metric("Smax", f"{Smax:.1f} ksi")
+    c3.metric("Goodman", f"{g:.1f} %")
+
+    if g < 80:
+        st.info("Holgado")
+    elif g <= 100:
+        st.success("OK")
+    else:
+        st.error("SOBRECARGA")
+
+# ======================
+# BALANCE GENERAL
+# ======================
+if len(g_lista) > 1:
+
+    delta = max(g_lista) - min(g_lista)
+
+    st.subheader("Balance")
+
+    if delta < 10:
+        st.success(f"Excelente Δ={delta:.1f}%")
+    elif delta < 20:
+        st.warning(f"Aceptable Δ={delta:.1f}%")
+    else:
+        st.error(f"Desbalanceado Δ={delta:.1f}%")
+
+# ======================
+# GRAFICO
+# ======================
+if len(puntos) > 0:
+
+    st.subheader("Diagrama Goodman")
+
+    x = np.linspace(0,150,200)
+    y = goodman(x)
+
+    fig, ax = plt.subplots()
+
+    ax.plot(x,y,label="DA78")
+    ax.plot(x,x,'k--')
+
+    for p in puntos:
+        ax.scatter(p[0],p[1])
+        ax.text(p[0],p[1],p[2])
+
+    ax.set_xlabel("Smin (ksi)")
+    ax.set_ylabel("Smax (ksi)")
+    ax.grid()
+    ax.legend()
+
+    st.pyplot(fig)
+
+# ======================
+# CARGAS
+# ======================
+st.subheader("Cargas")
+
+c1,c2 = st.columns(2)
+
 
 
