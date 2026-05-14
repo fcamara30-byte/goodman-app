@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIAL
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -123,12 +123,12 @@ Fh=0.433*G*L_ft*Ap
 Fd=min((S*N)/2600,0.15)
 
 # ======================
-# PPRL (NO TOCAR)
+# PPRL
 # ======================
 PPRL = Wr + Fh + 1.45 * Fd * Wr
 
 # ======================
-# ✅ MPRL FINAL v7 (ESTABLE)
+# ✅ MPRL FINAL v8 (DEFINITIVO)
 # ======================
 E = 30_000_000
 Aeq = 0.58
@@ -147,11 +147,12 @@ prop_L = (L_ft / 6000) ** 0.22
 # hidráulica
 prop_F = (Fh / Wr) ** 0.08
 
-# descarga teórica
+# descarga base
 dF = kr * dx * prop_L * (1 + 0.35 * prop_F)
 
-# 🔥 límite físico (CLAVE)
-limite = 0.55 * Wr
+# ✅ límite dinámico final (clave)
+limite = Wr * (0.45 + 0.20 * Fd)
+
 dF = min(dF, limite)
 
 # resultado final
@@ -235,6 +236,7 @@ x=np.linspace(0,x_max,200)
 fig,ax=plt.subplots()
 
 curvas=[]
+
 for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
@@ -271,4 +273,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod.")
+st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod
