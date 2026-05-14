@@ -67,9 +67,33 @@ def f_cl(ppm):
 f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 # ======================
-# FS POR MATERIAL
+# CRITERIO FS
 # ======================
+st.subheader("Criterio de Factor de Servicio")
+
+fs_mode = st.selectbox(
+    "Seleccionar criterio",
+    ["Automático", "Conservador", "Optimista", "Manual"]
+)
+
+fs_manual={}
+if fs_mode=="Manual":
+    st.subheader("FS manual por material")
+    for mat in materiales:
+        fs_manual[mat]=st.number_input(mat,0.5,1.2,1.0,0.01)
+
 def FS_material(mat,f):
+
+    if fs_mode=="Optimista":
+        return 1
+
+    if fs_mode=="Conservador":
+        return f*0.9
+
+    if fs_mode=="Manual":
+        return fs_manual[mat]
+
+    # Automático (tu modelo)
     if f==1: return 1
     if mat=="HS97": return f
     if mat=="DA78": return f*0.95
@@ -99,14 +123,14 @@ total=L1+L78+L34
 # ======================
 st.subheader("Control de longitud")
 
-long_m = total * 0.3048
-dif = long_m - L_m
+long_m=total*0.3048
+dif=long_m-L_m
 
 st.dataframe(pd.DataFrame({
-    "Longitud pozo (m)": [int(L_m)],
-    "Longitud sarta (m)": [int(long_m)],
-    "Δ longitud (m)": [int(dif)]
-}), use_container_width=True)
+    "Longitud pozo (m)":[int(L_m)],
+    "Longitud sarta (m)":[int(long_m)],
+    "Δ longitud (m)":[int(dif)]
+}),use_container_width=True)
 
 # ======================
 # MODELO
@@ -166,9 +190,9 @@ for d in pct:
     utsa=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
 
-    Sadm = utsa*fs + b*Smin
-
+    Sadm=utsa*fs + b*Smin
     G=(Smax-Smin)/(Sadm-Smin)*100
+
     gvals.append(G)
 
     rows.append({
@@ -182,7 +206,7 @@ for d in pct:
         "Goodman (%)":int(G)
     })
 
-st.dataframe(pd.DataFrame(rows), use_container_width=True)
+st.dataframe(pd.DataFrame(rows),use_container_width=True)
 
 # ======================
 # RANKING
@@ -192,46 +216,37 @@ st.subheader("Ranking")
 ranking=[]
 
 for r in rows:
-
     Smin=r["Smin (ksi)"]
     Smax=r["Smax (ksi)"]
 
     for mat in materiales:
-
         fs=FS_material(mat,f_base)
         utsa=materiales[mat]["uts_a"]
         b=materiales[mat]["b"]
 
-        Sadm = utsa*fs + b*Smin
+        Sadm=utsa*fs + b*Smin
         ranking.append([mat,Sadm-Smax])
 
 df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
 df_rank=df_rank.groupby("Material").mean().reset_index()
 
-if f_base==1:
-    df_rank["Orden"]=df_rank["Material"].apply(lambda x:0 if x=="HS97" else 1)
-    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
-else:
-    df_rank=df_rank.sort_values(by="Margen",ascending=False)
-
 df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 
-st.dataframe(df_rank.drop(columns="Orden",errors="ignore"), use_container_width=True)
+st.dataframe(df_rank,use_container_width=True)
 
 # ======================
-# GOODMAN
+# GOODMAN INTERACTIVO
 # ======================
 st.subheader("Diagrama de Goodman")
 
-# límite físico
-x_max_list=[]
+tramo_select=st.selectbox("Seleccionar tramo",list(pct.keys()))
 
+x_max_list=[]
 for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
     utsa=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
-
     if (1-b)>0:
         x_max_list.append((utsa*fs)/(1-b))
 
@@ -243,7 +258,6 @@ fig,ax=plt.subplots()
 curvas=[]
 
 for d in pct:
-
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
     utsa=materiales[mat]["uts_a"]
@@ -252,10 +266,13 @@ for d in pct:
     y=utsa*fs + b*x
     curvas.append(y)
 
-    ax.plot(x,y,label=f"{d}-{mat}")
+    if d==tramo_select:
+        ax.plot(x,y,linewidth=3)
+        fs_selected=fs
+    else:
+        ax.plot(x,y,alpha=0.5)
 
 y_safe=np.minimum.reduce(curvas)
-
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.15,color="green")
 
 for r in rows:
@@ -266,10 +283,8 @@ ax.plot(x,x,color="black")
 ax.set_xlim(0,x_max)
 ax.set_ylim(0,x_max)
 
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.legend(fontsize=8)
+ax.text(0.02,0.95,f"FS tramo {tramo_select}: {fs_selected:.2f}",
+        transform=ax.transAxes,fontsize=9)
 
 st.pyplot(fig)
 
