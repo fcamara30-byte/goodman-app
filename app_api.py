@@ -67,10 +67,9 @@ def f_cl(ppm):
 f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 # ======================
-# FS AUTOMÁTICO (TU MODELO)
+# FS AUTOMÁTICO
 # ======================
 def FS_material(mat,f):
-
     if f==1: return 1
     if mat=="HS97": return f
     if mat=="DA78": return f*0.95
@@ -110,7 +109,7 @@ st.dataframe(pd.DataFrame({
 }),use_container_width=True)
 
 # ======================
-# MODELO
+# MODELO BASE
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
@@ -124,7 +123,31 @@ Fh=0.433*G*L_ft*Ap
 Fd=min((S*N)/2600,0.15)
 
 PPRL=Wr+Fh+1.45*Fd*Wr
-MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
+
+# ======================
+# 🔥 MPRL MODELO V3 (MEJORADO)
+# ======================
+E = 30_000_000
+Aeq = 0.65
+L_in = L_ft * 12
+
+kr = (Aeq * E) / L_in
+
+# dinámica no lineal
+C = 0.55
+alpha = 0.75
+dx = C * S * (Fd**alpha)
+
+# efecto longitud
+prop_L = (L_ft / 6000) ** 0.3
+
+# efecto hidráulico (clave)
+prop_F = (Fh / Wr) ** 0.15
+
+# carga dinámica total
+dF = kr * dx * prop_L * (1 + prop_F)
+
+MPRL = max(Wr - dF, 0)
 
 # ======================
 # CARGAS
@@ -234,13 +257,8 @@ ax.plot(x,x,color="black")
 ax.set_xlim(0,x_max)
 ax.set_ylim(0,x_max)
 
-# 🔥 TEXTO FINAL CORRECTO
-ax.text(
-    0.02, 0.95,
-    f"Factor de Servicio: {fs_selected:.2f}",
-    transform=ax.transAxes,
-    fontsize=9
-)
+ax.text(0.02,0.95,f"Factor de Servicio: {fs_selected:.2f}",
+        transform=ax.transAxes,fontsize=9)
 
 st.pyplot(fig)
 
@@ -248,4 +266,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
+st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado.")
