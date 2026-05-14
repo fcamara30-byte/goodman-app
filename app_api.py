@@ -209,3 +209,58 @@ st.dataframe(df, use_container_width=True)
 # ======================
 st.subheader("Ranking de varillas")
 
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
+df_rank=df_rank.groupby("Material").mean().reset_index()
+
+if f_base==1:
+    df_rank["Orden"]=df_rank["Material"].apply(lambda x: 0 if x=="HS97" else 1)
+    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
+else:
+    df_rank=df_rank.sort_values(by="Margen",ascending=False)
+
+st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
+
+# ======================
+# RECOMENDACION
+# ======================
+st.subheader("Recomendación")
+
+if fallo:
+    st.error("Varillas revestidas + tratamiento químico")
+
+# ======================
+# GOODMAN
+# ======================
+st.subheader("Diagrama de Goodman")
+
+x=np.linspace(0,150,200)
+fig,ax=plt.subplots()
+
+for d in res:
+    mat=res[d][0]
+    uts=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+    fs=FS_material(mat,f_base)
+
+    y=goodman_corr(x,uts,b,fs)
+    ax.plot(x,y,label=f"{d}-{mat}")
+
+    Smin=res[d][1]
+    Smax=res[d][2]
+    Sadm=res[d][3]
+
+    color="green" if Smax<=Sadm else "red"
+    ax.scatter(Smin,Smax,color=color,s=70)
+
+ax.plot(x,x,'k--')
+
+ax.set_xlim(0)
+ax.set_ylim(0)
+
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+ax.grid()
+ax.legend()
+
+st.pyplot(fig)
