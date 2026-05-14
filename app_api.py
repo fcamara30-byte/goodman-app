@@ -9,19 +9,19 @@ st.title("Calculo de Solicitaciones (Versión Beta)")
 # ======================
 # INPUTS
 # ======================
-c1, c2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-with c1:
+with col1:
     L_m = st.number_input("Profundidad (m)", 500, 5000, 1800)
     G = st.slider("Gravedad específica", 0.6, 1.2, 0.95)
 
-with c2:
+with col2:
     D = st.selectbox("Bomba (in)", [1.5,1.75,2,2.25,2.5])
     S = st.slider("Carrera (in)", 50, 200, 168)
     N = st.slider("SPM", 1, 20, 6)
 
 # ======================
-# BASE MATERIALES (TUYA)
+# MATERIALES (TU BASE)
 # ======================
 materiales = {
     "DA78":{"uts_a":30,"b":0.5625},
@@ -33,12 +33,15 @@ materiales = {
     "HA96":{"uts_a":50,"b":0.375}
 }
 
+# ======================
+# FACTORES CORROSION
+# ======================
 CO2={"Nada":1,"Bajo":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
 def factor_cloruros(ppm):
-    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
 
 def FS_material(mat,f):
     if f==1: return 1
@@ -54,11 +57,12 @@ def goodman_corr(smin,uts,b,fs):
     return (uts + b*smin)*fs
 
 # ======================
-# SELECCION MATERIAL POR TRAMO
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
+
 rod_sel = {
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
@@ -66,7 +70,7 @@ rod_sel = {
 }
 
 # ======================
-# CORROSION
+# AMBIENTE
 # ======================
 st.subheader("Ambiente")
 
@@ -80,7 +84,7 @@ cl = c4.number_input("Cloruros ppm",0,200000,0)
 f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
 # ======================
-# SARTA
+# VARILLAS
 # ======================
 st.subheader("Varillas")
 
@@ -90,6 +94,24 @@ df = pd.DataFrame({
 })
 
 df = st.data_editor(df, use_container_width=True)
+df = df.reset_index(drop=True)
+
+# ======================
+# CONTROL TABLA
+# ======================
+try:
+    L1 = float(df.loc[0,"Varillas"])*25
+    L78 = float(df.loc[1,"Varillas"])*25
+    L34 = float(df.loc[2,"Varillas"])*25
+except:
+    st.error("Error en tabla de varillas")
+    st.stop()
+
+total = L1 + L78 + L34
+
+if total == 0:
+    st.warning("Ingresar varillas")
+    st.stop()
 
 # ======================
 # PROPIEDADES
@@ -100,7 +122,7 @@ peso  = {"1":2.90,"7/8":2.22,"3/4":1.63}
 L_ft = L_m * 3.28084
 
 # ======================
-# API – CARGAS
+# API BASICO (ESTABLE)
 # ======================
 A = np.pi*D**2/4
 Fo = 0.433 * G * L_ft * A
@@ -109,7 +131,6 @@ E = 30e6
 A_avg = 0.6
 
 Skr = (A_avg * E)/L_ft
-
 No = 1800/np.sqrt(L_ft)
 Nr = N/No
 
@@ -123,29 +144,27 @@ PPRL = Wri + Fi
 MPRL = Wri - F2
 
 # ======================
-# DISTRIBUCION SARTA
+# DISTRIBUCION
 # ======================
-L1 = df.loc[0,"Varillas"]*25
-L78 = df.loc[1,"Varillas"]*25
-L34 = df.loc[2,"Varillas"]*25
-
-total = L1 + L78 + L34
-
 pct = {
     "1":L1/total,
     "7/8":L78/total,
     "3/4":L34/total
 }
 
+W1 = pct["1"] * L_ft * peso["1"]
+W78 = pct["7/8"] * L_ft * peso["7/8"]
+
+W_up = {
+    "1":0,
+    "7/8":W1,
+    "3/4":W1 + W78
+}
+
 # ======================
-# CALCULO POR TRAMO + CORROSION
+# CALCULO FINAL
 # ======================
 res = {}
-
-W1 = pct["1"]*L_ft*peso["1"]
-W78 = pct["7/8"]*L_ft*peso["7/8"]
-
-W_up = {"1":0,"7/8":W1,"3/4":W1+W78}
 
 for d in pct:
 
@@ -162,18 +181,68 @@ for d in pct:
     Smax = Pmax/areas[d]/1000
     Smin = Pmin/areas[d]/1000
 
-    Sadm = goodman_corr(Smin,uts,b,fs_mat)
+    Sadm = goodman_corr(Smin, uts, b, fs_mat)
 
-    Gval = ((Smax-Smin)/(Sadm-Smin))*100
+    G = ((Smax-Smin)/(Sadm-Smin))*100
 
     res[d] = {
         "Material":mat,
-        "Smax":Smax,
         "Smin":Smin,
+        "Smax":Smax,
         "Sadm":Sadm,
-        "Goodman %":Gval
+        "%Goodman":G
     }
 
 # ======================
-# TABLA RESULTADOS
+# RESULTADOS
+# ======================
+st.subheader("Resultados por tramo")
 
+tabla = []
+for d in res:
+    r = res[d]
+    tabla.append({
+        "Tramo":d,
+        "Material":r["Material"],
+        "Smin":round(r["Smin"],1),
+        "Smax":round(r["Smax"],1),
+        "Sadm":round(r["Sadm"],1),
+        "%Goodman":int(r["%Goodman"])
+    })
+
+st.dataframe(pd.DataFrame(tabla), use_container_width=True)
+
+st.markdown(f"### Total de varillas: **{int(df['Varillas'].sum())}**")
+
+# ======================
+# DIAGRAMA GOODMAN
+# ======================
+st.subheader("Diagrama de Goodman")
+
+x = np.linspace(0,150,200)
+
+fig, ax = plt.subplots()
+
+for d in res:
+    mat = res[d]["Material"]
+    uts = materiales[mat]["uts_a"]
+    b   = materiales[mat]["b"]
+    fs_mat = FS_material(mat,f_base)
+
+    y = goodman_corr(x,uts,b,fs_mat)
+    ax.plot(x,y,label=f"{d}-{mat}")
+
+    ax.scatter(res[d]["Smin"],res[d]["Smax"])
+
+ax.plot(x,x,'k--')
+
+ax.set_xlim(0)
+ax.set_ylim(0)
+
+ax.set_xlabel("Smin")
+ax.set_ylabel("Smax")
+
+ax.grid()
+ax.legend()
+
+st.pyplot(fig)
