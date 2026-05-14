@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIALES POR TRAMO
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -64,10 +64,10 @@ cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 def f_cl(ppm):
     return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
 
-f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
+f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 # ======================
-# FS MATERIAL
+# FS POR MATERIAL
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
@@ -102,14 +102,11 @@ st.subheader("Control de longitud")
 long_m = total * 0.3048
 dif = long_m - L_m
 
-st.dataframe(
-    pd.DataFrame({
-        "Longitud pozo (m)": [int(L_m)],
-        "Longitud sarta (m)": [int(long_m)],
-        "Δ longitud (m)": [int(dif)]
-    }),
-    use_container_width=True
-)
+st.dataframe(pd.DataFrame({
+    "Longitud pozo (m)": [int(L_m)],
+    "Longitud sarta (m)": [int(long_m)],
+    "Δ longitud (m)": [int(dif)]
+}), use_container_width=True)
 
 # ======================
 # MODELO
@@ -118,7 +115,6 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
-
 Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
@@ -178,6 +174,7 @@ for d in pct:
     rows.append({
         "Tramo":d,
         "Material":mat,
+        "FS":round(fs,2),
         "Max Load (lb)":int(Pmax),
         "Min Load (lb)":int(Pmin),
         "Smax (ksi)":round(Smax,1),
@@ -185,7 +182,7 @@ for d in pct:
         "Goodman (%)":int(G)
     })
 
-st.dataframe(pd.DataFrame(rows),use_container_width=True)
+st.dataframe(pd.DataFrame(rows), use_container_width=True)
 
 # ======================
 # RANKING
@@ -205,7 +202,7 @@ for r in rows:
         utsa=materiales[mat]["uts_a"]
         b=materiales[mat]["b"]
 
-        Sadm=utsa*fs + b*Smin
+        Sadm = utsa*fs + b*Smin
         ranking.append([mat,Sadm-Smax])
 
 df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
@@ -219,26 +216,26 @@ else:
 
 df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 
-st.dataframe(df_rank.drop(columns="Orden",errors="ignore"),use_container_width=True)
+st.dataframe(df_rank.drop(columns="Orden",errors="ignore"), use_container_width=True)
 
 # ======================
-# GOODMAN PRO (TRIANGULAR)
+# GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
 # límite físico
-x_max_list = []
+x_max_list=[]
 
 for d in pct:
-    mat = rod_sel[d]
-    fs  = FS_material(mat, f_base)
-    utsa = materiales[mat]["uts_a"]
-    b    = materiales[mat]["b"]
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
 
-    if (1 - b) > 0:
-        x_max_list.append((utsa * fs) / (1 - b))
+    if (1-b)>0:
+        x_max_list.append((utsa*fs)/(1-b))
 
-x_max = min(x_max_list)
+x_max=min(x_max_list)
 x=np.linspace(0,x_max,200)
 
 fig,ax=plt.subplots()
@@ -249,7 +246,6 @@ for d in pct:
 
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
-
     utsa=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
 
@@ -273,7 +269,8 @@ ax.set_ylim(0,x_max)
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
-ax.text(0.02,0.95,f"f_base = {f_base:.2f}",transform=ax.transAxes)
+ax.legend(fontsize=8)
+
 st.pyplot(fig)
 
 # ======================
@@ -281,3 +278,4 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
+
