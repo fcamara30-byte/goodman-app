@@ -4,7 +4,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-
 st.title("Cálculo de Solicitaciones en Sistemas SRP")
 
 # ======================
@@ -14,7 +13,6 @@ st.markdown("""
 <style>
 div[data-baseweb="input"] {max-width:90px;}
 div[data-baseweb="select"] {max-width:140px;}
-th {font-weight:bold !important;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -46,11 +44,12 @@ materiales={
 }
 
 # ======================
-# MATERIALES POR TRAMO
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
+
 rod_sel={
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
@@ -74,7 +73,7 @@ bsr=c3.selectbox("BSR (Caldos +)",BSR.keys())
 cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def factor_cloruros(ppm):
-    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
@@ -99,6 +98,7 @@ def goodman(smin,uts,b,fs):
 st.subheader("Varillas")
 
 c1,c2,c3 = st.columns(3)
+
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
 n34=c3.number_input('3/4"',10,300,80)
@@ -107,20 +107,6 @@ L1=n1*25
 L78=n78*25
 L34=n34*25
 total=L1+L78+L34
-
-# ======================
-# CONTROL LONGITUD
-# ======================
-st.subheader("Control de longitud")
-
-long_m=total*0.3048
-dif=long_m-L_m
-
-st.dataframe(pd.DataFrame({
-    "Longitud pozo (m)":[int(L_m)],
-    "Longitud sarta (m)":[int(long_m)],
-    "Δ longitud (m)":[int(dif)]
-}),use_container_width=True)
 
 # ======================
 # MODELO
@@ -140,16 +126,17 @@ PPRL=Wr+Fh+1.45*Fd*Wr
 MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
 
 # ======================
-# CARGAS
+# CARGAS PRO (AGRUPADAS)
 # ======================
 st.subheader("Cargas")
-st.dataframe(pd.DataFrame({
-    "PPRL (lb)":[int(PPRL)],
-    "MPRL (lb)":[int(MPRL)]
-}),use_container_width=True)
+
+st.markdown(f"""
+### **PPRL: {int(PPRL):,} lb**  
+### **MPRL: {int(MPRL):,} lb**
+""")
 
 # ======================
-# RESULTADOS (FORMATO API)
+# RESULTADOS API
 # ======================
 st.subheader("Resultados por tramo")
 
@@ -195,77 +182,61 @@ for d in pct:
 st.dataframe(pd.DataFrame(rows),use_container_width=True)
 
 # ======================
-# RANKING
+# RANKING (FIX BUG)
 # ======================
 st.subheader("Ranking")
 
 ranking=[]
 
 for r in rows:
-    Smin=float(r["MIN STRESS (psi)"])/1000
-    Smax=float(r["MAX STRESS (psi)"])/1000
+
+    Smin=float(r["MIN STRESS (psi)"].replace(",",""))/1000
+    Smax=float(r["MAX STRESS (psi)"].replace(",",""))/1000
 
     for mat in materiales:
         fs=FS_material(mat,f_base)
         Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
         ranking.append([mat,Sadm-Smax])
 
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"]).groupby("Material").mean().reset_index()
-
-if f_base==1:
-    df_rank["Orden"]=df_rank["Material"].apply(lambda x:0 if x=="HS97" else 1)
-    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
-else:
-    df_rank=df_rank.sort_values(by="Margen",ascending=False)
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
+df_rank=df_rank.groupby("Material").mean().reset_index()
 
 df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 
-st.dataframe(df_rank.drop(columns="Orden",errors="ignore"),use_container_width=True)
+st.dataframe(df_rank,use_container_width=True)
 
 # ======================
-# GOODMAN PRO (CORREGIDO)
+# GOODMAN (YA CORRECTO)
 # ======================
 st.subheader("Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
 
-# curvas
+curvas=[]
+
 for r in rows:
     mat=r["ROD TYPE"]
     fs=FS_material(mat,f_base)
     uts=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
-    ax.plot(x,(uts + b*x)*fs,label=mat)
 
-# zona segura
-curvas=[(materiales[r["ROD TYPE"]]["uts_a"] + materiales[r["ROD TYPE"]]["b"]*x)*FS_material(r["ROD TYPE"],f_base) for r in rows]
+    y=(uts+b*x)*fs
+    curvas.append(y)
+    ax.plot(x,y,label=mat)
+
 y_safe=np.minimum.reduce(curvas)
 ax.fill_between(x,0,y_safe,alpha=0.1,color="green")
 
-# puntos + crítico
-maxg=max(gvals)
-crit=rows[gvals.index(maxg)]
-
 for r in rows:
-    smin=float(r["MIN STRESS (psi)"])/1000
-    smax=float(r["MAX STRESS (psi)"])/1000
+    smin=float(r["MIN STRESS (psi)"].replace(",",""))/1000
+    smax=float(r["MAX STRESS (psi)"].replace(",",""))/1000
     ax.scatter(smin,smax,s=60)
-
-ax.scatter(float(crit["MIN STRESS (psi)"])/1000,
-           float(crit["MAX STRESS (psi)"])/1000,
-           color="red",s=140,edgecolor="black",label="Crítico")
 
 ax.plot(x,x,color="black")
 
 ax.set_xlim(0)
 ax.set_ylim(0)
-
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.text(0.05,0.95,f"FS: {f_base:.2f}",transform=ax.transAxes)
-
 ax.legend(fontsize=8)
 
 st.pyplot(fig)
@@ -274,4 +245,8 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Las conclusiones y resultados son orientativas basadas en API RP11L y experiencia en fluidos corrosivos.")
+
+st.caption(
+    "Las conclusiones y resultados son orientativas, basadas en las fórmulas de API RP11L "
+    "y en la experiencia de uso de varillas en fluidos corrosivos."
+)
