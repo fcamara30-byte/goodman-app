@@ -20,9 +20,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ======================
 # HEADER
-# ======================
 c1, c2 = st.columns([6,2])
 c1.markdown('<div class="titulo-apex">Goodman – Fatiga y Corrosión</div>', unsafe_allow_html=True)
 c2.markdown('<div class="marca-apex">APEX</div>', unsafe_allow_html=True)
@@ -57,7 +55,7 @@ def FS_material(mat, f):
     if mat=="DA78": return f*0.95
     elif mat=="HS97": return f
     elif mat=="CS propietario": return f*0.96
-    elif mat=="HS propietario": return f*0.80
+    elif mat=="HS propietario": return f*0.80  # ✅ actualizado
     elif mat=="D New": return f*0.94
     elif mat=="DSK75": return f if f<0.83 else 1
     elif mat=="HA96": return f*0.93
@@ -90,13 +88,13 @@ with l:
     smax_user = st.slider("Smax (ksi)", 0, 150, 50)
 
 # ======================
-# CALCULO
+# CÁLCULOS
 # ======================
 f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl_ppm)
 smin = np.linspace(0,150,200)
 
 # ======================
-# GRAFICO
+# GRÁFICO
 # ======================
 with r:
 
@@ -108,53 +106,62 @@ with r:
 
         y = goodman(smin, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
         sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
-
         margen = sadm - smax_user
 
-        ranking.append({
-            "Material": mat,
-            "FS": fs,
-            "Sadm": sadm,
-            "Margen": margen
-        })
+        ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
 
         if mat == material:
-            ax.plot(smin, y, color='blue', linewidth=3)
+            ax.plot(smin,y,color='blue',linewidth=3)
         else:
-            ax.plot(smin, y, color='gray', alpha=0.2)
+            ax.plot(smin,y,color='gray',alpha=0.2)
 
-    ax.plot(smin, smin, 'k--')
-    ax.scatter(smin_user, smax_user, color="red", s=60)
-
+    ax.plot(smin,smin,'k--')
+    ax.scatter(smin_user,smax_user,color="red",s=60)
     ax.set_xlim(0,150)
     ax.set_ylim(0,150)
-
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
     ax.grid()
     plt.tight_layout()
-
     st.pyplot(fig)
 
     df = pd.DataFrame(ranking)
 
-    # ✅ RANKING CORREGIDO
-    if f_base == 1:
-        orden = ["HS97","HA96","DSK75","CS propietario","HS propietario","D New","DA78"]
-        df["orden"] = df["Material"].apply(lambda x: orden.index(x) if x in orden else 999)
-        df = df.sort_values("orden")
-    else:
-        df = df.sort_values(by="Margen", ascending=False)
-
-    df["%Goodman"] = ((smax_user - smin_user)/(df["Sadm"] - smin_user)) * 100
+    # ======================
+    # RANKING POR MARGEN
+    # ======================
+    df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
     # ======================
-    # RANKING
+    # REGLA HS97
     # ======================
+    if "HS97" in df["Material"].values:
+        pos_hs97 = df.index[df["Material"]=="HS97"][0]
+
+        for mat_lim in ["CS propietario","HS propietario"]:
+            if mat_lim in df["Material"].values:
+
+                pos_lim = df.index[df["Material"]==mat_lim][0]
+
+                if pos_hs97 > pos_lim:
+                    fila = df[df["Material"]=="HS97"]
+                    df = df.drop(df[df["Material"]=="HS97"].index)
+
+                    df = pd.concat([
+                        df.iloc[:pos_lim],
+                        fila,
+                        df.iloc[pos_lim:]
+                    ]).reset_index(drop=True)
+
+                    pos_hs97 = df.index[df["Material"]=="HS97"][0]
+
+    # % Goodman
+    df["%Goodman"] = ((smax_user - smin_user)/(df["Sadm"] - smin_user))*100
+
     st.markdown('<div class="subtitulo">Ranking de Varillas sugeridas (de acuerdo a condición elegida)</div>', unsafe_allow_html=True)
 
     st.dataframe(
-        df.drop(columns=["orden"], errors="ignore").style.format({
+        df.style.format({
             "FS":"{:.3f}",
             "Sadm":"{:.1f}",
             "Margen":"{:.1f}",
@@ -169,7 +176,7 @@ with r:
     fs_sel = FS_material(material, f_base)
     sadm_user = goodman(smin_user, materiales[material]["uts_a"], materiales[material]["b"], fs_sel)
 
-    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100 if sadm_user != smin_user else 0
+    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100 if sadm_user!=smin_user else 0
 
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
     st.markdown('<div class="box">', unsafe_allow_html=True)
@@ -183,7 +190,7 @@ with r:
     st.markdown('</div>', unsafe_allow_html=True)
 
     # ======================
-    # RECOMENDACION
+    # RECOMENDACIÓN
     # ======================
     mejor = df.iloc[0]
 
@@ -201,9 +208,7 @@ with r:
         file="reporte_goodman.pdf"
         c=canvas.Canvas(file,pagesize=letter)
 
-        c.setFont("Helvetica-Bold",14)
         c.drawString(50,750,"Goodman - Fatiga y Corrosion")
-
         c.drawString(400,750,"APEX")
 
         fecha=datetime.datetime.now().strftime("%d/%m/%Y")
@@ -227,5 +232,5 @@ with r:
 
     if st.button("Generar PDF"):
         file = generar_pdf()
-        with open(file, "rb") as f:
-            st.download_button("Descargar PDF", f, "reporte_goodman.pdf")
+        with open(file,"rb") as f:
+            st.download_button("Descargar PDF",f,"reporte_goodman.pdf")
