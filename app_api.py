@@ -21,18 +21,20 @@ with c2:
     N=st.slider("SPM",1,20,6)
 
 # ======================
-# MATERIALES
+# MATERIALES COMPLETOS
 # ======================
 materiales={
     "DA78":{"uts_a":30,"b":0.5625},
     "HS97":{"uts_a":50,"b":0.375},
     "CS propietario":{"uts_a":44.64,"b":0.375},
     "HS propietario":{"uts_a":55.36,"b":0.375},
-    "DSK75":{"uts_a":42.86,"b":0.375}
+    "DSK75":{"uts_a":42.86,"b":0.375},
+    "HA96":{"uts_a":50,"b":0.375},
+    "D New":{"uts_a":42.86,"b":0.375}
 }
 
 # ======================
-# SELECCIÓN MATERIAL
+# SELECCION POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -71,6 +73,8 @@ def FS_material(mat,f):
     if mat=="HS97": return f
     if mat=="DA78": return f*0.95
     if mat=="DSK75": return f if f<0.83 else 1
+    if mat=="HA96": return f*0.93
+    if mat=="D New": return f*0.94
     return f*0.9
 
 def goodman_corr(smin,uts,b,fs):
@@ -81,9 +85,9 @@ def goodman_corr(smin,uts,b,fs):
 # ======================
 st.subheader("Varillas")
 
-col1,col2=st.columns([1,2])
+c1,c2=st.columns([1,2])
 
-with col1:
+with c1:
     n1=st.number_input('1"',10,300,75)
     n78=st.number_input('7/8"',10,300,80)
     n34=st.number_input('3/4"',10,300,80)
@@ -96,25 +100,14 @@ total_ft=L1+L78+L34
 long_m=total_ft*0.3048
 dif=long_m-L_m
 
-# ✅ CONTROL PROFUNDIDAD (RESTAURADO)
-with col2:
-
-    st.subheader("Control de longitud")
-
+with c2:
     a,b,c=st.columns(3)
     a.metric("Pozo (m)",round(L_m,1))
     b.metric("Sarta (m)",round(long_m,1))
     c.metric("Dif (m)",round(dif,1))
 
-    if abs(dif)<10:
-        st.success("Sarta OK")
-    elif dif<0:
-        st.warning("Faltan varillas")
-    else:
-        st.error("Exceso de sarta")
-
 # ======================
-# SRP (CARGAS)
+# SRP
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
@@ -136,19 +129,20 @@ Wri=W_total*(1-0.128*G)
 PPRL=Wri+Fi
 MPRL=Wri-F2
 
-st.subheader("Cargas en vástago")
+st.subheader("Cargas")
 
 c1,c2=st.columns(2)
 c1.metric("PPRL (lb)",f"{int(PPRL):,}")
 c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
-# CALCULO POR TRAMO
+# CALCULO
 # ======================
 pct={"1":L1/total_ft,"7/8":L78/total_ft,"3/4":L34/total_ft}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
+
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 res={}
@@ -157,16 +151,17 @@ fallo=False
 
 for d in pct:
 
-    mat=rod_sel[d]
-    uts=materiales[mat]["uts_a"]
-    b=materiales[mat]["b"]
-    fs=FS_material(mat,f_base)
-
     Pmax=PPRL-W_up[d]
     Pmin=max(MPRL-0.6*W_up[d],0)
 
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
+
+    mat=rod_sel[d]
+
+    uts=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+    fs=FS_material(mat,f_base)
 
     Sadm=goodman_corr(Smin,uts,b,fs)
 
@@ -177,12 +172,12 @@ for d in pct:
 
     res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
 
-    # ranking
+    # ✅ ranking GLOBAL
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
         Sadm=goodman_corr(Smin,uts,materiales[mat]["b"],fs)
-        ranking.append([d,mat,Sadm-Smax])
+        ranking.append([mat,Sadm-Smax])
 
 # ======================
 # RESULTADOS
@@ -190,17 +185,18 @@ for d in pct:
 st.subheader("Resultados")
 
 df=pd.DataFrame(res,index=["Material","Smin (ksi)","Smax (ksi)","Sadm (ksi)","Goodman (%)"]).T
-st.dataframe(df, use_container_width=True)
+st.dataframe(df)
 
 # ======================
-# RANKING
+# RANKING GLOBAL
 # ======================
-st.subheader("Ranking de materiales")
+st.subheader("Ranking de varillas")
 
-df_rank=pd.DataFrame(ranking,columns=["Tramo","Material","Margen"])
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
+df_rank=df_rank.groupby("Material").mean().reset_index()
 df_rank=df_rank.sort_values(by="Margen",ascending=False)
 
-st.dataframe(df_rank, use_container_width=True)
+st.dataframe(df_rank)
 
 # ======================
 # RECOMENDACION
@@ -214,10 +210,10 @@ else:
         st.success("HS97 lidera (sin corrosión)")
     else:
         mejor=df_rank.iloc[0]
-        st.success(f"Material recomendado: {mejor['Material']}")
+        st.success(f"Mejor opción: {mejor['Material']}")
 
 # ======================
-# GOODMAN (FINAL BIEN)
+# GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
