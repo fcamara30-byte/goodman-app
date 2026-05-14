@@ -7,7 +7,7 @@ st.set_page_config(layout="wide")
 st.title("Cálculo de Solicitaciones en Sistemas SRP")
 
 # ======================
-# ESTILO
+# ESTILO COMPACTO
 # ======================
 st.markdown("""
 <style>
@@ -44,7 +44,7 @@ materiales={
 }
 
 # ======================
-# SELECCIÓN
+# MATERIAL
 # ======================
 st.subheader("Material por tramo")
 
@@ -77,6 +77,9 @@ def factor_cloruros(ppm):
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
+# ======================
+# FUNCIONES
+# ======================
 def FS_material(mat,f):
     if f==1: return 1
     if mat=="HS97": return f
@@ -128,7 +131,6 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
-
 Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
@@ -149,7 +151,7 @@ st.dataframe(pd.DataFrame({
 }),use_container_width=True)
 
 # ======================
-# RESULTADOS (FORMATO API)
+# RESULTADOS API
 # ======================
 st.subheader("Resultados por tramo")
 
@@ -161,6 +163,8 @@ W78=pct["7/8"]*L_ft*peso["7/8"]
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
+
+g_values=[]
 
 for d in pct:
 
@@ -179,6 +183,7 @@ for d in pct:
     Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
 
     G=(Smax-Smin)/(Sadm-Smin)*100
+    g_values.append(G)
 
     rows.append({
         "Rod Type":mat,
@@ -190,8 +195,7 @@ for d in pct:
         "Goodman (%)":int(G)
     })
 
-df_res=pd.DataFrame(rows)
-st.dataframe(df_res,use_container_width=True)
+st.dataframe(pd.DataFrame(rows),use_container_width=True)
 
 # ======================
 # RANKING
@@ -200,20 +204,14 @@ st.subheader("Ranking")
 
 ranking=[]
 
-for d in pct:
+for r in rows:
 
-    Smin=res = rows[list(pct.keys()).index(d)]["Min Stress (psi)"]
-    Smin=float(Smin)/1000
-
-    Smax=row = rows[list(pct.keys()).index(d)]["Max Stress (psi)"]
-    Smax=float(Smax)/1000
+    Smin=float(r["Min Stress (psi)"])/1000
+    Smax=float(r["Max Stress (psi)"])/1000
 
     for mat in materiales:
-
         fs=FS_material(mat,f_base)
-
         Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
-
         ranking.append([mat,Sadm-Smax])
 
 df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
@@ -230,34 +228,52 @@ df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 st.dataframe(df_rank.drop(columns="Orden",errors="ignore"),use_container_width=True)
 
 # ======================
-# GOODMAN
+# GOODMAN PRO
 # ======================
 st.subheader("Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
 
-for d in pct:
+max_G=max(g_values)
+crit_idx=g_values.index(max_G)
+crit_row=rows[crit_idx]
 
-    row = rows[list(pct.keys()).index(d)]
+for r in rows:
 
-    mat=row["Rod Type"]
-    smin=float(row["Min Stress (psi)"])/1000
-    smax=float(row["Max Stress (psi)"])/1000
-
+    mat=r["Rod Type"]
     fs=FS_material(mat,f_base)
     uts=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
 
-    y=goodman(x,uts,b,fs)
+    y=(uts + b*x)*fs
+    ax.plot(x,y,label=mat)
 
-    ax.plot(x,y,label=f"{d}-{mat}")
+# zona segura
+y_safe=min([(materiales[r["Rod Type"]]["uts_a"] + materiales[r["Rod Type"]]["b"]*x)*FS_material(r["Rod Type"],f_base) for r in rows])
+ax.fill_between(x,0,y_safe,alpha=0.1,color="green")
+
+# puntos
+for r in rows:
+    smin=float(r["Min Stress (psi)"])/1000
+    smax=float(r["Max Stress (psi)"])/1000
     ax.scatter(smin,smax,s=60)
+
+# punto crítico
+smin=float(crit_row["Min Stress (psi)"])/1000
+smax=float(crit_row["Max Stress (psi)"])/1000
+ax.scatter(smin,smax,color="red",s=140,edgecolor="black",label="Crítico")
+
+# línea 45°
+ax.plot(x,x,color="black")
 
 ax.set_xlim(0)
 ax.set_ylim(0)
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
+
+ax.text(0.05,0.95,f"FS: {f_base:.2f}",transform=ax.transAxes)
+
 ax.legend(fontsize=8)
 
 st.pyplot(fig)
