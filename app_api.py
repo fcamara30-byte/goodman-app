@@ -4,46 +4,27 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
+
 st.title("Cálculo de Solicitaciones en Sistemas SRP")
 
 # ======================
-# ESTILO PRO (REAL)
+# ESTILO (COMPACTO PERO USABLE)
 # ======================
 st.markdown("""
 <style>
 
-.block-container {
-    max-width: 700px;
-    margin: auto;
-}
-
-div[data-testid="stMetric"] {
-    text-align: center;
-}
-
-/* inputs chicos reales */
-input {
-    width: 60px !important;
-    text-align: center !important;
-}
-
-/* selectores chicos */
 div[data-baseweb="select"] {
-    width: 110px !important;
-    margin: auto;
+    max-width: 140px;
 }
 
-/* tablas centradas */
+input {
+    max-width: 80px !important;
+}
+
 table {
-    margin: auto;
-    text-align: center;
-    font-size: 12px;
-}
-
-/* títulos */
-h3 {
-    text-align: center;
-    font-size: 16px;
+    width:100%;
+    text-align:center;
+    font-size:13px;
 }
 
 </style>
@@ -52,16 +33,14 @@ h3 {
 # ======================
 # INPUTS
 # ======================
-c1,c2 = st.columns(2)
+c1,c2,c3,c4 = st.columns(4)
 
-with c1:
-    L_m = st.number_input("Longitud pozo (m)",500,5000,1800)
-    G = st.slider("Gravedad específica",0.6,1.2,0.95)
+L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
+G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
+D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+N   = c4.slider("SPM",1,20,6)
 
-with c2:
-    D = st.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
-    S = st.slider("Carrera (in)",50,200,168)
-    N = st.slider("SPM",1,20,6)
+S = st.slider("Carrera (in)",50,200,168)
 
 # ======================
 # MATERIALES
@@ -77,9 +56,9 @@ materiales={
 }
 
 # ======================
-# SELECCIÓN
+# MATERIAL POR TRAMO
 # ======================
-st.markdown("### Material por tramo")
+st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
 rod_sel={
@@ -91,7 +70,7 @@ rod_sel={
 # ======================
 # CORROSIÓN
 # ======================
-st.markdown("### Ambiente")
+st.subheader("Ambiente")
 
 CO2={"Nada":1,"Bajo":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
@@ -109,8 +88,17 @@ def factor_cloruros(ppm):
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
-def FS(mat):
-    return f_base if f_base<1 else 1
+# ======================
+# FUNCIONES
+# ======================
+def FS_material(mat,f):
+    if f==1: return 1
+    if mat=="HS97": return f
+    if mat=="DA78": return f*0.95
+    if mat=="DSK75": return f if f<0.83 else 1
+    if mat=="HA96": return f*0.93
+    if mat=="D New": return f*0.94
+    return f*0.9
 
 def goodman(smin,uts,b,fs):
     return (uts + b*smin)*fs
@@ -118,35 +106,32 @@ def goodman(smin,uts,b,fs):
 # ======================
 # VARILLAS
 # ======================
-st.markdown("### Varillas")
+st.subheader("Varillas")
 
 c1,c2,c3 = st.columns(3)
 
-n1=c1.number_input('1"',10,300,75)
-n78=c2.number_input('7/8"',10,300,80)
-n34=c3.number_input('3/4"',10,300,80)
+n1  = c1.number_input('1"',10,300,75)
+n78 = c2.number_input('7/8"',10,300,80)
+n34 = c3.number_input('3/4"',10,300,80)
 
 L1=n1*25
 L78=n78*25
 L34=n34*25
-
 total=L1+L78+L34
 
 # ======================
 # CONTROL LONGITUD
 # ======================
+st.subheader("Control de longitud")
+
 long_m=total*0.3048
 dif=long_m-L_m
 
-st.markdown("### Control de longitud")
-
-html_control=f"""
-<table>
-<tr><th>Longitud pozo (m)</th><th>Longitud sarta (m)</th><th>Δ longitud (m)</th></tr>
-<tr><td>{int(L_m)}</td><td>{int(long_m)}</td><td>{int(dif)}</td></tr>
-</table>
-"""
-st.write(html_control,unsafe_allow_html=True)
+st.write(pd.DataFrame({
+    "Longitud pozo (m)":[int(L_m)],
+    "Longitud sarta (m)":[int(long_m)],
+    "Δ longitud (m)":[int(dif)]
+}))
 
 # ======================
 # MODELO
@@ -155,7 +140,6 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
-
 Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
@@ -169,20 +153,17 @@ PPRL=Wr+Fh+Fdyn_up
 MPRL=max(Wr-Fdyn_down,0.6*Wr)
 
 # ======================
-# CARGAS CENTRADAS
+# CARGAS
 # ======================
-st.markdown("### Cargas")
+st.subheader("Cargas")
 
-html_cargas=f"""
-<table>
-<tr><th>PPRL (lb)</th><th>MPRL (lb)</th></tr>
-<tr><td>{int(PPRL)}</td><td>{int(MPRL)}</td></tr>
-</table>
-"""
-st.write(html_cargas,unsafe_allow_html=True)
+st.write(pd.DataFrame({
+    "PPRL (lb)":[int(PPRL)],
+    "MPRL (lb)":[int(MPRL)]
+}))
 
 # ======================
-# RESULTADOS
+# RESULTADOS POR TRAMO
 # ======================
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
@@ -202,7 +183,7 @@ for d in pct:
     Smin=Pmin/areas[d]/1000
 
     mat=rod_sel[d]
-    fs=FS(mat)
+    fs=FS_material(mat,f_base)
 
     Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
 
@@ -210,10 +191,40 @@ for d in pct:
 
     res[d]=[mat,Smin,Smax,Sadm,g]
 
+df=pd.DataFrame(res,index=["Material","Smin","Smax","Sadm","Goodman (%)"]).T
+st.dataframe(df)
+
+# ======================
+# RANKING
+# ======================
+st.subheader("Ranking")
+
+ranking=[]
+
+for d in pct:
+    Smin=res[d][1]
+    Smax=res[d][2]
+
+    for mat in materiales:
+        fs=FS_material(mat,f_base)
+        Sadm=goodman(Smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
+        ranking.append([mat,Sadm-Smax])
+
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
+df_rank=df_rank.groupby("Material").mean().reset_index()
+
+if f_base==1:
+    df_rank["Orden"]=df_rank["Material"].apply(lambda x:0 if x=="HS97" else 1)
+    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
+else:
+    df_rank=df_rank.sort_values(by="Margen",ascending=False)
+
+st.dataframe(df_rank.drop(columns="Orden",errors="ignore"))
+
 # ======================
 # GOODMAN CORRECTO
 # ======================
-st.markdown("### Diagrama de Goodman")
+st.subheader("Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
@@ -224,18 +235,18 @@ for d in res:
     smin=res[d][1]
     smax=res[d][2]
 
-    fs=FS(mat)
+    fs=FS_material(mat,f_base)
     uts=materiales[mat]["uts_a"]
     b=materiales[mat]["b"]
 
     y=goodman(x,uts,b,fs)
 
-    ax.plot(x,y,label=f"{d} - {mat}")
-    ax.scatter(smin,smax,s=70,label=f"Punto {d}")
+    ax.plot(x,y,label=f"{d}-{mat}")
+    ax.scatter(smin,smax,label=f"Punto {d}",s=70)
 
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-ax.legend(fontsize=8)
+ax.legend()
 
 st.pyplot(fig)
 
@@ -243,4 +254,4 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y experiencia en fluidos corrosivos.")
+st.caption("Resultados orientativos basados en API RP11L y experiencia en varillas en fluidos corrosivos.")
