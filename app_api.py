@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-st.title("Diseño de varillas + Goodman (DA78)")
+st.title("API RP11L simplificado + Goodman (DA78)")
 
 # ======================
 # INPUTS
@@ -21,16 +21,19 @@ with c2:
     N = st.slider("SPM", 1, 20, 8)
 
 # ======================
-# PROPIEDADES
+# DATOS VARILLAS
 # ======================
 areas = {"1":0.786, "7/8":0.601, "3/4":0.442}
 peso  = {"1":2.90, "7/8":2.22, "3/4":1.63}
 
+# ======================
+# GOODMAN
+# ======================
 UTS = 30
 b = 0.5625
 
 def goodman(smin):
-    return UTS + b * smin
+    return UTS + b*smin
 
 # ======================
 # CONVERSIONES
@@ -39,7 +42,7 @@ L_ft = L_m * 3.28084
 H_ft = H_m * 3.28084
 
 # ======================
-# CARGAS REALES
+# CARGAS
 # ======================
 A_pump = np.pi * D**2 / 4
 Fo = 0.433 * G * H_ft * A_pump
@@ -47,21 +50,22 @@ Fo = 0.433 * G * H_ft * A_pump
 W = L_ft * 2.2
 Wri = W * (1 - 0.128 * G)
 
-Fi = Fo * (1.15 + 0.01*N)
+# ✅ dinámica calibrada
+Fi = Fo * (1.2 + 0.02*N)
 F2 = Fo * 0.6
 
 PPRL = Wri + Fi
-MPRL = Wri - F2
+MPRL = max(Wri - F2, 0)
 
 # ======================
 # MOSTRAR CARGAS
 # ======================
-st.subheader("Cargas de diseño")
+st.subheader("Cargas")
 
-cc1, cc2, cc3 = st.columns(3)
-cc1.metric("PPRL", f"{PPRL:,.0f} lb")
-cc2.metric("MPRL", f"{MPRL:,.0f} lb")
-cc3.metric("Fo", f"{Fo:,.0f} lb")
+cA, cB, cC = st.columns(3)
+cA.metric("PPRL", f"{PPRL:,.0f} lb")
+cB.metric("MPRL", f"{MPRL:,.0f} lb")
+cC.metric("Fo", f"{Fo:,.0f} lb")
 
 # ======================
 # DISTRIBUCION INICIAL
@@ -69,7 +73,7 @@ cc3.metric("Fo", f"{Fo:,.0f} lb")
 pct = {"1":0.35, "7/8":0.40, "3/4":0.25}
 
 # ======================
-# EVALUACION CORRECTA
+# EVALUACION
 # ======================
 def evaluar(pct):
 
@@ -87,11 +91,11 @@ def evaluar(pct):
         "3/4": PPRL - (W1 + W78)
     }
 
-    # cargas mínimas
+    # cargas mínimas (NO negativas)
     Pmin = {
         "1": MPRL,
-        "7/8": MPRL - W1,
-        "3/4": MPRL - (W1 + W78)
+        "7/8": max(MPRL - W1, 0),
+        "3/4": max(MPRL - (W1 + W78), 0)
     }
 
     resultados = {}
@@ -107,6 +111,7 @@ def evaluar(pct):
         Smin = Pmin[d] / A / 1000
 
         Sadm = goodman(Smin)
+
         g = ((Smax - Smin)/(Sadm - Smin))*100
 
         resultados[d] = {
@@ -119,7 +124,7 @@ def evaluar(pct):
     return resultados
 
 # ======================
-# BALANCE
+# BALANCE REAL
 # ======================
 def balancear(pct):
 
@@ -131,10 +136,7 @@ def balancear(pct):
         d_max = max(g_vals, key=g_vals.get)
         d_min = min(g_vals, key=g_vals.get)
 
-        if g_vals[d_max] > 100:
-            t = 0.03
-        else:
-            t = 0.01
+        t = 0.02
 
         if pct[d_min] > t:
             pct[d_min] -= t
@@ -146,9 +148,6 @@ def balancear(pct):
 
     return pct
 
-# ======================
-# BOTON BALANCE
-# ======================
 if st.checkbox("Balance automático"):
     pct = balancear(pct)
 
@@ -161,29 +160,28 @@ res = evaluar(pct)
 
 for d in res:
 
-    L_tramo = res[d]["L"]
-    n = int(L_tramo / 25)
+    n = int(res[d]["L"] / 25)
 
-    st.markdown(f"<span style='font-size:14px'>{d}\" → {pct[d]*100:.1f}% | {n} varillas</span>", unsafe_allow_html=True)
+    st.write(f'{d}" → {pct[d]*100:.1f}% | {n} varillas')
 
-    col1, col2, col3 = st.columns(3)
+    c1,c2,c3 = st.columns(3)
 
-    col1.markdown(f"<b style='font-size:18px'>Smin: {res[d]['Smin']:.1f} ksi</b>", unsafe_allow_html=True)
-    col2.markdown(f"<b style='font-size:20px'>Smax: {res[d]['Smax']:.1f} ksi</b>", unsafe_allow_html=True)
-    col3.markdown(f"<span style='font-size:14px'>Goodman: {res[d]['g']:.1f}%</span>", unsafe_allow_html=True)
+    c1.markdown(f"<b style='font-size:18px'>Smin: {res[d]['Smin']:.1f} ksi</b>", unsafe_allow_html=True)
+    c2.markdown(f"<b style='font-size:20px'>Smax: {res[d]['Smax']:.1f} ksi</b>", unsafe_allow_html=True)
+    c3.markdown(f"Goodman: {res[d]['g']:.1f}%", unsafe_allow_html=True)
 
 # ======================
-# GRAFICO GOODMAN
+# GRAFICO
 # ======================
-st.subheader("Diagrama de Goodman")
+st.subheader("Diagrama Goodman")
 
 x = np.linspace(0,150,200)
 y = goodman(x)
 
 fig, ax = plt.subplots()
 
-ax.plot(x, y, linewidth=2)
-ax.plot(x, x, '--', linewidth=1)
+ax.plot(x,y,linewidth=2)
+ax.plot(x,x,'--',linewidth=1)
 
 for d in res:
     ax.scatter(res[d]["Smin"], res[d]["Smax"], s=20)
@@ -191,12 +189,11 @@ for d in res:
 
 ax.set_xlabel("Smin (ksi)", fontsize=9)
 ax.set_ylabel("Smax (ksi)", fontsize=9)
-ax.tick_params(axis='both', labelsize=8)
+ax.tick_params(labelsize=8)
 ax.grid()
 
 plt.tight_layout()
 st.pyplot(fig)
-
 
 
 
