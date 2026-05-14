@@ -67,33 +67,10 @@ def f_cl(ppm):
 f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 # ======================
-# CRITERIO FS
+# FS AUTOMÁTICO (TU MODELO)
 # ======================
-st.subheader("Criterio de Factor de Servicio")
-
-fs_mode = st.selectbox(
-    "Seleccionar criterio",
-    ["Automático", "Conservador", "Optimista", "Manual"]
-)
-
-fs_manual={}
-if fs_mode=="Manual":
-    st.subheader("FS manual por material")
-    for mat in materiales:
-        fs_manual[mat]=st.number_input(mat,0.5,1.2,1.0,0.01)
-
 def FS_material(mat,f):
 
-    if fs_mode=="Optimista":
-        return 1
-
-    if fs_mode=="Conservador":
-        return f*0.9
-
-    if fs_mode=="Manual":
-        return fs_manual[mat]
-
-    # Automático (tu modelo)
     if f==1: return 1
     if mat=="HS97": return f
     if mat=="DA78": return f*0.95
@@ -139,6 +116,7 @@ areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
+
 Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
@@ -171,7 +149,6 @@ W78=pct["7/8"]*L_ft*peso["7/8"]
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
-gvals=[]
 
 for d in pct:
 
@@ -193,8 +170,6 @@ for d in pct:
     Sadm=utsa*fs + b*Smin
     G=(Smax-Smin)/(Sadm-Smin)*100
 
-    gvals.append(G)
-
     rows.append({
         "Tramo":d,
         "Material":mat,
@@ -209,33 +184,7 @@ for d in pct:
 st.dataframe(pd.DataFrame(rows),use_container_width=True)
 
 # ======================
-# RANKING
-# ======================
-st.subheader("Ranking")
-
-ranking=[]
-
-for r in rows:
-    Smin=r["Smin (ksi)"]
-    Smax=r["Smax (ksi)"]
-
-    for mat in materiales:
-        fs=FS_material(mat,f_base)
-        utsa=materiales[mat]["uts_a"]
-        b=materiales[mat]["b"]
-
-        Sadm=utsa*fs + b*Smin
-        ranking.append([mat,Sadm-Smax])
-
-df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
-df_rank=df_rank.groupby("Material").mean().reset_index()
-
-df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
-
-st.dataframe(df_rank,use_container_width=True)
-
-# ======================
-# GOODMAN INTERACTIVO
+# GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
@@ -258,6 +207,7 @@ fig,ax=plt.subplots()
 curvas=[]
 
 for d in pct:
+
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
     utsa=materiales[mat]["uts_a"]
@@ -273,6 +223,7 @@ for d in pct:
         ax.plot(x,y,alpha=0.5)
 
 y_safe=np.minimum.reduce(curvas)
+
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.15,color="green")
 
 for r in rows:
@@ -283,8 +234,13 @@ ax.plot(x,x,color="black")
 ax.set_xlim(0,x_max)
 ax.set_ylim(0,x_max)
 
-ax.text(0.02,0.95,f"FS tramo {tramo_select}: {fs_selected:.2f}",
-        transform=ax.transAxes,fontsize=9)
+# 🔥 TEXTO FINAL CORRECTO
+ax.text(
+    0.02, 0.95,
+    f"Factor de Servicio: {fs_selected:.2f}",
+    transform=ax.transAxes,
+    fontsize=9
+)
 
 st.pyplot(fig)
 
@@ -293,4 +249,3 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Resultados orientativos basados en API RP11L y comportamiento de varillas en ambientes corrosivos.")
-
