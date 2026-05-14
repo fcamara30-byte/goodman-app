@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("SRP + Goodman (Modelo consistente API)")
+st.title("SRP + Goodman (API consistente)")
 
 # ======================
 # INPUTS
@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# SELECCIÓN POR TRAMO
+# SELECCIÓN
 # ======================
 st.subheader("Material por tramo")
 
@@ -47,7 +47,7 @@ rod_sel={
 }
 
 # ======================
-# CORROSIÓN (NO TOCAR)
+# CORROSIÓN
 # ======================
 st.subheader("Ambiente")
 
@@ -63,11 +63,11 @@ bsr=c3.selectbox("BSR",BSR.keys())
 cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def factor_cloruros(ppm):
-    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
-st.write(f"Factor de servicio: {round(f_base,3)}")
+st.write("Factor de servicio:", round(f_base,3))
 
 def FS_material(mat,f):
     if f==1: return 1
@@ -78,7 +78,7 @@ def FS_material(mat,f):
     if mat=="D New": return f*0.94
     return f*0.9
 
-def goodman_corr(smin,uts,b,fs):
+def goodman_corr(smin, uts, b, fs):
     return (uts + b*smin)*fs
 
 # ======================
@@ -99,7 +99,7 @@ L34=n34*25
 
 total=L1+L78+L34
 
-# CONTROL LONGITUD
+# control longitud
 long_m=total*0.3048
 dif=long_m-L_m
 
@@ -115,29 +115,29 @@ with c2:
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
+# ======================
+# ✅ CÁLCULO CORREGIDO
+# ======================
 L_ft=L_m*3.28084
+Ap=np.pi*D**2/4
 
-# ======================
-# 🔥 API CORRECTO (ESTA ES LA CLAVE)
-# ======================
-
-# peso varillas
+# peso real
 W_total=L_ft*2.3
 Wr=W_total*(1-0.128*G)
 
-# carga hidráulica (bomba)
-Ap=np.pi*D**2/4
+# carga hidráulica
 Fh=0.433*G*L_ft*Ap
 
-# dinámica física (API coherente)
-Fd=(S*N/100)*(S*N/L_ft)
+# dinámica CONTROLADA
+Fd=min(0.25, (S*N)/2000)
+Fdyn=Fd*Wr
 
-# cargas reales
-PPRL=Wr + Fh + Fd*Wr
-MPRL=Wr - Fd*Wr
+# ✅ cargas correctas
+PPRL=Wr + Fh + Fdyn
+MPRL=Wr - Fdyn
 
-# estabilizar (NO permitir locuras)
-MPRL=max(MPRL,0.3*Wr)
+# piso físico
+MPRL=max(MPRL,0.5*Wr)
 
 # ======================
 # MOSTRAR CARGAS
@@ -155,6 +155,7 @@ pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
+
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 res={}
@@ -184,7 +185,7 @@ for d in pct:
 
     res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
 
-    # ranking global
+    # ranking
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
@@ -216,7 +217,7 @@ else:
 st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
 
 # ======================
-# RECOMENDACIÓN (TU REGLA EXACTA)
+# RECOMENDACIÓN
 # ======================
 st.subheader("Recomendación")
 
@@ -260,4 +261,3 @@ ax.grid()
 ax.legend()
 
 st.pyplot(fig)
-
