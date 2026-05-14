@@ -4,19 +4,18 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-
-st.markdown("## Calculo de Solicitaciones (Versión Beta)")
+st.title("Calculo de Solicitaciones (Versión Beta)")
 
 # ======================
 # INPUTS
 # ======================
-c1, c2 = st.columns(2)
+col1, col2 = st.columns(2)
 
-with c1:
+with col1:
     L_m = st.number_input("Profundidad objetivo (m)", 500, 5000, 1800)
     G = st.slider("Gravedad específica", 0.6, 1.2, 0.95)
 
-with c2:
+with col2:
     D = st.selectbox("Bomba (in)", [1.5,1.75,2,2.25,2.5])
     S = st.slider("Carrera (in)", 50, 200, 168)
     N = st.slider("SPM", 1, 20, 6)
@@ -55,16 +54,16 @@ def FS_material(mat,f):
     if mat=="HA96": return f*0.93
 
 def goodman_corr(smin,uts,b,fs):
-    return (uts + b*smin)*fs
+    return (uts+b*smin)*fs
 
 # ======================
 # MATERIAL POR TRAMO
 # ======================
-st.markdown("### Material por tramo")
+st.subheader("Material por tramo")
 
-c1,c2,c3 = st.columns(3)
+c1,c2,c3=st.columns(3)
 
-rod_sel = {
+rod_sel={
     "1":c1.selectbox('1"',materiales.keys()),
     "7/8":c2.selectbox('7/8"',materiales.keys()),
     "3/4":c3.selectbox('3/4"',materiales.keys())
@@ -73,151 +72,171 @@ rod_sel = {
 # ======================
 # AMBIENTE
 # ======================
-st.markdown("### Ambiente")
+st.subheader("Ambiente")
 
-c1,c2,c3,c4 = st.columns(4)
+c1,c2,c3,c4=st.columns(4)
 
-co2 = c1.selectbox("CO2",CO2.keys())
-h2s = c2.selectbox("H2S",H2S.keys())
-bsr = c3.selectbox("BSR",BSR.keys())
-cl  = c4.number_input("Cloruros ppm",0,200000,0)
+co2=c1.selectbox("CO2",CO2.keys())
+h2s=c2.selectbox("H2S",H2S.keys())
+bsr=c3.selectbox("BSR",BSR.keys())
+cl=c4.number_input("Cloruros ppm",0,200000,0)
 
-f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
+f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
-st.write(f"Factor de servicio: {round(f_base,3)}")
+st.write("Factor de servicio:", round(f_base,3))
 
 # ======================
 # VARILLAS
 # ======================
-st.markdown("### Varillas")
+st.subheader("Varillas")
 
-df = pd.DataFrame({
-    "Diámetro":["1","7/8","3/4"],
-    "Varillas":[80,80,80]
-})
+col1,col2=st.columns([1,2])
 
-df = st.data_editor(df, height=120, use_container_width=True).reset_index(drop=True)
+with col1:
+    df=pd.DataFrame({
+        "Diámetro":["1","7/8","3/4"],
+        "Varillas":[80,80,80]
+    })
 
-L1 = float(df.loc[0,"Varillas"])*25
-L78 = float(df.loc[1,"Varillas"])*25
-L34 = float(df.loc[2,"Varillas"])*25
+    df=st.data_editor(df,height=140,num_rows="fixed",use_container_width=True).reset_index(drop=True)
 
-total = L1 + L78 + L34
+L1=df.loc[0,"Varillas"]*25
+L78=df.loc[1,"Varillas"]*25
+L34=df.loc[2,"Varillas"]*25
 
-if total == 0:
-    st.warning("Ingrese varillas")
+total=L1+L78+L34
+
+if total==0:
     st.stop()
 
-L_ft = total
-st.write(f"Longitud real del pozo: {round(L_ft*0.3048,1)} m")
+long_rod_m=total*0.3048
+dif=long_rod_m-L_m
+
+with col2:
+
+    st.subheader("Control de longitud")
+
+    a,b,c=st.columns(3)
+    a.metric("Pozo",round(L_m,1))
+    b.metric("Sarta",round(long_rod_m,1))
+    c.metric("Dif",round(dif,1))
+
+    if abs(dif)<10:
+        st.success("Sarta OK")
+    elif dif<0:
+        st.warning("Faltan varillas")
+    else:
+        st.error("Exceso de sarta")
 
 # ======================
-# PROPIEDADES
+# SRP
 # ======================
-areas = {"1":0.786,"7/8":0.601,"3/4":0.442}
-peso  = {"1":2.90,"7/8":2.22,"3/4":1.63}
+areas={"1":0.786,"7/8":0.601,"3/4":0.442}
+peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
-# ======================
-# API (SIMPLIFICADO)
-# ======================
-A = np.pi*D**2/4
-Fo = 0.433*G*L_ft*A
+L_ft=L_m*3.28084
 
-No = 1800/np.sqrt(L_ft)
-Nr = N/No
+A=np.pi*D**2/4
+Fo=0.433*G*L_ft*A
 
-Fi = Fo*(1 + 0.3*Nr)
-F2 = Fo*(0.3*Nr)
+No=1800/np.sqrt(L_ft)
+Nr=N/No
 
-W_total = L_ft*2.3
-Wri = W_total*(1 - 0.128*G)
+Fi=Fo*(1+0.3*Nr)
+F2=Fo*(0.3*Nr)
 
-PPRL = Wri + Fi
-MPRL = Wri - F2
+W_total=L_ft*2.3
+Wri=W_total*(1-0.128*G)
 
-# ======================
-# DISTRIBUCION
-# ======================
-pct = {"1":L1/total,"7/8":L78/total,"3/4":L34/total}
+PPRL=Wri+Fi
+MPRL=Wri-F2
 
-W1 = pct["1"] * L_ft * peso["1"]
-W78 = pct["7/8"] * L_ft * peso["7/8"]
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
-W_up = {"1":0,"7/8":W1,"3/4":W1 + W78}
+W1=pct["1"]*L_ft*peso["1"]
+W78=pct["7/8"]*L_ft*peso["7/8"]
+W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 # ======================
 # CALCULO
 # ======================
-res = {}
+res={}
+ranking=[]
 
 for d in pct:
 
-    mat = rod_sel[d]
-    uts = materiales[mat]["uts_a"]
-    b = materiales[mat]["b"]
+    Smin=None
+    Smax=None
 
-    fs = FS_material(mat, f_base)
+    for mat in materiales:
 
-    Pmax = PPRL - W_up[d]
-    Pmin = max(MPRL - 0.6*W_up[d],0)
+        uts=materiales[mat]["uts_a"]
+        b=materiales[mat]["b"]
+        fs=FS_material(mat,f_base)
 
-    Smax = Pmax / areas[d] / 1000
-    Smin = Pmin / areas[d] / 1000
+        Pmax=PPRL-W_up[d]
+        Pmin=max(MPRL-0.6*W_up[d],0)
 
-    Sadm = goodman_corr(Smin, uts, b, fs)
+        Smax_val=Pmax/areas[d]/1000
+        Smin_val=Pmin/areas[d]/1000
 
-    G = ((Smax - Smin)/(Sadm - Smin))*100
+        Sadm=goodman_corr(Smin_val,uts,b,fs)
+        margen=Sadm-Smax_val
 
-    res[d] = [mat, Smin, Smax, Sadm, int(G)]
+        ranking.append({
+            "Tramo":d,
+            "Material":mat,
+            "Margen":margen
+        })
+
+    mat_sel=rod_sel[d]
+    uts=materiales[mat_sel]["uts_a"]
+    b=materiales[mat_sel]["b"]
+    fs=FS_material(mat_sel,f_base)
+
+    Pmax=PPRL-W_up[d]
+    Pmin=max(MPRL-0.6*W_up[d],0)
+
+    Smax=Pmax/areas[d]/1000
+    Smin=Pmin/areas[d]/1000
+
+    Sadm=goodman_corr(Smin,uts,b,fs)
+
+    G=((Smax-Smin)/(Sadm-Smin))*100
+
+    res[d]=[mat_sel,round(Smin,1),round(Smax,1),round(Sadm,1),int(G)]
 
 # ======================
-# TABLA
+# RESULTADOS
 # ======================
-st.markdown("### Resultados")
+st.subheader("Resultados")
 
-df_res = pd.DataFrame(res, index=["Material","Smin","Smax","Sadm","Goodman"]).T
+df_res=pd.DataFrame(res,index=["Material","Smin","Smax","Sadm","Goodman"]).T
 
-st.dataframe(df_res.round(2), use_container_width=True)
+st.dataframe(df_res, use_container_width=True)
 
 # ======================
-# VALIDACION
+# RANKING
 # ======================
-fallo = False
-for d in res:
-    if res[d][2] > res[d][3]:
-        fallo = True
+st.subheader("Ranking")
 
-if fallo:
-    st.error("Fuera de envolvente → usar revestimiento + tratamiento químico")
+df_rank=pd.DataFrame(ranking)
+df_rank=df_rank.sort_values(by="Margen",ascending=False)
+
+st.dataframe(df_rank, use_container_width=True)
+
+# ======================
+# RECOMENDACION
+# ======================
+st.subheader("Recomendación")
+
+mejor=df_rank.iloc[0]
+
+if mejor["Margen"]>0:
+    st.success(f"Mejor material: {mejor['Material']} en tramo {mejor['Tramo']}")
+else:
+    st.error("Usar revestimiento + tratamiento químico")
 
 # ======================
 # GOODMAN
-# ======================
-st.markdown("### Diagrama de Goodman")
 
-x = np.linspace(0,150,200)
-fig, ax = plt.subplots()
-
-for d in res:
-    mat = res[d][0]
-    uts = materiales[mat]["uts_a"]
-    b   = materiales[mat]["b"]
-    fs  = FS_material(mat, f_base)
-
-    y = goodman_corr(x,uts,b,fs)
-
-    ax.plot(x,y,label=f"{d}-{mat}")
-    ax.scatter(res[d][1],res[d][2])
-
-ax.plot(x,x,'k--')
-
-ax.set_xlim(0)
-ax.set_ylim(0)
-
-ax.set_xlabel("Smin")
-ax.set_ylabel("Smax")
-
-ax.grid(alpha=0.3)
-ax.legend()
-
-st.pyplot(fig)
