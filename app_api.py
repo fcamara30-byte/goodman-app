@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIAL POR TRAMO
+# MATERIALES POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -48,6 +48,8 @@ rod_sel={
 # ======================
 # AMBIENTE
 # ======================
+st.subheader("Ambiente")
+
 CO2={"Nada":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
@@ -81,7 +83,7 @@ def FS_material(mat,f):
 # ======================
 st.subheader("Varillas")
 
-c1,c2,c3=st.columns(3)
+c1,c2,c3 = st.columns(3)
 
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
@@ -93,7 +95,7 @@ L34=n34*25
 total=L1+L78+L34
 
 # ======================
-# CONTROL DE LONGITUD
+# CONTROL LONGITUD
 # ======================
 st.subheader("Control de longitud")
 
@@ -127,7 +129,7 @@ PPRL=Wr+Fh+1.45*Fd*Wr
 MPRL=max(Wr-0.75*Fd*Wr,0.6*Wr)
 
 # ======================
-# CARGAS CON UNIDADES
+# CARGAS
 # ======================
 st.subheader("Cargas")
 
@@ -137,7 +139,7 @@ st.markdown(f"""
 """)
 
 # ======================
-# RESULTADOS POR TRAMO
+# RESULTADOS
 # ======================
 st.subheader("Resultados por tramo")
 
@@ -149,7 +151,7 @@ W78=pct["7/8"]*L_ft*peso["7/8"]
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
-ranking=[]
+gvals=[]
 
 for d in pct:
 
@@ -171,6 +173,7 @@ for d in pct:
     Sadm = utsa*fs + b*Smin
 
     G=(Smax-Smin)/(Sadm-Smin)*100
+    gvals.append(G)
 
     rows.append({
         "Tramo":d,
@@ -182,13 +185,14 @@ for d in pct:
         "Goodman (%)":int(G)
     })
 
-df=pd.DataFrame(rows)
-st.dataframe(df,use_container_width=True)
+st.dataframe(pd.DataFrame(rows),use_container_width=True)
 
 # ======================
 # RANKING
 # ======================
 st.subheader("Ranking")
+
+ranking=[]
 
 for r in rows:
 
@@ -218,16 +222,31 @@ df_rank["Margen"]=df_rank["Margen"].map(lambda x:f"{x:.1f}")
 st.dataframe(df_rank.drop(columns="Orden",errors="ignore"),use_container_width=True)
 
 # ======================
-# GOODMAN
+# GOODMAN PRO (TRIANGULAR)
 # ======================
 st.subheader("Diagrama de Goodman")
 
-x=np.linspace(0,150,200)
+# límite físico
+x_max_list = []
+
+for d in pct:
+    mat = rod_sel[d]
+    fs  = FS_material(mat, f_base)
+    utsa = materiales[mat]["uts_a"]
+    b    = materiales[mat]["b"]
+
+    if (1 - b) > 0:
+        x_max_list.append((utsa * fs) / (1 - b))
+
+x_max = min(x_max_list)
+x=np.linspace(0,x_max,200)
+
 fig,ax=plt.subplots()
 
 curvas=[]
 
 for d in pct:
+
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
 
@@ -239,19 +258,17 @@ for d in pct:
 
     ax.plot(x,y,label=f"{d}-{mat}")
 
-# zona segura correcta
 y_safe=np.minimum.reduce(curvas)
+
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.15,color="green")
 
-# puntos
 for r in rows:
     ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],s=60)
 
-# línea 45°
 ax.plot(x,x,color="black")
 
-ax.set_xlim(0)
-ax.set_ylim(0)
+ax.set_xlim(0,x_max)
+ax.set_ylim(0,x_max)
 
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
