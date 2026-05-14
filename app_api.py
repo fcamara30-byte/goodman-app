@@ -34,7 +34,7 @@ materiales={
 }
 
 # ======================
-# MATERIAL
+# MATERIAL POR TRAMO
 # ======================
 st.subheader("Material por tramo")
 
@@ -123,12 +123,12 @@ Fh=0.433*G*L_ft*Ap
 Fd=min((S*N)/2600,0.15)
 
 # ======================
-# PPRL (NO TOCAR)
+# PPRL (CORRECTO)
 # ======================
 PPRL = Wr + Fh + 1.45 * Fd * Wr
 
 # ======================
-# 🔥 MPRL MODELO FINAL v5
+# 🔥 MPRL MODELO FINAL v6
 # ======================
 E = 30_000_000
 Aeq = 0.58
@@ -141,16 +141,15 @@ C = 0.52
 alpha = 0.78
 dx = C * S * (Fd**alpha)
 
-# longitud calibrada
-prop_L = (L_ft / 6000) ** 0.22
+# saturación de longitud
+prop_L = (L_ft / 6000) ** 0.18
 
-# hidráulica calibrada
-prop_F = (Fh / Wr) ** 0.08
+# hidráulica controlada
+prop_F = (Fh / Wr) ** 0.07
 
-# alivio total calibrado
-dF = kr * dx * prop_L * (1 + 0.35 * prop_F)
+# corrección final balanceada
+dF = kr * dx * (0.85 + prop_L) * (1 + 0.30 * prop_F)
 
-# resultado final
 MPRL = max(Wr - dF, 0)
 
 # ======================
@@ -270,4 +269,5 @@ st.pyplot(fig)
 # DISCLAIMER
 # ======================
 st.markdown("---")
-st.caption("Resultados orientativos basados en API RP11L y modelo dinámico calibrado contra QRod.")
+st.caption("Resultados orientativos basados en API RP11L y modelo dinámico ")
+
