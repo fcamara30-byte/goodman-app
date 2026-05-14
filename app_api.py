@@ -8,33 +8,53 @@ st.set_page_config(layout="wide")
 st.title("Cálculo de Solicitaciones en Sistemas SRP")
 
 # ======================
-# ESTILO COMPACTO
+# ESTILO COMPACTO Y CENTRADO
 # ======================
 st.markdown("""
 <style>
 
+/* métricas compactas */
 div[data-testid="stMetric"] {
-    text-align:center;
-    padding:4px;
+    text-align: center;
+    padding: 2px;
 }
 
 div[data-testid="stMetricValue"] {
-    font-size:22px;
+    font-size: 18px;
 }
 
+div[data-testid="stMetricLabel"] {
+    font-size: 12px;
+}
+
+/* selectores pequeños */
 div[data-baseweb="select"] {
-    max-width:140px;
-    margin:auto;
+    max-width: 130px;
+    margin: auto;
 }
 
+/* labels centradas */
 label {
-    text-align:center;
-    display:block;
+    text-align: center;
+    display: block;
+    font-size: 12px;
 }
 
-/* tabla más compacta */
+/* inputs numéricos */
+input {
+    max-width: 90px !important;
+    text-align: center !important;
+}
+
+/* tabla compacta */
 table {
-    font-size:13px;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* títulos más compactos */
+h3 {
+    font-size: 16px;
 }
 
 </style>
@@ -55,7 +75,7 @@ with c2:
     N = st.slider("SPM",1,20,6)
 
 # ======================
-# MATERIALES (RESTAURADOS)
+# MATERIALES (COMPLETOS)
 # ======================
 materiales={
     "DA78":{"uts_a":30,"b":0.5625},
@@ -81,7 +101,7 @@ rod_sel={
 }
 
 # ======================
-# CORROSIÓN (COMPLETA)
+# CORROSIÓN COMPLETA
 # ======================
 st.markdown("### Ambiente")
 
@@ -101,6 +121,11 @@ def factor_cloruros(ppm):
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
+st.write("Factor de servicio:",round(f_base,3))
+
+# ======================
+# FUNCIONES
+# ======================
 def FS_material(mat,f):
     if f==1: return 1
     if mat=="HS97": return f
@@ -129,18 +154,18 @@ L34=n34*25
 total=L1+L78+L34
 
 # ======================
-# CONTROL LONGITUD (MEJORADO)
+# CONTROL LONGITUD
 # ======================
 long_m=total*0.3048
 dif=long_m-L_m
 
 st.markdown("### Control de longitud")
 
-c1,c2,c3 = st.columns([1,1,1])
+c1,c2,c3 = st.columns(3)
 
-c1.metric("Longitud pozo (m)",round(L_m,1))
-c2.metric("Longitud sarta (m)",round(long_m,1))
-c3.metric("Δ longitud (m)",round(dif,1))
+c1.metric("Longitud pozo (m)", f"{L_m:.0f}")
+c2.metric("Longitud sarta (m)", f"{long_m:.0f}")
+c3.metric("Diferencia (m)", f"{dif:.0f}")
 
 # ======================
 # PROPIEDADES
@@ -154,11 +179,11 @@ Wr=L_ft*2.3*(1-0.128*G)
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_ft*Ap
 
-# 🔥 ajuste fino carga (me acerco a QRod)
-Fd=min((S*N)/2200,0.18)
+# dinámico ajustado a QRod
+Fd=min((S*N)/2600,0.15)
 
-Fdyn_up=1.6*Fd*Wr
-Fdyn_down=0.8*Fd*Wr
+Fdyn_up=1.45*Fd*Wr
+Fdyn_down=0.75*Fd*Wr
 
 PPRL=Wr+Fh+Fdyn_up
 MPRL=max(Wr-Fdyn_down,0.6*Wr)
@@ -199,7 +224,7 @@ df["Goodman (%)"]=df["Goodman (%)"].apply(lambda x:f"<b><span style='color:blue'
 st.write(df.to_html(escape=False),unsafe_allow_html=True)
 
 # ======================
-# RANKING
+# RANKING (TU REGLA)
 # ======================
 st.markdown("### Ranking de varillas")
 
@@ -216,23 +241,29 @@ for d in pct:
 
 df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
 df_rank=df_rank.groupby("Material").mean().reset_index()
-df_rank=df_rank.sort_values(by="Margen",ascending=False)
 
-st.dataframe(df_rank)
+# regla clave
+if f_base == 1:
+    df_rank["Orden"]=df_rank["Material"].apply(lambda x:0 if x=="HS97" else 1)
+    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
+else:
+    df_rank=df_rank.sort_values(by="Margen",ascending=False)
+
+st.dataframe(df_rank.drop(columns="Orden",errors="ignore"))
 
 # ======================
 # CARGAS
 # ======================
 st.markdown("### Cargas")
 
-c1,c2=st.columns([1,1])
+c1,c2=st.columns(2)
 c1.metric("PPRL (lb)",int(PPRL))
 c2.metric("MPRL (lb)",int(MPRL))
 
 # ======================
 # GOODMAN
 # ======================
-st.markdown("### Diagrama Goodman")
+st.markdown("### Diagrama de Goodman")
 
 x=np.linspace(0,150,200)
 fig,ax=plt.subplots()
@@ -251,6 +282,12 @@ ax.plot(x,x,'k--')
 ax.grid(alpha=0.3)
 
 st.pyplot(fig)
+
+# ======================
+# RECOMENDACIÓN
+# ======================
+if any(res[d][4] > 100 for d in res):
+    st.error("Varillas revestidas + tratamiento químico")
 
 # ======================
 # DISCLAIMER
