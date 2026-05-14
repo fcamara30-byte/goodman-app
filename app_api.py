@@ -3,11 +3,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ======================
-# CONFIG
-# ======================
 st.set_page_config(layout="wide")
-st.title("SRP + Goodman (API dinámico)")
+st.title("SRP + Goodman (API dinámico estable)")
 
 # ======================
 # INPUTS
@@ -59,6 +56,7 @@ H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
 c1,c2,c3,c4=st.columns(4)
+
 co2=c1.selectbox("CO2",CO2.keys())
 h2s=c2.selectbox("H2S",H2S.keys())
 bsr=c3.selectbox("BSR",BSR.keys())
@@ -71,9 +69,6 @@ f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl)
 
 st.write(f"Factor de servicio: {round(f_base,3)}")
 
-# ======================
-# FUNCIONES
-# ======================
 def FS_material(mat,f):
     if f==1: return 1
     if mat=="HS97": return f
@@ -114,29 +109,31 @@ with c2:
     c.metric("Dif (m)",round(dif,1))
 
 # ======================
-# API DINAMICO
+# SRP - API DINAMICO ESTABLE
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.90,"7/8":2.22,"3/4":1.63}
 
 L_ft=L_m*3.28084
-
 Ap=np.pi*D**2/4
 
 Fo=0.433*G*L_ft*Ap
 
-Vp=2*S*N  # velocidad pistón
+Vp=2*S*N
 
-Fd=1 + 0.002*Vp + 0.000001*(Vp**2)
+Fd=1 + 0.002*Vp + 0.0000007*(Vp**2)
 
 Fi=Fo*Fd
-F2=Fo*(0.3*Fd)
+
+# 🔥 FIX CLAVE (NO rompe cargas)
+F2=Fo*(0.15 + 0.15*(Fd-1))
 
 W_total=L_ft*2.3
 Wri=W_total*(1-0.128*G)
 
+# 🔥 FIX CLAVE (no MPRL negativo absurdo)
+MPRL=max(Wri-F2,0.15*Wri)
 PPRL=Wri+Fi
-MPRL=Wri-F2
 
 st.subheader("Cargas")
 
@@ -181,7 +178,6 @@ for d in pct:
 
     res[d]=[mat,round(Smin,1),round(Smax,1),round(Sadm,1),int(Gval)]
 
-    # ranking global
     for mat in materiales:
         uts=materiales[mat]["uts_a"]
         fs=FS_material(mat,f_base)
@@ -193,5 +189,68 @@ for d in pct:
 # ======================
 st.subheader("Resultados")
 
+df=pd.DataFrame(res,index=["Material","Smin","Smax","Sadm","Goodman (%)"]).T
+st.dataframe(df, use_container_width=True)
+
+# ======================
+# RANKING
+# ======================
+st.subheader("Ranking de varillas")
+
+df_rank=pd.DataFrame(ranking,columns=["Material","Margen"])
+df_rank=df_rank.groupby("Material").mean().reset_index()
+
+if f_base==1:
+    df_rank["Orden"]=df_rank["Material"].apply(lambda x: 0 if x=="HS97" else 1)
+    df_rank=df_rank.sort_values(["Orden","Margen"],ascending=[True,False])
+else:
+    df_rank=df_rank.sort_values(by="Margen",ascending=False)
+
+st.dataframe(df_rank.drop(columns=["Orden"],errors='ignore'))
+
+# ======================
+# RECOMENDACION
+# ======================
+st.subheader("Recomendación")
+
+if fallo:
+    st.error("Varillas revestidas + tratamiento químico")
+
+# ======================
+# GOODMAN
+# ======================
+st.subheader("Diagrama de Goodman")
+
+x=np.linspace(0,150,200)
+fig,ax=plt.subplots()
+
+for d in res:
+    mat=res[d][0]
+    uts=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+    fs=FS_material(mat,f_base)
+
+    y=goodman_corr(x,uts,b,fs)
+    ax.plot(x,y,label=f"{d}-{mat}")
+
+    Smin=res[d][1]
+    Smax=res[d][2]
+    Sadm=res[d][3]
+
+    color="green" if Smax<=Sadm else "red"
+    ax.scatter(Smin,Smax,color=color,s=70)
+
+ax.plot(x,x,'k--')
+
+ax.set_xlim(0)
+ax.set_ylim(0)
+
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+ax.grid()
+ax.legend()
+
+st.pyplot(fig)
 
 
