@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-st.title("Diseño API RP 11L + Goodman (DA78)")
+st.title("Diseño automático de varillas API + Goodman DA78")
 
 # ======================
 # INPUTS
@@ -22,63 +22,13 @@ with c2:
     N = st.slider("SPM", 1, 20, 10)
 
 # ======================
-# DISTRIBUCIÓN CORRECTA (según bomba)
-# ======================
-tabla_api = {
-    1.5: {"diam": ["7/8","3/4"], "pct": [0.40,0.60]},
-    1.75: {"diam": ["1","7/8","3/4"], "pct": [0.20,0.35,0.45]},
-    2.0: {"diam": ["1","7/8","3/4"], "pct": [0.25,0.40,0.35]},
-    2.25: {"diam": ["1","7/8","3/4"], "pct": [0.30,0.40,0.30]},
-    2.5: {"diam": ["1","7/8","3/4"], "pct": [0.35,0.40,0.25]},
-    2.75: {"diam": ["1","7/8","3/4"], "pct": [0.40,0.35,0.25]},
-    3.5: {"diam": ["1","7/8"], "pct": [0.60,0.40]}
-}
-
-# ======================
-# PROPIEDADES VARILLAS
+# PROPIEDADES
 # ======================
 areas = {"3/4":0.442, "7/8":0.601, "1":0.786}
 peso = {"3/4":1.63, "7/8":2.22, "1":2.90}
 
 # ======================
-# STRING
-# ======================
-L_ft = L_m * 3.28084
-data = tabla_api[D]
-
-varilla_largo = 25
-string = []
-
-for d, pct in zip(data["diam"], data["pct"]):
-    L_seg = L_ft * pct
-    n = int(L_seg / varilla_largo)
-
-    string.append({
-        "diam": d,
-        "L": L_seg,
-        "n": n
-    })
-
-# ======================
-# PESO Y CARGA
-# ======================
-W = sum(s["L"] * peso[s["diam"]] for s in string)
-Wri = W * (1 - 0.128 * G)
-
-H_ft = H_m * 3.28084
-A_pump = np.pi * D**2 / 4
-
-Fo = 0.433 * G * H_ft * A_pump
-
-# dinámica simple (aproximada)
-Fi = Fo * (1.1 + 0.01 * N)
-F2 = Fo * 0.6
-
-PPRL = Wri + Fi
-MPRL = Wri - F2
-
-# ======================
-# GOODMAN CORRECTO
+# GOODMAN
 # ======================
 UTS = 30
 b = 0.5625
@@ -88,80 +38,174 @@ def goodman(smin):
     return (UTS + b * smin) * FS
 
 # ======================
-# RESULTADOS
+# CARGAS
 # ======================
-st.subheader("Distribución de varillas")
+L_ft = L_m * 3.28084
+H_ft = H_m * 3.28084
 
-for s in string:
-    st.write(f'{s["diam"]}" → {s["n"]} varillas')
+A_pump = np.pi * D**2 / 4
+Fo = 0.433 * G * H_ft * A_pump
+
+# peso aproximado
+W = L_ft * 2.0
+Wri = W * (1 - 0.128 * G)
+
+Fi = Fo * (1.1 + 0.01 * N)
+F2 = Fo * 0.6
+
+PPRL = Wri + Fi
+MPRL = Wri - F2
 
 # ======================
-# CALCULO POR TRAMO
+# FUNCION % GOODMAN
 # ======================
-st.subheader("Solicitaciones y % Goodman")
-
-resultados = []
-
-for s in string:
-
-    A = areas[s["diam"]]
+def calcular_goodman_pct(A):
 
     Smax = PPRL / A / 1000
     Smin = MPRL / A / 1000
 
     Sadm = goodman(Smin)
 
-    # % Goodman correcto
     if Sadm != Smin:
-        goodman_pct = ((Smax - Smin)/(Sadm - Smin))*100
+        pct = ((Smax - Smin)/(Sadm - Smin))*100
     else:
-        goodman_pct = 0
+        pct = 0
 
-    margen = Sadm - Smax
-
-    resultados.append({
-        "diam": s["diam"],
-        "Smin": Smin,
-        "Smax": Smax
-    })
-
-    col1, col2, col3, col4 = st.columns(4)
-
-    col1.metric(f'{s["diam"]}" Smin', f"{Smin:.1f} ksi")
-    col2.metric(f'{s["diam"]}" Smax', f"{Smax:.1f} ksi")
-    col3.metric("Sadm", f"{Sadm:.1f} ksi")
-    col4.metric("% Goodman", f"{goodman_pct:.1f} %")
-
-    if margen >= 0:
-        st.success(f'{s["diam"]}" OK')
-    else:
-        st.error(f'{s["diam"]}" FALLA')
+    return Smin, Smax, Sadm, pct
 
 # ======================
-# GRAFICO GOODMAN
+# OPTIMIZACION
 # ======================
-st.subheader("Diagrama Goodman DA78")
+def optimizar():
 
-smin_vals = np.linspace(0,150,200)
-sadm_vals = goodman(smin_vals)
+    mejor = None
+    error_min = 999
 
-fig, ax = plt.subplots(figsize=(7,4))
+    for p1 in np.arange(0.2,0.65,0.05):
+        for p2 in np.arange(0.2,0.55,0.05):
 
-ax.plot(smin_vals, sadm_vals, label="DA78", linewidth=3)
-ax.plot(smin_vals, smin_vals, 'k--')
+            p3 = 1 - p1 - p2
+
+            if p3 < 0.1 or p3 > 0.6:
+                continue
+
+            pcts = [p1,p2,p3]
+            diams = ["1","7/8","3/4"]
+
+            valores = []
+
+            for d in diams:
+                _,_,_,g = calcular_goodman_pct(areas[d])
+                valores.append(g)
+
+            error = max(valores)-min(valores)
+
+            if error < error_min:
+                error_min = error
+                mejor = pcts
+
+    return mejor, error_min
+
+# ======================
+# DISTRIBUCION BASE
+# ======================
+tabla_base = {
+    1.5: [0.0,0.4,0.6],
+    1.75:[0.2,0.35,0.45],
+    2.0: [0.25,0.40,0.35],
+    2.25:[0.30,0.40,0.30],
+    2.5: [0.35,0.40,0.25],
+    2.75:[0.40,0.35,0.25],
+    3.5: [0.6,0.4,0.0]
+}
+
+# ======================
+# ACTIVAR OPTIMIZACION
+# ======================
+usar_auto = st.checkbox("Optimizar automáticamente")
+
+if usar_auto:
+    pct_opt, error = optimizar()
+    pct = pct_opt
+else:
+    pct = tabla_base[D]
+
+# ======================
+# RESULTADOS
+# ======================
+st.subheader("Distribución de varillas")
+
+diams = ["1","7/8","3/4"]
+
+resultados = []
+
+for d,p in zip(diams,pct):
+
+    if p <= 0:
+        continue
+
+    L_tramo = L_ft * p
+    n = int(L_tramo / 25)
+
+    Smin,Smax,Sadm,g = calcular_goodman_pct(areas[d])
+
+    resultados.append((d,Smin,Smax))
+
+    col1,col2,col3,col4,col5 = st.columns(5)
+
+    col1.metric(f'{d}" %', f"{p*100:.0f} %")
+    col2.metric("Smin", f"{Smin:.1f} ksi")
+    col3.metric("Smax", f"{Smax:.1f} ksi")
+    col4.metric("Sadm", f"{Sadm:.1f} ksi")
+    col5.metric("% Goodman", f"{g:.1f} %")
+
+    if Smax <= Sadm:
+        st.success(f'{d}" OK')
+    else:
+        st.error(f'{d}" FALLA')
+
+# ======================
+# BALANCE
+# ======================
+st.subheader("Balance del diseño")
+
+g_vals = []
+
+for d,p in zip(diams,pct):
+    if p > 0:
+        _,_,_,g = calcular_goodman_pct(areas[d])
+        g_vals.append(g)
+
+delta = max(g_vals) - min(g_vals)
+
+if delta < 10:
+    st.success(f"✔ Excelente balance Δ={delta:.1f}%")
+elif delta < 20:
+    st.warning(f"⚠ Aceptable Δ={delta:.1f}%")
+else:
+    st.error(f"❌ Desbalanceado Δ={delta:.1f}%")
+
+# ======================
+# GRAFICO
+# ======================
+st.subheader("Diagrama Goodman")
+
+x = np.linspace(0,150,200)
+y = goodman(x)
+
+fig,ax = plt.subplots()
+
+ax.plot(x,y,label="DA78",linewidth=3)
+ax.plot(x,x,'k--')
 
 for r in resultados:
-    ax.scatter(r["Smin"], r["Smax"], s=80)
-    ax.text(r["Smin"], r["Smax"], r["diam"])
+    ax.scatter(r[1],r[2])
+    ax.text(r[1],r[2],r[0])
 
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-ax.set_xlim(0,150)
-ax.set_ylim(0,150)
 ax.grid()
 ax.legend()
-
-plt.tight_layout()
 
 st.pyplot(fig)
 
@@ -170,7 +214,7 @@ st.pyplot(fig)
 # ======================
 st.subheader("Cargas")
 
-c1, c2, c3 = st.columns(3)
+c1,c2 = st.columns(2)
 c1.metric("PPRL", f"{PPRL:,.0f} lb")
 c2.metric("MPRL", f"{MPRL:,.0f} lb")
-c3.metric("Peso total", f"{W:,.0f} lb")
+
