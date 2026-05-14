@@ -186,7 +186,17 @@ ax.plot(x, y, linewidth=2)
 ax.plot(x, x, '--', linewidth=1)
 
 for d in res:
+    ax.scatter(res[d]["Smin"], res[d]["Smax"], s=20)
+    ax.text(res[d]["Smin"], res[d]["Smax"], d, fontsize=8)
 
+ax.set_xlabel("Smin (ksi)", fontsize=9)
+ax.set_ylabel("Smax (ksi)", fontsize=9)
+ax.tick_params(axis='both', labelsize=8)
+ax.grid()
+
+plt.tight_layout()
+st.pyplot(fig)
+``
 
 
 
