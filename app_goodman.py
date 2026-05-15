@@ -154,6 +154,7 @@ with r:
     ax.set_ylim(0,150)
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
+    ax.set_title("Diagrama de Goodman Fatiga-corrosión por Varilla"
     ax.grid()
 
     ax.legend()
