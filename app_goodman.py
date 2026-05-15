@@ -117,7 +117,7 @@ with l:
         "Medio (1–2 psi)", "Alto (>2 psi)"
     ])
 
-    bsr = st.selectbox("BSR", list(BSR.keys()))
+    bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0)
 
     smin_user = st.slider("Smin (ksi)",0,100,30)
