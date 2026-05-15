@@ -6,12 +6,11 @@ from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import tempfile
 import os
-import datetime
 
 st.set_page_config(layout="wide")
 
 # ======================
-# ESTILO LIMPIO
+# ESTILO
 # ======================
 st.markdown("""
 <style>
@@ -21,8 +20,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# HEADER
-st.markdown('<div class="titulo"> Selector de varillas de acuerdo a criterio Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo">Selector de varillas de acuerdo a criterio Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
 
 # ======================
 # MATERIALES
@@ -37,12 +35,33 @@ materiales = {
     "HA96":{"uts_a":50,"b":0.375}
 }
 
-CO2={"Nada":1,"Bajo":1,"Medio":0.9,"Alto":0.8}
-H2S={"Nada":1,"Bajo":0.95,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
 def factor_cloruros(ppm):
-    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
+
+# ======================
+# CLASIFICACIÓN PPCO2 / PPH2S
+# ======================
+def clasificar_co2(pp):
+    if pp == 0:
+        return "Nada", 1.00
+    elif pp <= 20:
+        return "Bajo", 0.98
+    elif pp <= 100:
+        return "Medio", 0.90
+    else:
+        return "Alto", 0.80
+
+def clasificar_h2s(pp):
+    if pp == 0:
+        return "Nada", 1.00
+    elif pp <= 1:
+        return "Bajo", 0.95
+    elif pp <= 2:
+        return "Medio", 0.80
+    else:
+        return "Alto", 0.75
 
 def FS_material(mat,f):
     if f==1: return 1
@@ -51,7 +70,7 @@ def FS_material(mat,f):
     elif mat=="CS propietario": return f*0.96
     elif mat=="HS propietario": return f*0.80
     elif mat=="D New": return f*0.94
-    elif mat=="DSK75": return f if f<0.83 else 1
+    elif mat=="DSK75": return f if f < 0.83 else 1
     elif mat=="HA96": return f*0.93
 
 def goodman(smin,uts,b,fs):
@@ -62,16 +81,18 @@ def goodman(smin,uts,b,fs):
 # ======================
 l,r = st.columns([1,2])
 
+# ======================
 # INPUTS
+# ======================
 with l:
     st.markdown('<div class="subtitulo">Inputs</div>', unsafe_allow_html=True)
 
     a,b=l.columns(2)
     material=a.selectbox("Material",list(materiales.keys()))
-    co2=b.selectbox("CO₂",list(CO2.keys()))
+    ppco2=b.number_input("PPCO₂ (psi)",0.0,2000.0,0.0)
 
     c,d=l.columns(2)
-    h2s=c.selectbox("H₂S",list(H2S.keys()))
+    pph2s=c.number_input("PPH₂S (psi)",0.0,50.0,0.0)
     bsr=d.selectbox("BSR (caldos positivos)",list(BSR.keys()))
 
     cl_ppm=st.number_input("Cloruros (ppm)",0,200000,0)
@@ -79,11 +100,19 @@ with l:
     smin_user=st.slider("Smin (ksi)",0,150,30)
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
-# CALCULO
-f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*factor_cloruros(cl_ppm)
+# ======================
+# CÁLCULO FACTORES
+# ======================
+nivel_co2, f_co2 = clasificar_co2(ppco2)
+nivel_h2s, f_h2s = clasificar_h2s(pph2s)
+
+f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
+
 smin=np.linspace(0,150,200)
 
-# GRAFICO Y DATOS
+# ======================
+# GRAFICO + DATOS
+# ======================
 with r:
 
     fig,ax=plt.subplots(figsize=(7,3.8))
@@ -115,22 +144,7 @@ with r:
 
     df=pd.DataFrame(ranking)
 
-    # ranking por margen
     df=df.sort_values(by="Margen",ascending=False).reset_index(drop=True)
-
-    # regla HS97
-    if "HS97" in df["Material"].values:
-        pos_hs97=df.index[df["Material"]=="HS97"][0]
-
-        for mat_lim in ["CS propietario","HS propietario"]:
-            if mat_lim in df["Material"].values:
-                pos_lim=df.index[df["Material"]==mat_lim][0]
-
-                if pos_hs97>pos_lim:
-                    fila=df[df["Material"]=="HS97"]
-                    df=df.drop(df[df["Material"]=="HS97"].index)
-                    df=pd.concat([df.iloc[:pos_lim],fila,df.iloc[pos_lim:]]).reset_index(drop=True)
-                    pos_hs97=df.index[df["Material"]=="HS97"][0]
 
     df["%Goodman"]=((smax_user-smin_user)/(df["Sadm"]-smin_user))*100
 
@@ -143,7 +157,9 @@ with r:
         "%Goodman":"{:.1f}"
     }),use_container_width=True)
 
+    # ======================
     # RESULTADOS
+    # ======================
     fs_sel=FS_material(material,f_base)
     sadm_user=goodman(smin_user,materiales[material]["uts_a"],materiales[material]["b"],fs_sel)
     goodman_pct=((smax_user-smin_user)/(sadm_user-smin_user))*100 if sadm_user!=smin_user else 0
@@ -159,17 +175,26 @@ with r:
 
     st.markdown('</div>',unsafe_allow_html=True)
 
-    # RECOMENDACION
-    mejor=df.iloc[0]
+    # ======================
+    # RECOMENDACIÓN
+    # ======================
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
-    if mejor["Margen"]>=0:
-        st.success(f"Mejor opción: {mejor['Material']}")
+    validos = df[df["Margen"] >= 0]
+
+    if len(validos) > 0:
+        mejor = validos.iloc[0]["Material"]
+        st.success(f"Material recomendado: {mejor}")
     else:
         st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
 
     # ======================
-    # PDF (con gráfico)
+    # INFO CLASIFICACIÓN (PRO)
+    # ======================
+    st.caption(f"CO₂: {nivel_co2} | H₂S: {nivel_h2s}")
+
+    # ======================
+    # PDF
     # ======================
     def generar_pdf():
 
@@ -200,5 +225,6 @@ with r:
         file=generar_pdf()
         with open(file,"rb") as f:
             st.download_button("Descargar PDF",f,"reporte_goodman.pdf")
-            st.markdown("---")
+
+st.markdown("---")
 st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
