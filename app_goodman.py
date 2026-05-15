@@ -146,7 +146,7 @@ with r:
     ax.set_xlim(0,100)
     ax.set_ylim(0,100)
 
-    ax.set_title("Diagrama de Goodman Fatiga–Corrosión por Varilla", fontstyle='italic')
+    ax.set_title("Diagrama de Goodman Corrosión-Fatiga por Varilla", fontstyle='italic')
 
     ax.legend()
     st.pyplot(fig)
