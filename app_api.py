@@ -199,4 +199,64 @@ for i,d in enumerate(pct):
     fs=FS_material(mat,f_base)
 
     utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
 
+    Sadm=utsa*fs+b*Smin
+    Gval=(Smax-Smin)/(Sadm-Smin)*100
+
+    rows.append({
+        "Tramo":d,
+        "Material":mat,
+        "FS":round(fs,2),
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
+        "Smax (ksi)":round(Smax,1),
+        "Smin (ksi)":round(Smin,1),
+        "Goodman (%)":int(Gval),
+        "Color":colors[i]
+    })
+
+df=pd.DataFrame(rows)
+st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
+
+# ======================
+# GOODMAN
+# ======================
+st.subheader("Diagrama de Goodman")
+
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"] *
+    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
+
+x=np.linspace(0,x_max,200)
+
+fig,ax=plt.subplots()
+
+curvas=[]
+for d in pct:
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
+    curvas.append(y)
+
+    ax.plot(x,y)
+
+y_safe=np.minimum.reduce(curvas)
+
+ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
+
+ax.plot(x,x)
+
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
+
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+st.pyplot(fig)
+
+st.markdown("---")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
