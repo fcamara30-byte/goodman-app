@@ -10,7 +10,7 @@ import os
 st.set_page_config(layout="wide")
 
 # ======================
-# ESTILO
+# ESTILO LIMPIO
 # ======================
 st.markdown("""
 <style>
@@ -41,7 +41,7 @@ def factor_cloruros(ppm):
     return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
 
 # ======================
-# CLASIFICACIÓN PPCO2 / PPH2S
+# CLASIFICACIÓN POR PSI
 # ======================
 def clasificar_co2(pp):
     if pp == 0:
@@ -63,6 +63,9 @@ def clasificar_h2s(pp):
     else:
         return "Alto", 0.75
 
+# ======================
+# FUNCIONES
+# ======================
 def FS_material(mat,f):
     if f==1: return 1
     if mat=="DA78": return f*0.95
@@ -101,7 +104,7 @@ with l:
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
 # ======================
-# CÁLCULO FACTORES
+# FACTORES
 # ======================
 nivel_co2, f_co2 = clasificar_co2(ppco2)
 nivel_h2s, f_h2s = clasificar_h2s(pph2s)
@@ -176,7 +179,7 @@ with r:
     st.markdown('</div>',unsafe_allow_html=True)
 
     # ======================
-    # RECOMENDACIÓN
+    # RECOMENDACION
     # ======================
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
@@ -184,47 +187,4 @@ with r:
 
     if len(validos) > 0:
         mejor = validos.iloc[0]["Material"]
-        st.success(f"Material recomendado: {mejor}")
-    else:
-        st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
 
-    # ======================
-    # INFO CLASIFICACIÓN (PRO)
-    # ======================
-    st.caption(f"CO₂: {nivel_co2} | H₂S: {nivel_h2s}")
-
-    # ======================
-    # PDF
-    # ======================
-    def generar_pdf():
-
-        file="reporte_goodman.pdf"
-
-        temp_img= tempfile.NamedTemporaryFile(delete=False,suffix=".png")
-        fig.savefig(temp_img.name,dpi=200,bbox_inches='tight')
-
-        doc=SimpleDocTemplate(file)
-        styles=getSampleStyleSheet()
-
-        contenido=[]
-        contenido.append(Paragraph("Goodman – Fatiga y Corrosión",styles["Title"]))
-        contenido.append(Spacer(1,10))
-        contenido.append(Image(temp_img.name,width=500,height=280))
-        contenido.append(Spacer(1,10))
-
-        contenido.append(Paragraph(f"Material: {material}",styles["Normal"]))
-        contenido.append(Paragraph(f"FS: {fs_sel:.3f}",styles["Normal"]))
-        contenido.append(Paragraph(f"Sadm: {sadm_user:.1f} ksi",styles["Normal"]))
-
-        doc.build(contenido)
-        os.unlink(temp_img.name)
-
-        return file
-
-    if st.button("Exportar PDF"):
-        file=generar_pdf()
-        with open(file,"rb") as f:
-            st.download_button("Descargar PDF",f,"reporte_goodman.pdf")
-
-st.markdown("---")
-st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
