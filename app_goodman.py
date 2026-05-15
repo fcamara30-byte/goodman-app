@@ -2,10 +2,6 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from reportlab.platypus import SimpleDocTemplate, Image, Paragraph, Spacer
-from reportlab.lib.styles import getSampleStyleSheet
-import tempfile
-import os
 
 st.set_page_config(layout="wide")
 
@@ -22,7 +18,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Criterio de diseño basado en Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Criterio Goodman Fatiga–Corrosión</div>', unsafe_allow_html=True)
 
 # ======================
 # MATERIALES
@@ -32,140 +28,127 @@ materiales = {
     "HS97":{"uts_a":50,"b":0.375},
     "CS propietario":{"uts_a":44.64,"b":0.375},
     "HS propietario":{"uts_a":55.36,"b":0.375},
-    "D New":{"uts_a":42.86,"b":0.375},
-    "DSK75":{"uts_a":42.86,"b":0.375},
-    "HA96":{"uts_a":50,"b":0.375}
+    "D New":{"uts_a":42.86,"b":0.375}
 }
-
-BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
 # ======================
 # FACTORES
 # ======================
 def factor_co2(sel):
-    if sel == "Nada (0 psi)": return 1.00
-    if sel == "Bajo (0–20 psi)": return 0.98
-    if sel == "Medio (21–100 psi)": return 0.90
-    if sel == "Alto (>100 psi)": return 0.80
+    return {
+        "Nada (0 psi)":1.00,
+        "Bajo (0–20 psi)":0.98,
+        "Medio (21–100 psi)":0.90,
+        "Alto (>100 psi)":0.80
+    }[sel]
 
 def factor_h2s(sel):
-    if sel == "Nada (0 psi)": return 1.00
-    if sel == "Bajo (0–1 psi)": return 0.95
-    if sel == "Medio (1–2 psi)": return 0.80
-    if sel == "Alto (>2 psi)": return 0.75
-
-def factor_cloruros(ppm):
-    return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
+    return {
+        "Nada (0 psi)":1.00,
+        "Bajo (0–1 psi)":0.95,
+        "Medio (1–2 psi)":0.80,
+        "Alto (>2 psi)":0.75
+    }[sel]
 
 # ======================
 # FUNCIONES
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
-    if mat=="DA78": return f*0.95
-    elif mat=="HS97": return f
-    elif mat=="CS propietario": return f*0.96
-    elif mat=="HS propietario": return f*0.80
-    elif mat=="D New": return f*0.94
-    elif mat=="DSK75": return f if f < 0.83 else 1
-    elif mat=="HA96": return f*0.93
+    if mat=="HS97": return f
+    return f*0.9
 
-def goodman(smin,uts,b,fs):
-    return (uts+b*smin)*fs
+def goodman(x,uts,b,fs):
+    return (uts+b*x)*fs
 
 # ======================
-# LAYOUT
+# INPUTS
 # ======================
 l,r = st.columns([1,2])
 
 with l:
-    st.markdown('<div class="subtitulo">Entradas</div>', unsafe_allow_html=True)
+    material = st.selectbox("Material", list(materiales.keys()))
 
-    a,b=l.columns(2)
-    material=a.selectbox("Material",list(materiales.keys()))
-
-    ppco2_sel=b.selectbox("PPCO₂ (psi)", [
+    co2 = st.selectbox("PPCO₂ (psi)", [
         "Nada (0 psi)",
         "Bajo (0–20 psi)",
         "Medio (21–100 psi)",
         "Alto (>100 psi)"
     ])
 
-    c,d=l.columns(2)
-    pph2s_sel=c.selectbox("PPH₂S (psi)", [
+    h2s = st.selectbox("PPH₂S (psi)", [
         "Nada (0 psi)",
         "Bajo (0–1 psi)",
         "Medio (1–2 psi)",
         "Alto (>2 psi)"
     ])
 
-    bsr=d.selectbox("BSR", list(BSR.keys()))
+    smin_user = st.slider("Smin (ksi)",0,150,30)
+    smax_user = st.slider("Smax (ksi)",0,150,50)
 
-    cl_ppm=st.number_input("Cloruros (ppm)",0,200000,0)
+# ======================
+# FACTOR BASE
+# ======================
+f_base = factor_co2(co2)*factor_h2s(h2s)
 
-    smin_user=st.slider("Smin (ksi)",0,150,30)
-    smax_user=st.slider("Smax (ksi)",0,150,50)
-
-f_co2 = factor_co2(ppco2_sel)
-f_h2s = factor_h2s(pph2s_sel)
-f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
-
-smin=np.linspace(0,150,200)
+x = np.linspace(0,150,200)
 
 # ======================
 # GRAFICO
 # ======================
 with r:
 
-    fig,ax=plt.subplots(figsize=(7,4))
+    fig, ax = plt.subplots(figsize=(7,4))
+
     ranking=[]
 
     for mat in materiales:
-        fs=FS_material(mat,f_base)
-        y=goodman(smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
-        sadm=goodman(smin_user,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
-        margen=sadm-smax_user
+        fs = FS_material(mat,f_base)
+        y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+        sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+        margen = sadm - smax_user
 
         ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
 
-        if mat==material:
+        if mat == material:
             y_sel = y
-        else:
-            ax.plot(smin,y,color='gray',alpha=0.12)
 
-    # CORTE VÉRTICE
-    diff = y_sel - smin
+    # ✅ CORTE SOLO CURVA AZUL
+    diff = y_sel - x
     idx = np.where(diff <= 0)[0]
-    corte = idx[0] if len(idx)>0 else len(smin)
+    corte = idx[0] if len(idx)>0 else len(x)
 
-    smin_clip = smin[:corte]
+    x_clip = x[:corte]
     y_clip = y_sel[:corte]
 
-    # CURVAS
-    ax.plot(smin_clip,y_clip,color='blue',linewidth=3)
-    ax.plot(smin_clip,smin_clip,color='black',linewidth=2)
+    # ✅ CURVA AZUL
+    ax.plot(x_clip, y_clip, color="blue", linewidth=3)
 
-    # SOMBREADO VERDE
+    # ✅ LINEA 45° COMPLETA
+    ax.plot(x, x, color="black", linewidth=2)
+
+    # ✅ ZONA SEGURA VERDE
     ax.fill_between(
-        smin_clip,
-        smin_clip,
+        x_clip,
+        x_clip,
         y_clip,
-        where=(y_clip >= smin_clip),
-        color='green',
+        where=(y_clip >= x_clip),
+        color="green",
         alpha=0.15
     )
 
-    # PUNTO CRÍTICO
+    # ✅ PUNTO CRITICO
     ax.scatter(
         smin_user,
         smax_user,
         color="red",
-        s=80,
+        s=100,
         label="Punto crítico de sarta"
     )
 
-    ax.set_xlim(smin_user*0.7, max(smin_clip))
-    ax.set_ylim(smax_user*0.7, max(y_clip))
+    # ✅ EJES FIJOS DESDE ORIGEN
+    ax.set_xlim(0,150)
+    ax.set_ylim(0,150)
 
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
@@ -175,55 +158,59 @@ with r:
         fontstyle='italic'
     )
 
-    ax.grid(alpha=0.3)
     ax.legend()
-    plt.tight_layout()
+    ax.grid(alpha=0.3)
+
     st.pyplot(fig)
 
     # ======================
     # RANKING
     # ======================
-    df=pd.DataFrame(ranking)
-    df=df.sort_values(by="Margen",ascending=False).reset_index(drop=True)
+    df = pd.DataFrame(ranking)
+    df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
-    # PRIORIDAD HS97 SIN CORROSION
+    # ✅ HS97 primero sin corrosión
     if f_base >= 0.999:
         if "HS97" in df["Material"].values:
-            fila=df[df["Material"]=="HS97"]
-            df=df[df["Material"]!="HS97"]
-            df=pd.concat([fila,df]).reset_index(drop=True)
+            fila = df[df["Material"]=="HS97"]
+            df = df[df["Material"]!="HS97"]
+            df = pd.concat([fila,df]).reset_index(drop=True)
 
-    df["%Goodman"]=((smax_user-smin_user)/(df["Sadm"]-smin_user))*100
+    df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
     st.markdown('<div class="subtitulo">Ranking de Varillas</div>', unsafe_allow_html=True)
 
-    st.dataframe(df.style.format({
-        "FS":"{:.3f}",
-        "Sadm":"{:.1f}",
-        "Margen":"{:.1f}",
-        "%Goodman":"{:.1f}"
-    }),use_container_width=True)
+    # ✅ SIN FS
+    st.dataframe(
+        df.drop(columns=["FS"]).style.format({
+            "Sadm":"{:.1f}",
+            "Margen":"{:.1f}",
+            "%Goodman":"{:.1f}"
+        }),
+        use_container_width=True
+    )
 
     # ======================
     # RESULTADOS
     # ======================
-    fs_sel=FS_material(material,f_base)
-    sadm_user=goodman(smin_user,materiales[material]["uts_a"],materiales[material]["b"],fs_sel)
-    goodman_pct=((smax_user-smin_user)/(sadm_user-smin_user))*100
+    fs_sel = FS_material(material,f_base)
+    sadm_user = goodman(smin_user, materiales[material]["uts_a"], materiales[material]["b"], fs_sel)
+
+    goodman_pct = ((smax_user-smin_user)/(sadm_user-smin_user))*100
 
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
     st.markdown('<div class="box">', unsafe_allow_html=True)
 
-    c1,c2,c3,c4=st.columns(4)
-    c1.metric("FS",f"{fs_sel:.3f}")
-    c2.metric("Factor",f"{f_base:.3f}")
-    c3.metric("Sadm",f"{sadm_user:.1f}")
-    c4.metric("Goodman",f"{goodman_pct:.1f}%")
+    c1,c2,c3,c4 = st.columns(4)
+    c1.metric("FS", f"{fs_sel:.3f}")
+    c2.metric("Factor", f"{f_base:.3f}")
+    c3.metric("Sadm", f"{sadm_user:.1f}")
+    c4.metric("Goodman", f"{goodman_pct:.1f}%")
 
     st.markdown('</div>',unsafe_allow_html=True)
 
     # ======================
-    # RECOMENDACIÓN
+    # RECOMENDACION
     # ======================
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
@@ -235,4 +222,4 @@ with r:
         st.error("Aplicar varillas revestidas y/o tratamiento químico")
 
 st.markdown("---")
-st.markdown('<div class="cursiva">Modelo basado en APIRP11L y corrosion-fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Modelo basado en Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
