@@ -25,7 +25,7 @@ with open(archivo_contador, "w") as f:
 
 st.set_page_config(layout="wide")
 
-# ✅ Mostrar arriba a la izquierda
+# ✅ Mostrar arriba a la izquierda (CORREGIDO HTML REAL)
 st.markdown(
     f"""
     <div style="position:fixed;
@@ -268,7 +268,7 @@ ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
 
 ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi")
+ax.set_ylabel("Smax (ksi)")
 
 ax.legend(title="Tramo")
 
