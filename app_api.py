@@ -5,6 +5,20 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
+st.markdown(
+    f"""
+    <div style="position:fixed;
+                top:5px;
+                left:10px;
+                font-size:12px;
+                color:gray;
+                z-index:1000;">
+        Visitas: {visitas}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 import os
 
 archivo_contador = "visitas.txt"
