@@ -4,7 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("Cálculo de Solicitaciones SRP")
+st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 # ======================
 # INPUTS
@@ -252,4 +252,4 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Modelo SRP calibrado")
+st.caption("Modelo SRP sólo referencial")
