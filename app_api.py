@@ -4,10 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
-st.set_page_config(layout="centered")
+st.set_page_config(layout="wide")
 
 # ======================
-# CONTADOR
+# CONTADOR DE VISITAS
 # ======================
 archivo_contador = "visitas.txt"
 
@@ -25,37 +25,22 @@ visitas += 1
 with open(archivo_contador, "w") as f:
     f.write(str(visitas))
 
-# ======================
-# ESTILO
-# ======================
-st.markdown("""
-<style>
-.block-container {
-    max-width: 1050px;
-    padding-top: 1rem;
-}
-</style>
+# ✅ MOSTRAR ARRIBA (FORMA SEGURA)
+st.markdown(f"""
+<div style="font-size:13px; color:gray;">
+Visitas totales: <b>{visitas}</b>
+</div>
 """, unsafe_allow_html=True)
 
 # ======================
-# CABECERA
+# TITULO
 # ======================
-c_img, c_title = st.columns([1,5])
-
-with c_img:
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pumpjack.svg/120px-Pumpjack.svg.png",
-        width=80
-    )
-
-with c_title:
-    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
-    st.caption(f"Visitas totales: {visitas}")
+st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 # ======================
 # INPUTS
 # ======================
-c1,c2,c3,c4 = st.columns([1,1,1,1])
+c1,c2,c3,c4 = st.columns(4)
 
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
@@ -109,8 +94,8 @@ def FS_material(mat,f):
     if f==1: return 1
     if mat=="DA78": return f*0.95
     elif mat=="HS97": return f*0.96
-    elif mat=="CS": return f*0.96
-    elif mat=="HS": return f*0.75
+    elif mat=="CS propietario": return f*0.96
+    elif mat=="HS propietario": return f*0.75
     elif mat=="D New": return f*0.94
     elif mat=="DSK75": return f if f < 0.75 else 1
     elif mat=="HA96": return f*0.85
@@ -131,6 +116,20 @@ L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
 
 # ======================
+# CONTROL LONGITUD
+# ======================
+st.subheader("Control de longitud")
+
+long_m=total*0.3048
+dif=long_m-L_m
+
+st.dataframe(pd.DataFrame({
+    "Pozo (m)":[int(L_m)],
+    "Sarta (m)":[int(long_m)],
+    "Δ (m)":[int(dif)]
+}),use_container_width=True)
+
+# ======================
 # MODELO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
@@ -139,7 +138,7 @@ peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
-L_total_ft = total
+L_total_ft = L1+L78+L34
 
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
@@ -148,12 +147,26 @@ Fd = (S * N) / (2600 + S * N)
 
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-dF = 0.52*S*(Fd**0.78)
+E=30_000_000
+Aeq=0.58
 
-MPRL=max(Wr-dF,0)*0.97
+kr=(Aeq*E)/(L_total_ft*12)
+
+dx=0.52*S*(Fd**0.78)
+
+prop_L=(L_total_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
+
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
+
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
+
+MPRL_base=max(Wr-dF,0)
+MPRL = MPRL_base * 0.97
 
 # ======================
-# OUTPUT
+# DISPLAY
 # ======================
 st.subheader("Cargas")
 
@@ -162,102 +175,128 @@ c1.metric("PPRL (lb)",f"{int(PPRL):,}")
 c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
+# RESULTADOS
+# ======================
+st.subheader("Resultados por tramo")
+
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
+
+W1=pct["1"]*Wr_air
+W78=pct["7/8"]*Wr_air
+
+W_up={"1":0,"7/8":W1,"3/4":W1+W78}
+
+rows=[]
+colors=["red","green","orange"]
+
+for i,d in enumerate(pct):
+
+    Pmax=PPRL-W_up[d]
+    Pmin=max(MPRL-0.3*W_up[d],0)
+
+    Smax=Pmax/areas[d]/1000
+    Smin=Pmin/areas[d]/1000
+
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+
+    Sadm=utsa*fs+b*Smin
+    Gval=(Smax-Smin)/(Sadm-Smin)*100
+
+    rows.append({
+        "Tramo":d,
+        "Material":mat,
+        "FS":round(fs,2),
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
+        "Smax (ksi)":round(Smax,1),
+        "Smin (ksi)":round(Smin,1),
+        "Goodman (%)":int(Gval),
+        "Color":colors[i]
+    })
+
+df=pd.DataFrame(rows)
+st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
+
+
+# ======================
 # GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
-x=np.linspace(0,100,200)
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"] *
+    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
 
-fig,ax=plt.subplots(figsize=(6,4))
+x=np.linspace(0,x_max,200)
+
+fig,ax=plt.subplots()
 
 curvas=[]
-rows=[]
-
-for d in rod_sel:
-
+for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
 
     y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
     curvas.append(y)
 
-    # ⚠️ uso valores originales (NO los altero)
-    Smax=50
-    Smin=30
-
-    Sadm=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*Smin
-    Gval=(Smax-Smin)/(Sadm-Smin)*100
-
-    rows.append({
-        "Tramo":d,
-        "Material":mat,
-        "Smax (ksi)":Smax,
-        "Smin (ksi)":Smin,
-        "Goodman (%)":Gval
-    })
-
     ax.plot(x,y)
 
-# zona segura
+# ✅ zona segura
 y_safe=np.minimum.reduce(curvas)
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
-# línea 45°
+# ✅ RECUPERAR PUNTOS Y LEYENDA
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"])
+
+# ✅ línea 45°
 ax.plot(x,x)
 
-df=pd.DataFrame(rows)
+# ✅ límites
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
 
-# puntos con color dinámico
-for _,r in df.iterrows():
-
-    color_pto = "green" if r["Goodman (%)"] <= 100 else "red"
-
-    ax.scatter(
-        r["Smin (ksi)"],
-        r["Smax (ksi)"],
-        color=color_pto,
-        s=80,
-        edgecolors="black",
-        label=r["Material"]
-    )
-
-# mensaje
-if any(df["Goodman (%)"]>100):
-    ax.text(
-        0.5,0.1,
-        "Zona insegura\nRevisar diseño o aplicar mitigación",
-        transform=ax.transAxes,
-        color="red",
-        ha="center"
-    )
-
+# ✅ etiquetas
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
-ax.set_title("Goodman")
-ax.legend()
+
+# ✅ título (faltaba)
+ax.set_title("Diagrama de Goodman Fatiga–Corrosión por Varilla")
+
+# ✅ leyenda (faltaba)
+ax.legend(title="Tramo")
+
+# ✅ DETECCIÓN DE FALLA
+fuera = any(df["Goodman (%)"] > 100)
+
+# ✅ MENSAJE EN EL GRÁFICO
+if fuera:
+    ax.text(
+        0.5, 0.1,
+        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.8, edgecolor='red')
+    )
 
 st.pyplot(fig)
 
-# indicador global
-if any(df["Goodman (%)"] > 100):
-    st.error("🚫 Falla en al menos un tramo")
-else:
-    st.success("✅ Condición segura")
 
-# ======================
-# TABLA
-# ======================
-def color_estado(val):
-    return "color:red" if val>100 else "color:green"
 
-st.dataframe(
-    df.style.applymap(color_estado, subset=["Goodman (%)"]),
-    use_container_width=False,
-    height=220
-)
-
-# ======================
-# FOOTER
-# ======================
 st.markdown("---")
-st.caption("Modelo basado en Goodman + experiencia de campo")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
+
