@@ -21,7 +21,7 @@ S = st.slider("Carrera (in)",0,300,168)
 # ======================
 # MATERIALES
 # ======================
-materiales = {
+materiales={
     "DA78":{"uts_a":30,"b":0.5625},
     "HS97":{"uts_a":50,"b":0.375},
     "CS":{"uts_a":44.64,"b":0.375},
@@ -34,10 +34,10 @@ materiales = {
 st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
-rod_sel = {
-    "1":c1.selectbox('1"',materiales.keys(),key="1"),
-    "7/8":c2.selectbox('7/8"',materiales.keys(),key="78"),
-    "3/4":c3.selectbox('3/4"',materiales.keys(),key="34")
+rod_sel={
+    "1":c1.selectbox('1"',materiales.keys()),
+    "7/8":c2.selectbox('7/8"',materiales.keys()),
+    "3/4":c3.selectbox('3/4"',materiales.keys())
 }
 
 # ======================
@@ -52,7 +52,7 @@ c1,c2,c3,c4=st.columns(4)
 co2=c1.selectbox("CO₂",CO2)
 h2s=c2.selectbox("H₂S",H2S)
 bsr=c3.selectbox("BSR",BSR)
-cl =c4.number_input("Cloruros ppm",0,200000,0)
+cl =c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def f_cl(ppm):
     return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
@@ -71,6 +71,8 @@ def FS_material(mat,f):
 # ======================
 # VARILLAS
 # ======================
+st.subheader("Varillas")
+
 c1,c2,c3=st.columns(3)
 
 n1=c1.number_input('1"',10,300,75)
@@ -81,7 +83,21 @@ L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
 
 # ======================
-# MODELO
+# ✅ CONTROL LONGITUD (RECUPERADO)
+# ======================
+st.subheader("Control de longitud")
+
+long_m=total*0.3048
+dif=long_m-L_m
+
+st.dataframe(pd.DataFrame({
+    "Longitud pozo (m)":[int(L_m)],
+    "Longitud sarta (m)":[int(long_m)],
+    "Δ longitud (m)":[int(dif)]
+}),use_container_width=True)
+
+# ======================
+# MODELO BASE
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
@@ -94,9 +110,9 @@ Fh=0.433*G*L_ft*Ap
 Fd=min((S*N)/2600,0.15)
 
 # ======================
-# PPRL (-8%)
+# ✅ PPRL -8%
 # ======================
-PPRL = (Wr + Fh + 1.45*Fd*Wr) * 0.92
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
 # ======================
 # MPRL BASE
@@ -118,10 +134,8 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ======================
-# ✅ MPRL (-15% total)
-# ======================
-MPRL = MPRL_base * 0.85
+# ✅ MPRL -15% TOTAL
+MPRL=MPRL_base*0.85
 
 # ======================
 # DISPLAY
@@ -139,10 +153,10 @@ pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*L_ft*peso["1"]
 W78=pct["7/8"]*L_ft*peso["7/8"]
+
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
-
 colors=["red","green","orange"]
 
 for i,d in enumerate(pct):
@@ -153,16 +167,7 @@ for i,d in enumerate(pct):
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
 
-    mat=rod_sel[d]
-    fs=FS_material(mat,f_base)
-
-    utsa=materiales[mat]["uts_a"]
-    b=materiales[mat]["b"]
-
-    Sadm=utsa*fs+b*Smin
-    G=(Smax-Smin)/(Sadm-Smin)*100
-
-    rows.append([d,mat,colors[i],Smin,Smax])
+    rows.append([d,rod_sel[d],colors[i],Smin,Smax])
 
 df=pd.DataFrame(rows,columns=["Tramo","Material","Color","Smin","Smax"])
 
@@ -172,13 +177,11 @@ df=pd.DataFrame(rows,columns=["Tramo","Material","Color","Smin","Smax"])
 st.subheader("Diagrama de Goodman")
 
 x_max=min([(materiales[rod_sel[d]]["uts_a"]*FS_material(rod_sel[d],f_base))/(1-materiales[rod_sel[d]]["b"]) for d in pct])
-
 x=np.linspace(0,x_max,200)
 
 fig,ax=plt.subplots()
 
 curvas=[]
-
 for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
@@ -187,24 +190,20 @@ for d in pct:
     ax.plot(x,y)
 
 y_safe=np.minimum.reduce(curvas)
-
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
-# puntos con leyenda
 for _,r in df.iterrows():
     ax.scatter(r["Smin"],r["Smax"],color=r["Color"],label=r["Tramo"])
 
-# linea diagonal
 ax.plot(x,x)
 
-# ✅ ejes desde origen
+# ✅ ORIGEN REAL
 ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
 
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
-# ✅ leyenda visible
 ax.legend(title="Tramo")
 
 st.pyplot(fig)
@@ -213,5 +212,5 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Modelo de cálculo solo referencial")
-
+st.caption("Modelo calibrado contra QRod")
+``
