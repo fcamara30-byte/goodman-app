@@ -102,11 +102,10 @@ st.dataframe(pd.DataFrame({
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-# ✅ peso real sarta
+# ✅ PESO REAL
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
-# ✅ longitud real sarta
 L_total_ft = L1+L78+L34
 
 Ap=np.pi*D**2/4
@@ -115,13 +114,11 @@ Fh=0.433*G*L_total_ft*Ap
 Fd=min((S*N)/2600,0.15)
 
 # ======================
-# PPRL (-8%)
+# CARGAS
 # ======================
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.95
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-# ======================
-# MPRL BASE
-# ======================
+# MPRL
 E=30_000_000
 Aeq=0.58
 
@@ -139,8 +136,9 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ✅ MPRL FINAL (-15% y -30%)
-MPRL=MPRL_base*0.85*0.95
+# ✅ FACTOR FINAL
+factor_mprl = 0.85 * 0.80
+MPRL = MPRL_base * factor_mprl
 
 # ======================
 # DISPLAY
@@ -154,6 +152,8 @@ c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 # ======================
 # RESULTADOS
 # ======================
+st.subheader("Resultados por tramo")
+
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*Wr_air
@@ -172,16 +172,42 @@ for i,d in enumerate(pct):
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
 
-    rows.append([d,rod_sel[d],colors[i],Smin,Smax])
+    mat = rod_sel[d]
+    fs  = FS_material(mat,f_base)
 
-df=pd.DataFrame(rows,columns=["Tramo","Material","Color","Smin","Smax"])
+    utsa=materiales[mat]["uts_a"]
+    b   =materiales[mat]["b"]
+
+    Sadm=utsa*fs+b*Smin
+    Gval=(Smax-Smin)/(Sadm-Smin)*100
+
+    rows.append({
+        "Tramo":d,
+        "Material":mat,
+        "FS":round(fs,2),
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
+        "Smax (ksi)":round(Smax,1),
+        "Smin (ksi)":round(Smin,1),
+        "Goodman (%)":int(Gval),
+        "Color":colors[i]
+    })
+
+df=pd.DataFrame(rows)
+
+st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
 
 # ======================
 # GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
-x_max=min([(materiales[rod_sel[d]]["uts_a"]*FS_material(rod_sel[d],f_base))/(1-materiales[rod_sel[d]]["b"]) for d in pct])
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"]*
+    FS_material(rod_sel[d],f_base)/(1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
+
 x=np.linspace(0,x_max,200)
 
 fig,ax=plt.subplots()
@@ -190,15 +216,20 @@ curvas=[]
 for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
+
     y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
     curvas.append(y)
+
     ax.plot(x,y)
 
 y_safe=np.minimum.reduce(curvas)
+
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
-for _,r in df.iterrows():
-    ax.scatter(r["Smin"],r["Smax"],color=r["Color"],label=r["Tramo"])
+for i,r in df.iterrows():
+    ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],
+               color=r["Color"],
+               label=r["Tramo"] if i==0 else "")
 
 ax.plot(x,x)
 
@@ -217,4 +248,3 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Modelo SRP calibrado")
-
