@@ -179,6 +179,22 @@ with r:
     ax.set_title("Diagrama de Goodman Corrosión-Fatiga por Varilla", fontstyle='italic')
 
     ax.legend()
+    
+# ✅ DETECCIÓN DE FALLA
+fuera = any(df["Goodman (%)"] > 100)
+
+# ✅ MENSAJE EN EL GRÁFICO
+if fuera:
+    ax.text(
+        0.5, 0.1,
+        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.8, edgecolor='red')
+    )
+
     st.pyplot(fig)
 
     # ======================
