@@ -178,6 +178,22 @@ with r:
 
     ax.set_title("Diagrama de Goodman Corrosión-Fatiga por Varilla", fontstyle='italic')
 
+# ✅ DETECCIÓN DE FALLA (punto crítico)
+fuera = smax_user > sadm_user
+
+# ✅ MENSAJE EN EL GRÁFICO
+if fuera:
+    ax.text(
+        0.5, 0.15,
+        "Seleccione otro tipo de varilla\n"
+        "o utilice revestimiento + tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=11,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.85, edgecolor='red')
+    )
+
     ax.legend()
 
 
