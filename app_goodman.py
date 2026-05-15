@@ -2,8 +2,9 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
+import os
 
-import os   # 👈 agregar esto
+st.set_page_config(layout="wide")
 
 # ======================
 # CONTADOR DE VISITAS
@@ -30,25 +31,20 @@ def contador_visitas():
 
 visitas = contador_visitas()
 
-st.set_page_config(layout="wide")
-
-
-st.set_page_config(layout="wide")
-
 # ======================
 # ESTILO
 # ======================
 st.markdown("""
 <style>
-.titulo {font-size:33px; font-weight:700; color:#0B3C8C;}
-.subtitulo {font-size:17px; font-weight:600; color:#1F4E79; margin-top:12px;}
-.box {background:#F4F6F8; padding:12px; border-radius:10px;}
+.titulo {font-size:30px; font-weight:700; color:#0B3C8C;}
+.subtitulo {font-size:17px; font-weight:600; color:#1F4E79;}
 .cursiva {font-style: italic; color:#444;}
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Según Criterio Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.caption(f"Visitas totales: {visitas}")
 
 # ======================
 # DATOS
@@ -106,21 +102,18 @@ def goodman(x,uts,b,fs):
 # ======================
 # INPUTS
 # ======================
-l,r = st.columns([1,2])
+l, r = st.columns([1,2])
 
 with l:
     material = st.selectbox("Material", list(materiales.keys()))
-
-    co2 = st.selectbox("PPCO₂ (psi)", [
+    co2 = st.selectbox("PPCO₂", list(factor_co2("").keys()) if False else [
         "Nada (0 psi)", "Bajo (0–20 psi)",
         "Medio (21–100 psi)", "Alto (>100 psi)"
     ])
-
-    h2s = st.selectbox("PPH₂S (psi)", [
+    h2s = st.selectbox("PPH₂S", [
         "Nada (0 psi)", "Bajo (0–1 psi)",
         "Medio (1–2 psi)", "Alto (>2 psi)"
     ])
-
     bsr = st.selectbox("BSR", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0)
 
@@ -130,10 +123,9 @@ with l:
 # ======================
 # FACTOR BASE
 # ======================
-f_base = factor_co2(co2) * factor_h2s(h2s) * BSR[bsr] * factor_cloruros(cl_ppm)
+f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
 
-x = np.linspace(0,100,200)
-# ✅ CALCULAR ANTES PARA USO EN EL GRÁFICO
+# ✅ cálculo correcto del material seleccionado
 fs_sel = FS_material(material, f_base)
 sadm_user = goodman(
     smin_user,
@@ -142,143 +134,84 @@ sadm_user = goodman(
     fs_sel
 )
 
+x = np.linspace(0,100,200)
+
 # ======================
-# GRAFICO + RANKING
+# GRAFICO
 # ======================
 with r:
 
-    fig, ax = plt.subplots(figsize=(7,4))
-    ranking = []
+    fig, ax = plt.subplots(figsize=(6,4))
 
-    for mat in materiales:
-        fs = FS_material(mat,f_base)
-        y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+    # curva Goodman
+    y = goodman(x, materiales[material]["uts_a"], materiales[material]["b"], fs_sel)
 
-        sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
-        margen = sadm - smax_user
-
-        ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
-
-        if mat == material:
-            y_sel = y
-
-    # CORTE
-    diff = y_sel - x
+    # corte en vértice
+    diff = y - x
     idx = np.where(diff <= 0)[0]
     corte = idx[0] if len(idx)>0 else len(x)
 
     x_clip = x[:corte]
-    y_clip = y_sel[:corte]
+    y_clip = y[:corte]
 
+    # curvas
     ax.plot(x_clip, y_clip, "b", linewidth=3)
     ax.plot(x, x, "k", linewidth=2)
 
+    # zona segura
     ax.fill_between(x_clip, x_clip, y_clip,
-                    where=(y_clip>=x_clip),
+                    where=(y_clip >= x_clip),
                     color='green', alpha=0.15)
 
+    # punto crítico
     ax.scatter(smin_user, smax_user,
-               color="red", s=100,
-               label="Punto crítico de sarta")
+               color="red",
+               s=90,
+               label="Punto crítico")
 
+    # ✅ alerta Goodman
+    if smax_user > sadm_user:
+        ax.text(
+            0.5, 0.15,
+            "Seleccione otro tipo de varilla\n"
+            "o utilice revestimiento + tratamiento químico",
+            transform=ax.transAxes,
+            fontsize=10,
+            color="red",
+            ha="center",
+            bbox=dict(facecolor='white', alpha=0.85, edgecolor='red')
+        )
+
+    # formato gráfico
     ax.set_xlim(0,100)
     ax.set_ylim(0,100)
-
-    ax.set_title("Diagrama de Goodman Corrosión-Fatiga por Varilla", fontstyle='italic')
-
-
+    ax.set_xlabel("Smin (ksi)")
+    ax.set_ylabel("Smax (ksi)")
+    ax.set_title("Diagrama de Goodman Corrosión-Fatiga", fontstyle="italic")
 
     ax.legend()
-
-# ✅ DETECCIÓN DE FALLA
-if smax_user > sadm_user:
-    ax.text(
-        0.5,
-        0.15,
-        "Seleccione otro tipo de varilla\n"
-        "o utilice revestimiento + tratamiento químico",
-        transform=ax.transAxes,
-        fontsize=11,
-        color="red",
-        ha="center",
-        bbox=dict(
-            facecolor='white',
-            alpha=0.85,
-            edgecolor='red'
-        )
-    )
-
-
+    ax.grid(alpha=0.3)
 
     st.pyplot(fig)
 
-    # ======================
-    # RANKING FINAL
-    # ======================
-    df = pd.DataFrame(ranking)
+# ======================
+# RESULTADOS
+# ======================
+goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
-    # 👉 con corrosión → normal
-    df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
+st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-    # 👉 sin corrosión → HS97 primero
-    if abs(f_base - 1.0) < 1e-6:
-        if "HS97" in df["Material"].values:
-            fila = df[df["Material"]=="HS97"]
-            df = df[df["Material"]!="HS97"]
-            df = pd.concat([fila,df]).reset_index(drop=True)
-
-    df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
-
-    st.markdown('<div class="subtitulo">Ranking de Varillas</div>', unsafe_allow_html=True)
-
-    st.dataframe(
-        df.drop(columns=["FS"]).style.format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        }),
-        use_container_width=True
-    )
-
-    # ======================
-    # RESULTADOS
-    # ======================
-    fs_sel = FS_material(material,f_base)
-    sadm_user = goodman(smin_user, materiales[material]["uts_a"], materiales[material]["b"], fs_sel)
-
-    goodman_pct = ((smax_user-smin_user)/(sadm_user-smin_user))*100
-
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
-
-    c1,c2,c3,c4 = st.columns(4)
-    c1.metric("FS", f"{fs_sel:.3f}")
-    c2.metric("Factor base", f"{f_base:.3f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{goodman_pct:.1f}")
-
-    # ======================
-    # RECOMENDACION
-    # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-    validos = df[df["Margen"] >= 0]
-
-    if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
-        st.success(f"Material recomendado: {mejor}")
-    else:
-        st.error("Requiere tratamiento químico y/ o varillas revestidas")
+c1,c2,c3,c4 = st.columns(4)
+c1.metric("FS", f"{fs_sel:.3f}")
+c2.metric("Factor base", f"{f_base:.3f}")
+c3.metric("Sadm", f"{sadm_user:.1f}")
+c4.metric("%Goodman", f"{goodman_pct:.1f}")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
-st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga. Desarrollado por Fcam</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Modelo basado en Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 
-st.markdown(f"""
-<div style='font-size:14px;color:#666;'>
-Visitas totales: <b>{visitas}</b>
-</div>
-""", unsafe_allow_html=True)
 
 
