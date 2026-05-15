@@ -59,7 +59,7 @@ materiales = {
     "HA96":{"uts_a":50,"b":0.375}
 }
 
-BSR = {"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
+BSR (caldos+) = {"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
 # ======================
 # FACTORES
@@ -93,7 +93,7 @@ def FS_material(mat,f):
     elif mat=="CS propietario": return f*0.96
     elif mat=="HS propietario": return f*0.80
     elif mat=="D New": return f*0.94
-    elif mat=="DSK75": return f if f < 0.83 else 1
+    elif mat=="DSK75": return f if f < 0.81 else 1
     elif mat=="HA96": return f*0.93
 
 def goodman(x,uts,b,fs):
