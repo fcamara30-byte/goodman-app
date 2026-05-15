@@ -10,7 +10,7 @@ st.set_page_config(layout="wide")
 # ======================
 st.markdown("""
 <style>
-.titulo {font-size:26px; font-weight:700; color:#0B3C8C;}
+.titulo {font-size:33px; font-weight:700; color:#0B3C8C;}
 .subtitulo {font-size:17px; font-weight:600; color:#1F4E79; margin-top:12px;}
 .box {background:#F4F6F8; padding:12px; border-radius:10px;}
 .cursiva {font-style: italic; color:#444;}
@@ -18,7 +18,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Criterio Goodman Fatiga–Corrosión</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
 
 # ======================
 # DATOS
