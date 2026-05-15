@@ -21,18 +21,20 @@ st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_all
 st.markdown('<div class="cursiva">Criterio Goodman Fatiga–Corrosión</div>', unsafe_allow_html=True)
 
 # ======================
-# MATERIALES
+# MATERIALES (INTACTO)
 # ======================
 materiales = {
     "DA78":{"uts_a":30,"b":0.5625},
     "HS97":{"uts_a":50,"b":0.375},
     "CS propietario":{"uts_a":44.64,"b":0.375},
     "HS propietario":{"uts_a":55.36,"b":0.375},
-    "D New":{"uts_a":42.86,"b":0.375}
+    "D New":{"uts_a":42.86,"b":0.375},
+    "DSK75":{"uts_a":42.86,"b":0.375},
+    "HA96":{"uts_a":50,"b":0.375}
 }
 
 # ======================
-# FACTORES
+# FACTORES (INTACTO)
 # ======================
 def factor_co2(sel):
     return {
@@ -51,12 +53,17 @@ def factor_h2s(sel):
     }[sel]
 
 # ======================
-# FUNCIONES
+# FUNCIONES (INTACTO)
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
-    if mat=="HS97": return f
-    return f*0.9
+    if mat=="DA78": return f*0.95
+    elif mat=="HS97": return f
+    elif mat=="CS propietario": return f*0.96
+    elif mat=="HS propietario": return f*0.80
+    elif mat=="D New": return f*0.94
+    elif mat=="DSK75": return f if f < 0.83 else 1
+    elif mat=="HA96": return f*0.93
 
 def goodman(x,uts,b,fs):
     return (uts+b*x)*fs
@@ -83,15 +90,15 @@ with l:
         "Alto (>2 psi)"
     ])
 
-    smin_user = st.slider("Smin (ksi)",0,150,30)
-    smax_user = st.slider("Smax (ksi)",0,150,50)
+    smin_user = st.slider("Smin (ksi)",0,120,30)
+    smax_user = st.slider("Smax (ksi)",0,120,50)
 
 # ======================
 # FACTOR BASE
 # ======================
 f_base = factor_co2(co2)*factor_h2s(h2s)
 
-x = np.linspace(0,150,200)
+x = np.linspace(0,120,200)
 
 # ======================
 # GRAFICO
@@ -99,12 +106,12 @@ x = np.linspace(0,150,200)
 with r:
 
     fig, ax = plt.subplots(figsize=(7,4))
-
     ranking=[]
 
     for mat in materiales:
         fs = FS_material(mat,f_base)
         y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+
         sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
         margen = sadm - smax_user
 
@@ -113,7 +120,7 @@ with r:
         if mat == material:
             y_sel = y
 
-    # ✅ CORTE SOLO CURVA AZUL
+    # ✅ CORTE EN VÉRTICE
     diff = y_sel - x
     idx = np.where(diff <= 0)[0]
     corte = idx[0] if len(idx)>0 else len(x)
@@ -124,10 +131,10 @@ with r:
     # ✅ CURVA AZUL
     ax.plot(x_clip, y_clip, color="blue", linewidth=3)
 
-    # ✅ LINEA 45° COMPLETA
+    # ✅ LINEA 45° COMPLETA DESDE ORIGEN
     ax.plot(x, x, color="black", linewidth=2)
 
-    # ✅ ZONA SEGURA VERDE
+    # ✅ SOMBRA VERDE
     ax.fill_between(
         x_clip,
         x_clip,
@@ -137,7 +144,7 @@ with r:
         alpha=0.15
     )
 
-    # ✅ PUNTO CRITICO
+    # ✅ PUNTO CRÍTICO
     ax.scatter(
         smin_user,
         smax_user,
@@ -146,9 +153,9 @@ with r:
         label="Punto crítico de sarta"
     )
 
-    # ✅ EJES FIJOS DESDE ORIGEN
-    ax.set_xlim(0,150)
-    ax.set_ylim(0,150)
+    # ✅ EJES DESDE ORIGEN
+    ax.set_xlim(0,120)
+    ax.set_ylim(0,120)
 
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
@@ -169,7 +176,7 @@ with r:
     df = pd.DataFrame(ranking)
     df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
-    # ✅ HS97 primero sin corrosión
+    # ✅ HS97 PRIORIDAD SIN CORROSIÓN
     if f_base >= 0.999:
         if "HS97" in df["Material"].values:
             fila = df[df["Material"]=="HS97"]
