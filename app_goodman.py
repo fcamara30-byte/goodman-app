@@ -182,6 +182,18 @@ with r:
 
     ax.legend()
 
+# ✅ DETECCIÓN DE FALLA
+if smax_user > sadm_user:
+    ax.text(
+        0.5, 0.15,
+        "Seleccione otro="red",        "Seleccione otro tipo de varilla\n"
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.85, edgecolor='red')
+    )
+        "o utilice revestimiento + tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=11,
+
 
     st.pyplot(fig)
 
