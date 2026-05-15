@@ -237,4 +237,4 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Modelo calibrado contra QRod")
+st.caption("Calculos Corrosión-Fatiga para usar referencialmente")
