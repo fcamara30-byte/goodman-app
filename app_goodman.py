@@ -3,6 +3,36 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+import os   # 👈 agregar esto
+
+# ======================
+# CONTADOR DE VISITAS
+# ======================
+def contador_visitas():
+    archivo = "visitas.txt"
+
+    if not os.path.exists(archivo):
+        with open(archivo, "w") as f:
+            f.write("0")
+
+    with open(archivo, "r+") as f:
+        try:
+            count = int(f.read())
+        except:
+            count = 0
+
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+        f.truncate()
+
+    return count
+
+visitas = contador_visitas()
+
+st.set_page_config(layout="wide")
+
+
 st.set_page_config(layout="wide")
 
 # ======================
@@ -213,3 +243,11 @@ with r:
 # ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga. Desarrollado por Fcam</div>', unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style='font-size:14px;color:#666;'>
+Visitas totales: <b>{visitas}</b>
+</div>
+""", unsafe_allow_html=True)
+
+
