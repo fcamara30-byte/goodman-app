@@ -117,7 +117,7 @@ Fd=min((S*N)/2600,0.15)
 # ======================
 # PPRL (-8%)
 # ======================
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.95
 
 # ======================
 # MPRL BASE
@@ -140,7 +140,7 @@ dF=min(dF,limite)
 MPRL_base=max(Wr-dF,0)
 
 # ✅ MPRL FINAL (-15% y -30%)
-MPRL=MPRL_base*0.85*0.9
+MPRL=MPRL_base*0.85*0.95
 
 # ======================
 # DISPLAY
