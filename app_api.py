@@ -2,25 +2,13 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 
 st.set_page_config(layout="wide")
 
-st.markdown(
-    f"""
-    <div style="position:fixed;
-                top:5px;
-                left:10px;
-                font-size:12px;
-                color:gray;
-                z-index:1000;">
-        Visitas: {visitas}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-import os
-
+# ======================
+# CONTADOR DE VISITAS
+# ======================
 archivo_contador = "visitas.txt"
 
 if os.path.exists(archivo_contador):
@@ -34,7 +22,8 @@ visitas += 1
 with open(archivo_contador, "w") as f:
     f.write(str(visitas))
 
-.markdown(
+# ✅ Mostrar arriba a la izquierda (FIXED)
+st.markdown(
     f"""
     <div style="position:fixed;
                 top:5px;
@@ -113,7 +102,7 @@ def FS_material(mat,f):
     return f*0.9
 
 # ======================
-# CANT. VARILLAS
+# VARILLAS
 # ======================
 st.subheader("Cant. Varillas")
 
@@ -146,7 +135,6 @@ st.dataframe(pd.DataFrame({
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-# peso real
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
@@ -155,7 +143,7 @@ L_total_ft = L1+L78+L34
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
-# ✅ NUEVO Fd (RESPONDE A SPM)
+# ✅ dinámica dependiente de SPM
 Fd = (S * N) / (2600 + S * N)
 
 # ======================
@@ -176,7 +164,6 @@ dx=0.52*S*(Fd**0.78)
 prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
-# ✅ CLAVE: efecto dinámico fuerte
 dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
 
 limite=Wr*(0.45+0.20*Fd)
@@ -184,7 +171,6 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# factores finales
 MPRL = MPRL_base * 0.97
 
 # ======================
@@ -265,6 +251,7 @@ for d in pct:
 
     y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
     curvas.append(y)
+
     ax.plot(x,y)
 
 y_safe=np.minimum.reduce(curvas)
@@ -292,8 +279,5 @@ ax.legend(title="Tramo")
 
 st.pyplot(fig)
 
-# ======================
-# FOOTER
-# ======================
 st.markdown("---")
 st.caption("Modelo SRP sólo referencial")
