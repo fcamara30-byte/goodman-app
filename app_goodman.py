@@ -22,7 +22,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Criterio basado en Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Criterio de diseño basado en Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
 
 # ======================
 # MATERIALES
@@ -78,9 +78,6 @@ def goodman(smin,uts,b,fs):
 # ======================
 l,r = st.columns([1,2])
 
-# ======================
-# INPUTS
-# ======================
 with l:
     st.markdown('<div class="subtitulo">Entradas</div>', unsafe_allow_html=True)
 
@@ -109,18 +106,14 @@ with l:
     smin_user=st.slider("Smin (ksi)",0,150,30)
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
-# ======================
-# FACTOR BASE
-# ======================
 f_co2 = factor_co2(ppco2_sel)
 f_h2s = factor_h2s(pph2s_sel)
-
 f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
 
 smin=np.linspace(0,150,200)
 
 # ======================
-# GRÁFICO
+# GRAFICO
 # ======================
 with r:
 
@@ -129,7 +122,6 @@ with r:
 
     for mat in materiales:
         fs=FS_material(mat,f_base)
-
         y=goodman(smin,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
         sadm=goodman(smin_user,materiales[mat]["uts_a"],materiales[mat]["b"],fs)
         margen=sadm-smax_user
@@ -137,12 +129,33 @@ with r:
         ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
 
         if mat==material:
-            ax.plot(smin,y,color='blue',linewidth=3)
+            y_sel = y
         else:
-            ax.plot(smin,y,color='gray',alpha=0.15)
+            ax.plot(smin,y,color='gray',alpha=0.12)
 
-    ax.plot(smin,smin,'k-',linewidth=2)
+    # CORTE VÉRTICE
+    diff = y_sel - smin
+    idx = np.where(diff <= 0)[0]
+    corte = idx[0] if len(idx)>0 else len(smin)
 
+    smin_clip = smin[:corte]
+    y_clip = y_sel[:corte]
+
+    # CURVAS
+    ax.plot(smin_clip,y_clip,color='blue',linewidth=3)
+    ax.plot(smin_clip,smin_clip,color='black',linewidth=2)
+
+    # SOMBREADO VERDE
+    ax.fill_between(
+        smin_clip,
+        smin_clip,
+        y_clip,
+        where=(y_clip >= smin_clip),
+        color='green',
+        alpha=0.15
+    )
+
+    # PUNTO CRÍTICO
     ax.scatter(
         smin_user,
         smax_user,
@@ -151,8 +164,8 @@ with r:
         label="Punto crítico de sarta"
     )
 
-    ax.set_xlim(smin_user*0.7,150)
-    ax.set_ylim(smax_user*0.7,150)
+    ax.set_xlim(smin_user*0.7, max(smin_clip))
+    ax.set_ylim(smax_user*0.7, max(y_clip))
 
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
@@ -164,7 +177,6 @@ with r:
 
     ax.grid(alpha=0.3)
     ax.legend()
-
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -174,8 +186,8 @@ with r:
     df=pd.DataFrame(ranking)
     df=df.sort_values(by="Margen",ascending=False).reset_index(drop=True)
 
-    # ✅ REGLA HS97
-    if f_base >= 0.999:   # sin corrosión
+    # PRIORIDAD HS97 SIN CORROSION
+    if f_base >= 0.999:
         if "HS97" in df["Material"].values:
             fila=df[df["Material"]=="HS97"]
             df=df[df["Material"]!="HS97"]
@@ -205,7 +217,7 @@ with r:
     c1,c2,c3,c4=st.columns(4)
     c1.metric("FS",f"{fs_sel:.3f}")
     c2.metric("Factor",f"{f_base:.3f}")
-    c3.metric("Sadm",f"{sadm_user:.1f} ksi")
+    c3.metric("Sadm",f"{sadm_user:.1f}")
     c4.metric("Goodman",f"{goodman_pct:.1f}%")
 
     st.markdown('</div>',unsafe_allow_html=True)
@@ -217,16 +229,10 @@ with r:
 
     validos = df[df["Margen"] >= 0]
 
-    if len(validos) > 0:
+    if len(validos)>0:
         st.success(f"Material recomendado: {validos.iloc[0]['Material']}")
     else:
         st.error("Aplicar varillas revestidas y/o tratamiento químico")
 
-# ======================
-# FOOTER
-# ======================
 st.markdown("---")
-st.markdown(
-    '<div class="cursiva">Modelo basado en APIRP11L, corrosión-fatiga y experiencia de campo</div>',
-    unsafe_allow_html=True
-)
+st.markdown('<div class="cursiva">Modelo basado en APIRP11L y corrosion-fatiga</div>', unsafe_allow_html=True)
