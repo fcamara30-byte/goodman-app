@@ -36,7 +36,7 @@ st.set_page_config(layout="wide")
 # ======================
 st.markdown("""
 <style>
-.titulo {font-size:33px; font-weight:700; color:#0B3C8C;}
+.titulo {font-size:43px; font-weight:700; color:#0B3C8C;}
 .subtitulo {font-size:17px; font-weight:600; color:#1F4E79;}
 .cursiva {font-style: italic; color:#444;}
 </style>
@@ -210,7 +210,7 @@ with r:
 
     df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
-    st.markdown('<div class="subtitulo">Ranking de Varillas</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
 
     st.dataframe(
         df.drop(columns=["FS"]).style.format({
