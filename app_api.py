@@ -222,6 +222,9 @@ st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
 # ======================
 # GOODMAN
 # ======================
+# ======================
+# GOODMAN
+# ======================
 st.subheader("Diagrama de Goodman")
 
 x_max=min([
@@ -244,17 +247,38 @@ for d in pct:
 
     ax.plot(x,y)
 
+# ✅ zona segura
 y_safe=np.minimum.reduce(curvas)
-
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
+# ✅ RECUPERAR PUNTOS Y LEYENDA
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"])
+
+# ✅ línea 45°
 ax.plot(x,x)
 
+# ✅ límites
 ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
 
+# ✅ etiquetas
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
+
+# ✅ título (faltaba)
+ax.set_title("Diagrama de Goodman Fatiga–Corrosión por Varilla")
+
+# ✅ leyenda (faltaba)
+ax.legend(title="Tramo")
+
+st.pyplot(fig)
 
 st.pyplot(fig)
 
