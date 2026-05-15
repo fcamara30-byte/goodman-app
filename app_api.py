@@ -4,6 +4,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
+
+import os
+
+archivo_contador = "visitas.txt"
+
+if os.path.exists(archivo_contador):
+    with open(archivo_contador, "r") as f:
+        visitas = int(f.read())
+else:
+    visitas = 0
+
+visitas += 1
+
+with open(archivo_contador, "w") as f:
+    f.write(str(visitas))
+
 st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 # ======================
