@@ -108,7 +108,7 @@ with l:
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
 # ======================
-# FACTOR BASE
+# FACTORES
 # ======================
 f_co2 = factor_co2(ppco2_sel)
 f_h2s = factor_h2s(pph2s_sel)
@@ -118,7 +118,7 @@ f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
 smin=np.linspace(0,150,200)
 
 # ======================
-# GRAFICO Y DATOS
+# GRAFICO + DATOS
 # ======================
 with r:
 
@@ -140,17 +140,24 @@ with r:
             ax.plot(smin,y,color='gray',alpha=0.2)
 
     ax.plot(smin,smin,'k--')
-   
-ax.scatter(smin_user, smax_user,
-           color="red",
-           s=60,
-           label="Punto crítico de sarta")
+
+    # ✅ Punto crítico con etiqueta
+    ax.scatter(
+        smin_user,
+        smax_user,
+        color="red",
+        s=60,
+        label="Punto crítico de sarta"
+    )
 
     ax.set_xlim(0,150)
     ax.set_ylim(0,150)
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
     ax.grid()
+
+    ax.legend()
+
     plt.tight_layout()
     st.pyplot(fig)
 
@@ -187,7 +194,7 @@ ax.scatter(smin_user, smax_user,
     st.markdown('</div>',unsafe_allow_html=True)
 
     # ======================
-    # RECOMENDACIÓN
+    # RECOMENDACION
     # ======================
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
