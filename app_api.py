@@ -213,4 +213,4 @@ st.pyplot(fig)
 # ======================
 st.markdown("---")
 st.caption("Modelo calibrado contra QRod")
-``
+
