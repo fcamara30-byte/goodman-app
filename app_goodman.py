@@ -46,6 +46,11 @@ st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_all
 st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
 st.caption(f"Visitas totales: {visitas}")
 
+t.image(
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pumpjack.svg/120px-Pumpjack.svg.png",
+    width=80
+)
+
 # ======================
 # DATOS
 # ======================
