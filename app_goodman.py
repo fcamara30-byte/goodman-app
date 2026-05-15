@@ -58,7 +58,7 @@ def factor_cloruros(ppm):
     return 1 if ppm < 9000 else 1 - (0.000019 * (ppm**0.8))
 
 # ======================
-# FUNCIONES (INTACTO)
+# FUNCIONES
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
@@ -96,14 +96,13 @@ with l:
     ])
 
     bsr = st.selectbox("BSR", list(BSR.keys()))
-
     cl_ppm = st.number_input("Cloruros (ppm)", 0, 200000, 0)
 
     smin_user = st.slider("Smin (ksi)",0,100,30)
     smax_user = st.slider("Smax (ksi)",0,100,50)
 
 # ======================
-# FACTOR BASE
+# FACTOR BASE (INTACTO)
 # ======================
 f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
 
@@ -115,7 +114,7 @@ x = np.linspace(0,100,200)
 with r:
 
     fig, ax = plt.subplots(figsize=(7,4))
-    ranking=[]
+    ranking = []
 
     for mat in materiales:
         fs = FS_material(mat,f_base)
@@ -124,7 +123,12 @@ with r:
         sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
         margen = sadm - smax_user
 
-        ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
+        ranking.append({
+            "Material": mat,
+            "FS": fs,
+            "Sadm": sadm,
+            "Margen": margen
+        })
 
         if mat == material:
             y_sel = y
@@ -137,10 +141,8 @@ with r:
     x_clip = x[:corte]
     y_clip = y_sel[:corte]
 
-    # CURVA AZUL
+    # CURVAS
     ax.plot(x_clip, y_clip, color="blue", linewidth=3)
-
-    # LINEA 45°
     ax.plot(x, x, color="black", linewidth=2)
 
     # SOMBRA VERDE
@@ -149,20 +151,30 @@ with r:
         x_clip,
         y_clip,
         where=(y_clip >= x_clip),
-        color='green',
+        color="green",
         alpha=0.15
     )
 
-    # PUNTO CRÍTICO
-    ax.scatter(smin_user, smax_user, color="red", s=100, label="Punto crítico de sarta")
+    # PUNTO
+    ax.scatter(
+        smin_user,
+        smax_user,
+        color="red",
+        s=100,
+        label="Punto crítico de sarta"
+    )
 
+    # EJES
     ax.set_xlim(0,100)
     ax.set_ylim(0,100)
 
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
 
-    ax.set_title("Diagrama de Goodman Fatiga–Corrosión por Varilla", fontstyle='italic')
+    ax.set_title(
+        "Diagrama de Goodman Fatiga–Corrosión por Varilla",
+        fontstyle='italic'
+    )
 
     ax.legend()
     ax.grid(alpha=0.3)
@@ -175,50 +187,12 @@ with r:
     df = pd.DataFrame(ranking)
     df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
+    # PRIORIDAD HS97
     if f_base >= 0.999:
         if "HS97" in df["Material"].values:
-            fila = df[df["Material"]=="HS97"]
-            df = df[df["Material"]!="HS97"]
-            df = pd.concat([fila,df]).reset_index(drop=True)
+            fila = df[df["Material"] == "HS97"]
+            df = df[df["Material"] != "HS97"]
+            df = pd.concat([fila, df]).reset_index(drop=True)
 
     df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
-    st.markdown('<div class="subtitulo">Ranking de Varillas</div>', unsafe_allow_html=True)
-
-    st.dataframe(
-        df.drop(columns=["FS"]).style.format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        }),
-        use_container_width=True
-    )
-
-    # ======================
-    # RESULTADOS
-    # ======================
-    fs_sel = FS_material(material,f_base)
-    sadm_user = goodman(smin_user, materiales[material]["uts_a"], materiales[material]["b"], fs_sel)
-
-    goodman_pct = ((smax_user-smin_user)/(sadm_user-smin_user))*100
-
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
-    st.markdown('<div class="box">', unsafe_allow_html=True)
-
-    c1,c2,c3,c4 = st.columns(4)
-    c1.metric("FS", f"{fs_sel:.3f}")
-    c2.metric("Factor", f"{f_base:.3f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("Goodman", f"{goodman_pct:.1f}%")
-
-    st.markdown('</div>',unsafe_allow_html=True)
-
-    # ======================
-    # RECOMENDACION
-    # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-    validos = df[df["Margen"] >= 0]
-
-    if len(validos)>0:
-        st.success(f
