@@ -41,27 +41,34 @@ def factor_cloruros(ppm):
     return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
 
 # ======================
-# CLASIFICACIÓN POR PSI
+# CLASIFICACIÓN (RANGOS DUROS)
 # ======================
 def clasificar_co2(pp):
     if pp == 0:
-        return "Nada", 1.00
-    elif pp <= 20:
-        return "Bajo", 0.98
-    elif pp <= 100:
-        return "Medio", 0.90
-    else:
-        return "Alto", 0.80
+        return "Nada (0 psi)", 1.00
+    
+    if pp > 0 and pp <= 20:
+        return "Bajo (0–20 psi)", 0.98
+    
+    if pp >= 21 and pp <= 100:
+        return "Medio (21–100 psi)", 0.90
+    
+    if pp > 100:
+        return "Alto (>100 psi)", 0.80
+
 
 def clasificar_h2s(pp):
     if pp == 0:
-        return "Nada", 1.00
-    elif pp <= 1:
-        return "Bajo", 0.95
-    elif pp <= 2:
-        return "Medio", 0.80
-    else:
-        return "Alto", 0.75
+        return "Nada (0 psi)", 1.00
+    
+    if pp > 0 and pp <= 1:
+        return "Bajo (0–1 psi)", 0.95
+    
+    if pp > 1 and pp <= 2:
+        return "Medio (1–2 psi)", 0.80
+    
+    if pp > 2:
+        return "Alto (>2 psi)", 0.75
 
 # ======================
 # FUNCIONES
@@ -172,19 +179,4 @@ with r:
 
     c1,c2,c3,c4=st.columns(4)
     c1.metric("FS",f"{fs_sel:.3f}")
-    c2.metric("Factor base",f"{f_base:.3f}")
-    c3.metric("Sadm (ksi)",f"{sadm_user:.1f}")
-    c4.metric("%Goodman",f"{goodman_pct:.1f}")
-
-    st.markdown('</div>',unsafe_allow_html=True)
-
-    # ======================
-    # RECOMENDACION
-    # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-    validos = df[df["Margen"] >= 0]
-
-    if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
 
