@@ -133,6 +133,14 @@ with l:
 f_base = factor_co2(co2) * factor_h2s(h2s) * BSR[bsr] * factor_cloruros(cl_ppm)
 
 x = np.linspace(0,100,200)
+# ✅ CALCULAR ANTES PARA USO EN EL GRÁFICO
+fs_sel = FS_material(material, f_base)
+sadm_user = goodman(
+    smin_user,
+    materiales[material]["uts_a"],
+    materiales[material]["b"],
+    fs_sel
+)
 
 # ======================
 # GRAFICO + RANKING
