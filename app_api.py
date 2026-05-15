@@ -4,8 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+st.set_page_config(layout="wide")
+
 # ======================
-# CONTADOR DE VISITAS (CORREGIDO)
+# CONTADOR DE VISITAS
 # ======================
 archivo_contador = "visitas.txt"
 
@@ -23,23 +25,16 @@ visitas += 1
 with open(archivo_contador, "w") as f:
     f.write(str(visitas))
 
-st.set_page_config(layout="wide")
+# ✅ MOSTRAR ARRIBA (FORMA SEGURA)
+st.markdown(f"""
+<div style="font-size:13px; color:gray;">
+Visitas totales: <b>{visitas}</b>
+</div>
+""", unsafe_allow_html=True)
 
-# ✅ Mostrar arriba a la izquierda (CORREGIDO HTML REAL)
-st.markdown(
-    f"""
-    <div style="position:fixed;
-                top:5px;
-                left:10px;
-                font-size:12px;
-                color:gray;
-                z-index:1000;">
-        Visitas: {visitas}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
+# ======================
+# TITULO
+# ======================
 st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 # ======================
@@ -204,76 +199,4 @@ for i,d in enumerate(pct):
     fs=FS_material(mat,f_base)
 
     utsa=materiales[mat]["uts_a"]
-    b=materiales[mat]["b"]
-
-    Sadm=utsa*fs+b*Smin
-    Gval=(Smax-Smin)/(Sadm-Smin)*100
-
-    rows.append({
-        "Tramo":d,
-        "Material":mat,
-        "FS":round(fs,2),
-        "Max Load (lb)":int(Pmax),
-        "Min Load (lb)":int(Pmin),
-        "Smax (ksi)":round(Smax,1),
-        "Smin (ksi)":round(Smin,1),
-        "Goodman (%)":int(Gval),
-        "Color":colors[i]
-    })
-
-df=pd.DataFrame(rows)
-st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
-
-# ======================
-# GOODMAN
-# ======================
-st.subheader("Diagrama de Goodman")
-
-x_max=min([
-    materiales[rod_sel[d]]["uts_a"] *
-    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
-    for d in pct
-])
-
-x=np.linspace(0,x_max,200)
-
-fig,ax=plt.subplots()
-
-curvas=[]
-for d in pct:
-    mat=rod_sel[d]
-    fs=FS_material(mat,f_base)
-
-    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
-    curvas.append(y)
-
-    ax.plot(x,y)
-
-y_safe=np.minimum.reduce(curvas)
-
-ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
-
-labels=set()
-for _,r in df.iterrows():
-    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
-    if etiqueta not in labels:
-        ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],label=etiqueta)
-        labels.add(etiqueta)
-    else:
-        ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"])
-
-ax.plot(x,x)
-
-ax.set_xlim(left=0)
-ax.set_ylim(bottom=0)
-
-ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
-
-ax.legend(title="Tramo")
-
-st.pyplot(fig)
-
-st.markdown("---")
-st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
 
