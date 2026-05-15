@@ -206,10 +206,10 @@ with r:
         mejor = validos.iloc[0]["Material"]
         st.success(f"Material recomendado: {mejor}")
     else:
-        st.error("Requiere mitigación de corrosión o varillas especiales")
+        st.error("Requiere tratamiento químico y/ o varillas revestidas")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
-st.markdown('<div class="cursiva">Modelo basado en Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga. Desarrollado por Fcam</div>', unsafe_allow_html=True)
