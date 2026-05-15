@@ -178,8 +178,6 @@ with r:
 
     ax.set_title("Diagrama de Goodman Corrosión-Fatiga por Varilla", fontstyle='italic')
 
-# ✅ DETECCIÓN DE FALLA (punto crítico)
-fuera = smax_user > sadm_user
 
 
     ax.legend()
