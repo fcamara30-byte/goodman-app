@@ -73,7 +73,7 @@ def FS_material(mat,f):
 # ======================
 st.subheader("Varillas")
 
-c1,c2,c3 = st.columns(3)
+c1,c2,c3=st.columns(3)
 
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
@@ -102,11 +102,11 @@ st.dataframe(pd.DataFrame({
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-# ✅ PESO REAL SARTA
+# ✅ peso real sarta
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
-# ✅ PROFUNDIDAD REAL
+# ✅ longitud real sarta
 L_total_ft = L1+L78+L34
 
 Ap=np.pi*D**2/4
@@ -120,7 +120,7 @@ Fd=min((S*N)/2600,0.15)
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
 # ======================
-# MPRL (MISMO MODELO)
+# MPRL BASE
 # ======================
 E=30_000_000
 Aeq=0.58
@@ -139,8 +139,8 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ✅ -15%
-MPRL=MPRL_base*0.85
+# ✅ MPRL FINAL (-15% y -30%)
+MPRL=MPRL_base*0.85*0.70
 
 # ======================
 # DISPLAY
@@ -216,6 +216,5 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Modelo SRP calibrado (no QRod dinámico)")
-
+st.caption("Modelo SRP calibrado")
 
