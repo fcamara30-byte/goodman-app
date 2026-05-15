@@ -102,7 +102,7 @@ st.dataframe(pd.DataFrame({
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-# ✅ PESO REAL
+# peso real
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
@@ -118,7 +118,6 @@ Fd=min((S*N)/2600,0.15)
 # ======================
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-# MPRL
 E=30_000_000
 Aeq=0.58
 
@@ -136,9 +135,8 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ✅ FACTOR FINAL
-factor_mprl = 0.85 * 0.80
-MPRL = MPRL_base * factor_mprl
+# ✅ MPRL FINAL
+MPRL = MPRL_base * 0.85 * 0.80
 
 # ======================
 # DISPLAY
@@ -167,16 +165,16 @@ colors=["red","green","orange"]
 for i,d in enumerate(pct):
 
     Pmax=PPRL-W_up[d]
-    Pmin=max(MPRL-0.5*W_up[d],0)
+    Pmin=max(MPRL-0.3*W_up[d],0)  # ✅ corrección para evitar 0 físico exagerado
 
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
 
-    mat = rod_sel[d]
-    fs  = FS_material(mat,f_base)
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
 
     utsa=materiales[mat]["uts_a"]
-    b   =materiales[mat]["b"]
+    b=materiales[mat]["b"]
 
     Sadm=utsa*fs+b*Smin
     Gval=(Smax-Smin)/(Sadm-Smin)*100
@@ -194,7 +192,6 @@ for i,d in enumerate(pct):
     })
 
 df=pd.DataFrame(rows)
-
 st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
 
 # ======================
@@ -226,10 +223,14 @@ y_safe=np.minimum.reduce(curvas)
 
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
-for i,r in df.iterrows():
-    ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],
-               color=r["Color"],
-               label=r["Tramo"] if i==0 else "")
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"],label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"],r["Smax (ksi)"])
 
 ax.plot(x,x)
 
