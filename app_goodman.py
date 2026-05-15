@@ -14,13 +14,15 @@ st.set_page_config(layout="wide")
 # ======================
 st.markdown("""
 <style>
-.titulo {font-size:22px; font-weight:600; color:#0B3C8C;}
-.subtitulo {font-size:16px; font-weight:600; color:#1F4E79; margin-top:10px;}
-.box {background:#F4F6F8; padding:10px; border-radius:8px;}
+.titulo {font-size:26px; font-weight:700; color:#0B3C8C;}
+.subtitulo {font-size:17px; font-weight:600; color:#1F4E79; margin-top:12px;}
+.box {background:#F4F6F8; padding:12px; border-radius:10px;}
+.cursiva {font-style: italic; color:#444;}
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="titulo">Selector de varillas de acuerdo a criterio Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Criterio basado en Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
 
 # ======================
 # MATERIALES
@@ -38,7 +40,7 @@ materiales = {
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
 # ======================
-# FACTORES POR RANGO
+# FACTORES
 # ======================
 def factor_co2(sel):
     if sel == "Nada (0 psi)": return 1.00
@@ -80,7 +82,7 @@ l,r = st.columns([1,2])
 # INPUTS
 # ======================
 with l:
-    st.markdown('<div class="subtitulo">Inputs</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Entradas</div>', unsafe_allow_html=True)
 
     a,b=l.columns(2)
     material=a.selectbox("Material",list(materiales.keys()))
@@ -100,7 +102,7 @@ with l:
         "Alto (>2 psi)"
     ])
 
-    bsr=d.selectbox("BSR (caldos positivos)",list(BSR.keys()))
+    bsr=d.selectbox("BSR", list(BSR.keys()))
 
     cl_ppm=st.number_input("Cloruros (ppm)",0,200000,0)
 
@@ -108,7 +110,7 @@ with l:
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
 # ======================
-# FACTORES
+# FACTOR BASE
 # ======================
 f_co2 = factor_co2(ppco2_sel)
 f_h2s = factor_h2s(pph2s_sel)
@@ -118,11 +120,11 @@ f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
 smin=np.linspace(0,150,200)
 
 # ======================
-# GRAFICO + DATOS
+# GRÁFICO
 # ======================
 with r:
 
-    fig,ax=plt.subplots(figsize=(7,3.8))
+    fig,ax=plt.subplots(figsize=(7,4))
     ranking=[]
 
     for mat in materiales:
@@ -137,37 +139,51 @@ with r:
         if mat==material:
             ax.plot(smin,y,color='blue',linewidth=3)
         else:
-            ax.plot(smin,y,color='gray',alpha=0.2)
+            ax.plot(smin,y,color='gray',alpha=0.15)
 
-    ax.plot(smin,smin,'k--')
+    ax.plot(smin,smin,'k-',linewidth=2)
 
-    # ✅ Punto crítico con etiqueta
     ax.scatter(
         smin_user,
         smax_user,
         color="red",
-        s=60,
+        s=80,
         label="Punto crítico de sarta"
     )
 
-    ax.set_xlim(0,150)
-    ax.set_ylim(0,150)
+    ax.set_xlim(smin_user*0.7,150)
+    ax.set_ylim(smax_user*0.7,150)
+
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
-    ax.set_title("Diagrama de Goodman Fatiga-corrosión por Varilla")
-    ax.grid()
 
+    ax.set_title(
+        "Diagrama de Goodman Fatiga–Corrosión por Varilla",
+        fontstyle='italic'
+    )
+
+    ax.grid(alpha=0.3)
     ax.legend()
 
     plt.tight_layout()
     st.pyplot(fig)
 
+    # ======================
+    # RANKING
+    # ======================
     df=pd.DataFrame(ranking)
     df=df.sort_values(by="Margen",ascending=False).reset_index(drop=True)
 
+    # ✅ REGLA HS97
+    if f_base >= 0.999:   # sin corrosión
+        if "HS97" in df["Material"].values:
+            fila=df[df["Material"]=="HS97"]
+            df=df[df["Material"]!="HS97"]
+            df=pd.concat([fila,df]).reset_index(drop=True)
+
     df["%Goodman"]=((smax_user-smin_user)/(df["Sadm"]-smin_user))*100
 
-    st.markdown('<div class="subtitulo">Ranking de Varillas sugeridas</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Ranking de Varillas</div>', unsafe_allow_html=True)
 
     st.dataframe(df.style.format({
         "FS":"{:.3f}",
@@ -181,34 +197,36 @@ with r:
     # ======================
     fs_sel=FS_material(material,f_base)
     sadm_user=goodman(smin_user,materiales[material]["uts_a"],materiales[material]["b"],fs_sel)
-    goodman_pct=((smax_user-smin_user)/(sadm_user-smin_user))*100 if sadm_user!=smin_user else 0
+    goodman_pct=((smax_user-smin_user)/(sadm_user-smin_user))*100
 
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
     st.markdown('<div class="box">', unsafe_allow_html=True)
 
     c1,c2,c3,c4=st.columns(4)
     c1.metric("FS",f"{fs_sel:.3f}")
-    c2.metric("Factor base",f"{f_base:.3f}")
-    c3.metric("Sadm (ksi)",f"{sadm_user:.1f}")
-    c4.metric("%Goodman",f"{goodman_pct:.1f}")
+    c2.metric("Factor",f"{f_base:.3f}")
+    c3.metric("Sadm",f"{sadm_user:.1f} ksi")
+    c4.metric("Goodman",f"{goodman_pct:.1f}%")
 
     st.markdown('</div>',unsafe_allow_html=True)
 
     # ======================
-    # RECOMENDACION
+    # RECOMENDACIÓN
     # ======================
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
     validos = df[df["Margen"] >= 0]
 
     if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
-        st.success(f"Material recomendado: {mejor}")
+        st.success(f"Material recomendado: {validos.iloc[0]['Material']}")
     else:
-        st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
+        st.error("Aplicar varillas revestidas y/o tratamiento químico")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
+st.markdown(
+    '<div class="cursiva">Modelo basado en APIRP11L, corrosión-fatiga y experiencia de campo</div>',
+    unsafe_allow_html=True
+)
