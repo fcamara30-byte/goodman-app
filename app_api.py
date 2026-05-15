@@ -219,9 +219,7 @@ for i,d in enumerate(pct):
 df=pd.DataFrame(rows)
 st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
 
-# ======================
-# GOODMAN
-# ======================
+
 # ======================
 # GOODMAN
 # ======================
@@ -280,7 +278,7 @@ ax.legend(title="Tramo")
 
 st.pyplot(fig)
 
-st.pyplot(fig)
+
 
 st.markdown("---")
 st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
