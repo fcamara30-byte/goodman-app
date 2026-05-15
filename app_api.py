@@ -280,4 +280,4 @@ ax.legend(title="Tramo")
 st.pyplot(fig)
 
 st.markdown("---")
-st.caption("fcam")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
