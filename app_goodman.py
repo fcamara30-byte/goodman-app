@@ -10,7 +10,7 @@ import os
 st.set_page_config(layout="wide")
 
 # ======================
-# ESTILO LIMPIO
+# ESTILO
 # ======================
 st.markdown("""
 <style>
@@ -37,38 +37,23 @@ materiales = {
 
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
+# ======================
+# FACTORES POR RANGO
+# ======================
+def factor_co2(sel):
+    if sel == "Nada (0 psi)": return 1.00
+    if sel == "Bajo (0–20 psi)": return 0.98
+    if sel == "Medio (21–100 psi)": return 0.90
+    if sel == "Alto (>100 psi)": return 0.80
+
+def factor_h2s(sel):
+    if sel == "Nada (0 psi)": return 1.00
+    if sel == "Bajo (0–1 psi)": return 0.95
+    if sel == "Medio (1–2 psi)": return 0.80
+    if sel == "Alto (>2 psi)": return 0.75
+
 def factor_cloruros(ppm):
     return 1 if ppm < 9000 else 1-(0.000019*(ppm**0.8))
-
-# ======================
-# CLASIFICACIÓN (RANGOS DUROS)
-# ======================
-def clasificar_co2(pp):
-    if pp == 0:
-        return "Nada (0 psi)", 1.00
-    
-    if pp > 0 and pp <= 20:
-        return "Bajo (0–20 psi)", 0.98
-    
-    if pp >= 21 and pp <= 100:
-        return "Medio (21–100 psi)", 0.90
-    
-    if pp > 100:
-        return "Alto (>100 psi)", 0.80
-
-
-def clasificar_h2s(pp):
-    if pp == 0:
-        return "Nada (0 psi)", 1.00
-    
-    if pp > 0 and pp <= 1:
-        return "Bajo (0–1 psi)", 0.95
-    
-    if pp > 1 and pp <= 2:
-        return "Medio (1–2 psi)", 0.80
-    
-    if pp > 2:
-        return "Alto (>2 psi)", 0.75
 
 # ======================
 # FUNCIONES
@@ -99,10 +84,22 @@ with l:
 
     a,b=l.columns(2)
     material=a.selectbox("Material",list(materiales.keys()))
-    ppco2=b.number_input("PPCO₂ (psi)",0.0,2000.0,0.0)
+
+    ppco2_sel=b.selectbox("PPCO₂ (psi)", [
+        "Nada (0 psi)",
+        "Bajo (0–20 psi)",
+        "Medio (21–100 psi)",
+        "Alto (>100 psi)"
+    ])
 
     c,d=l.columns(2)
-    pph2s=c.number_input("PPH₂S (psi)",0.0,50.0,0.0)
+    pph2s_sel=c.selectbox("PPH₂S (psi)", [
+        "Nada (0 psi)",
+        "Bajo (0–1 psi)",
+        "Medio (1–2 psi)",
+        "Alto (>2 psi)"
+    ])
+
     bsr=d.selectbox("BSR (caldos positivos)",list(BSR.keys()))
 
     cl_ppm=st.number_input("Cloruros (ppm)",0,200000,0)
@@ -111,17 +108,17 @@ with l:
     smax_user=st.slider("Smax (ksi)",0,150,50)
 
 # ======================
-# FACTORES
+# FACTOR BASE
 # ======================
-nivel_co2, f_co2 = clasificar_co2(ppco2)
-nivel_h2s, f_h2s = clasificar_h2s(pph2s)
+f_co2 = factor_co2(ppco2_sel)
+f_h2s = factor_h2s(pph2s_sel)
 
 f_base = f_co2 * f_h2s * BSR[bsr] * factor_cloruros(cl_ppm)
 
 smin=np.linspace(0,150,200)
 
 # ======================
-# GRAFICO + DATOS
+# GRAFICO Y DATOS
 # ======================
 with r:
 
@@ -153,7 +150,6 @@ with r:
     st.pyplot(fig)
 
     df=pd.DataFrame(ranking)
-
     df=df.sort_values(by="Margen",ascending=False).reset_index(drop=True)
 
     df["%Goodman"]=((smax_user-smin_user)/(df["Sadm"]-smin_user))*100
@@ -179,4 +175,27 @@ with r:
 
     c1,c2,c3,c4=st.columns(4)
     c1.metric("FS",f"{fs_sel:.3f}")
+    c2.metric("Factor base",f"{f_base:.3f}")
+    c3.metric("Sadm (ksi)",f"{sadm_user:.1f}")
+    c4.metric("%Goodman",f"{goodman_pct:.1f}")
 
+    st.markdown('</div>',unsafe_allow_html=True)
+
+    # ======================
+    # RECOMENDACIÓN
+    # ======================
+    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+
+    validos = df[df["Margen"] >= 0]
+
+    if len(validos) > 0:
+        mejor = validos.iloc[0]["Material"]
+        st.success(f"Material recomendado: {mejor}")
+    else:
+        st.error("Uso de varillas revestidas y/o productos químicos para corrosión")
+
+# ======================
+# FOOTER
+# ======================
+st.markdown("---")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
