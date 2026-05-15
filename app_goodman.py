@@ -91,7 +91,7 @@ def FS_material(mat,f):
     if mat=="DA78": return f*0.95
     elif mat=="HS97": return f
     elif mat=="CS propietario": return f*0.96
-    elif mat=="HS propietario": return f*0.78
+    elif mat=="HS propietario": return f*0.75
     elif mat=="D New": return f*0.94
     elif mat=="DSK75": return f if f < 0.75 else 1
     elif mat=="HA96": return f*0.93
