@@ -141,7 +141,7 @@ dF=min(dF,limite)
 MPRL_base=max(Wr-dF,0)
 
 # factores finales
-MPRL = MPRL_base * 0.9
+MPRL = MPRL_base * 0.97
 
 # ======================
 # DISPLAY
