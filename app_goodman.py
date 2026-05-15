@@ -22,7 +22,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # HEADER
-st.markdown('<div class="titulo">Goodman – Fatiga y Corrosión</div>', unsafe_allow_html=True)
+st.markdown('<div class="titulo"> Selector de varilas de acuerdo a criterio Goodman y Corrosión-Fatiga</div>', unsafe_allow_html=True)
 
 # ======================
 # MATERIALES
