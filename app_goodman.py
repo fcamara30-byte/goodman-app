@@ -200,3 +200,5 @@ with r:
         file=generar_pdf()
         with open(file,"rb") as f:
             st.download_button("Descargar PDF",f,"reporte_goodman.pdf")
+            st.markdown("---")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
