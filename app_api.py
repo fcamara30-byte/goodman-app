@@ -34,6 +34,20 @@ visitas += 1
 with open(archivo_contador, "w") as f:
     f.write(str(visitas))
 
+.markdown(
+    f"""
+    <div style="position:fixed;
+                top:5px;
+                left:10px;
+                font-size:12px;
+                color:gray;
+                z-index:1000;">
+        Visitas: {visitas}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
 st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 # ======================
