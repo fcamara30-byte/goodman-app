@@ -140,7 +140,12 @@ with r:
             ax.plot(smin,y,color='gray',alpha=0.2)
 
     ax.plot(smin,smin,'k--')
-    ax.scatter(smin_user,smax_user,color="red",s=60)
+   
+ax.scatter(smin_user, smax_user,
+           color="red",
+           s=60,
+           label="Punto crítico de sarta")
+
     ax.set_xlim(0,150)
     ax.set_ylim(0,150)
     ax.set_xlabel("Smin (ksi)")
