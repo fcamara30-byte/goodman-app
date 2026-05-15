@@ -2,7 +2,34 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
+import os   # 👈 agregar esto
+
+====================
+# CONTADOR DE VISITAS
+# ======================
+def contador_visitas():
+    archivo = "visitas.txt"
+
+    if not os.path.exists(archivo):
+        with open(archivo, "w") as f:
+            f.write("0")
+
+    with open(archivo, "r+") as f:
+        try:
+            count = int(f.read())
+        except:
+            count = 0
+
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+        f.truncate()
+
+    return count
+
+visitas = contador_visitas()
+
+st.set_page_config(layout="wide")
 
 st.set_page_config(layout="wide")
 
@@ -281,3 +308,10 @@ st.pyplot(fig)
 
 st.markdown("---")
 st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
+
+st.markdown(f"""
+<div style='font-size:14px;color:#666;'>
+Visitas totales: <b>{visitas}</b>
+</div>
+""", unsafe_allow_html=True)
+
