@@ -140,7 +140,7 @@ dF=min(dF,limite)
 MPRL_base=max(Wr-dF,0)
 
 # ✅ MPRL FINAL (-15% y -30%)
-MPRL=MPRL_base*0.85*0.70
+MPRL=MPRL_base*0.85*0.9
 
 # ======================
 # DISPLAY
