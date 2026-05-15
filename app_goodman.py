@@ -185,14 +185,21 @@ with r:
 # ✅ DETECCIÓN DE FALLA
 if smax_user > sadm_user:
     ax.text(
-        0.5, 0.15,
-        "Seleccione otro="red",        "Seleccione otro tipo de varilla\n"
-        ha="center",
-        bbox=dict(facecolor='white', alpha=0.85, edgecolor='red')
-    )
+        0.5,
+        0.15,
+        "Seleccione otro tipo de varilla\n"
         "o utilice revestimiento + tratamiento químico",
         transform=ax.transAxes,
         fontsize=11,
+        color="red",
+        ha="center",
+        bbox=dict(
+            facecolor='white',
+            alpha=0.85,
+            edgecolor='red'
+        )
+    )
+
 
 
     st.pyplot(fig)
