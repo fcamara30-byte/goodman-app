@@ -9,12 +9,12 @@ st.title("Cálculo de Solicitaciones SRP")
 # ======================
 # INPUTS
 # ======================
-col1,col2,col3,col4 = st.columns(4)
+c1,c2,c3,c4 = st.columns(4)
 
-L_m = col1.number_input("Longitud pozo (m)",500,5000,1800)
-G   = col2.slider("Gravedad específica",0.6,1.2,0.95)
-D   = col3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
-N   = col4.slider("SPM",1,20,6)
+L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
+G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
+D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+N   = c4.slider("SPM",1,20,6)
 
 S = st.slider("Carrera (in)",0,300,168)
 
@@ -47,12 +47,12 @@ CO2={"Nada":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-c1,c2,c3,c4=st.columns(4)
+c1,c2,c3,c4 = st.columns(4)
 
 co2=c1.selectbox("CO₂",CO2)
 h2s=c2.selectbox("H₂S",H2S)
 bsr=c3.selectbox("BSR",BSR)
-cl =c4.number_input("Cloruros (ppm)",0,200000,0)
+cl=c4.number_input("Cloruros (ppm)",0,200000,0)
 
 def f_cl(ppm):
     return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
@@ -73,7 +73,7 @@ def FS_material(mat,f):
 # ======================
 st.subheader("Varillas")
 
-c1,c2,c3=st.columns(3)
+c1,c2,c3 = st.columns(3)
 
 n1=c1.number_input('1"',10,300,75)
 n78=c2.number_input('7/8"',10,300,80)
@@ -83,7 +83,7 @@ L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
 
 # ======================
-# ✅ CONTROL LONGITUD (RECUPERADO)
+# CONTROL LONGITUD
 # ======================
 st.subheader("Control de longitud")
 
@@ -91,9 +91,9 @@ long_m=total*0.3048
 dif=long_m-L_m
 
 st.dataframe(pd.DataFrame({
-    "Longitud pozo (m)":[int(L_m)],
-    "Longitud sarta (m)":[int(long_m)],
-    "Δ longitud (m)":[int(dif)]
+    "Pozo (m)":[int(L_m)],
+    "Sarta (m)":[int(long_m)],
+    "Δ (m)":[int(dif)]
 }),use_container_width=True)
 
 # ======================
@@ -102,29 +102,34 @@ st.dataframe(pd.DataFrame({
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-L_ft=L_m*3.28084
+# ✅ PESO REAL SARTA
+Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
+Wr = Wr_air*(1-0.128*G)
 
-Wr=L_ft*2.3*(1-0.128*G)
+# ✅ PROFUNDIDAD REAL
+L_total_ft = L1+L78+L34
+
 Ap=np.pi*D**2/4
-Fh=0.433*G*L_ft*Ap
+Fh=0.433*G*L_total_ft*Ap
+
 Fd=min((S*N)/2600,0.15)
 
 # ======================
-# ✅ PPRL -8%
+# PPRL (-8%)
 # ======================
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
 # ======================
-# MPRL BASE
+# MPRL (MISMO MODELO)
 # ======================
 E=30_000_000
 Aeq=0.58
 
-kr=(Aeq*E)/(L_ft*12)
+kr=(Aeq*E)/(L_total_ft*12)
 
 dx=0.52*S*(Fd**0.78)
 
-prop_L=(L_ft/6000)**0.22
+prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
 dF=kr*dx*prop_L*(1+0.35*prop_F)
@@ -134,7 +139,7 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ✅ MPRL -15% TOTAL
+# ✅ -15%
 MPRL=MPRL_base*0.85
 
 # ======================
@@ -151,8 +156,8 @@ c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 # ======================
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
-W1=pct["1"]*L_ft*peso["1"]
-W78=pct["7/8"]*L_ft*peso["7/8"]
+W1=pct["1"]*Wr_air
+W78=pct["7/8"]*Wr_air
 
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
@@ -197,7 +202,6 @@ for _,r in df.iterrows():
 
 ax.plot(x,x)
 
-# ✅ ORIGEN REAL
 ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
 
@@ -212,5 +216,6 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Modelo calibrado contra QRod")
+st.caption("Modelo SRP calibrado (no QRod dinámico)")
+
 
