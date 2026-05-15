@@ -9,16 +9,14 @@ st.title("Cálculo de Solicitaciones SRP")
 # ======================
 # INPUTS
 # ======================
-col1, col2, col3, col4 = st.columns(4)
+col1,col2,col3,col4 = st.columns(4)
 
-L_m = col1.number_input("Longitud pozo (m)", 500, 5000, 1800)
-G   = col2.slider("Gravedad específica", 0.6, 1.2, 0.95)
-D   = col3.selectbox("Bomba (in)", [1.5,1.75,2,2.25,2.5])
-N   = col4.slider("SPM", 1, 20, 6)
+L_m = col1.number_input("Longitud pozo (m)",500,5000,1800)
+G   = col2.slider("Gravedad específica",0.6,1.2,0.95)
+D   = col3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+N   = col4.slider("SPM",1,20,6)
 
-S = st.slider("Carrera (in)", 0, 300, 168)
-
-st.markdown("---")
+S = st.slider("Carrera (in)",0,300,168)
 
 # ======================
 # MATERIALES
@@ -37,9 +35,9 @@ st.subheader("Material por tramo")
 
 c1,c2,c3 = st.columns(3)
 rod_sel = {
-    "1":c1.selectbox('1"', materiales.keys(), key="r1"),
-    "7/8":c2.selectbox('7/8"', materiales.keys(), key="r78"),
-    "3/4":c3.selectbox('3/4"', materiales.keys(), key="r34")
+    "1":c1.selectbox('1"',materiales.keys(),key="1"),
+    "7/8":c2.selectbox('7/8"',materiales.keys(),key="78"),
+    "3/4":c3.selectbox('3/4"',materiales.keys(),key="34")
 }
 
 # ======================
@@ -49,21 +47,19 @@ CO2={"Nada":1,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-st.subheader("Ambiente")
+c1,c2,c3,c4=st.columns(4)
 
-c1,c2,c3,c4 = st.columns(4)
-
-co2 = c1.selectbox("CO₂", CO2)
-h2s = c2.selectbox("H₂S", H2S)
-bsr = c3.selectbox("BSR", BSR)
-cl  = c4.number_input("Cloruros (ppm)", 0, 200000, 0)
+co2=c1.selectbox("CO₂",CO2)
+h2s=c2.selectbox("H₂S",H2S)
+bsr=c3.selectbox("BSR",BSR)
+cl =c4.number_input("Cloruros ppm",0,200000,0)
 
 def f_cl(ppm):
-    return 1 if ppm < 9000 else 1 - (0.000019*(ppm**0.8))
+    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
 
-f_base = CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
+f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
-def FS_material(mat, f):
+def FS_material(mat,f):
     if f==1: return 1
     if mat=="HS97": return f
     if mat=="DA78": return f*0.95
@@ -75,161 +71,141 @@ def FS_material(mat, f):
 # ======================
 # VARILLAS
 # ======================
-st.subheader("Varillas")
+c1,c2,c3=st.columns(3)
 
-c1,c2,c3 = st.columns(3)
+n1=c1.number_input('1"',10,300,75)
+n78=c2.number_input('7/8"',10,300,80)
+n34=c3.number_input('3/4"',10,300,80)
 
-n1  = c1.number_input('1"',10,300,75)
-n78 = c2.number_input('7/8"',10,300,80)
-n34 = c3.number_input('3/4"',10,300,80)
-
-L1,L78,L34 = n1*25, n78*25, n34*25
-total = L1 + L78 + L34
+L1,L78,L34=n1*25,n78*25,n34*25
+total=L1+L78+L34
 
 # ======================
-# CONTROL LONGITUD
-# ======================
-st.subheader("Control de longitud")
-
-long_m = total * 0.3048
-dif = long_m - L_m
-
-st.dataframe(pd.DataFrame({
-    "Pozo (m)":[int(L_m)],
-    "Sarta (m)":[int(long_m)],
-    "Δ (m)":[int(dif)]
-}), use_container_width=True)
-
-# ======================
-# MODELO BASE
+# MODELO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-L_ft = L_m * 3.28084
+L_ft=L_m*3.28084
 
-Wr = L_ft * 2.3 * (1 - 0.128*G)
-Ap = np.pi * D**2 / 4
-Fh = 0.433 * G * L_ft * Ap
-Fd = min((S * N)/2600, 0.15)
+Wr=L_ft*2.3*(1-0.128*G)
+Ap=np.pi*D**2/4
+Fh=0.433*G*L_ft*Ap
+Fd=min((S*N)/2600,0.15)
 
 # ======================
-# CARGAS
+# PPRL (-8%)
 # ======================
-PPRL = Wr + Fh + 1.45 * Fd * Wr
+PPRL = (Wr + Fh + 1.45*Fd*Wr) * 0.92
 
-# ===== MPRL FINAL CORRECTO =====
-E = 30_000_000
-Aeq = 0.58
-L_in = L_ft * 12
+# ======================
+# MPRL BASE
+# ======================
+E=30_000_000
+Aeq=0.58
 
-kr = (Aeq * E) / L_in
+kr=(Aeq*E)/(L_ft*12)
 
-dx = 0.52 * S * (Fd**0.78)
-prop_L = (L_ft/6000)**0.22
-prop_F = (Fh/Wr)**0.08
+dx=0.52*S*(Fd**0.78)
 
-dF = kr * dx * prop_L * (1 + 0.35 * prop_F)
+prop_L=(L_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
 
-limite = Wr * (0.45 + 0.20 * Fd)
-dF = min(dF, limite)
+dF=kr*dx*prop_L*(1+0.35*prop_F)
 
-MPRL_base = max(Wr - dF, 0)
-MPRL = 0.90 * MPRL_base  # ✅ -10% bien aplicado
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
+
+MPRL_base=max(Wr-dF,0)
+
+# ======================
+# ✅ MPRL (-15% total)
+# ======================
+MPRL = MPRL_base * 0.85
 
 # ======================
 # DISPLAY
 # ======================
 st.subheader("Cargas")
 
-c1,c2 = st.columns(2)
-c1.metric("PPRL (lb)", f"{int(PPRL):,}")
-c2.metric("MPRL (lb)", f"{int(MPRL):,}")
+c1,c2=st.columns(2)
+c1.metric("PPRL (lb)",f"{int(PPRL):,}")
+c2.metric("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
 # RESULTADOS
 # ======================
-st.subheader("Resultados")
-
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
-W1 = pct["1"] * L_ft * peso["1"]
-W78 = pct["7/8"] * L_ft * peso["7/8"]
-
-W_up = {"1":0,"7/8":W1,"3/4":W1+W78}
+W1=pct["1"]*L_ft*peso["1"]
+W78=pct["7/8"]*L_ft*peso["7/8"]
+W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
 
-for d in pct:
+colors=["red","green","orange"]
 
-    Pmax = PPRL - W_up[d]
-    Pmin = max(MPRL - 0.5*W_up[d],0)
+for i,d in enumerate(pct):
 
-    Smax = Pmax / areas[d] / 1000
-    Smin = Pmin / areas[d] / 1000
+    Pmax=PPRL-W_up[d]
+    Pmin=max(MPRL-0.5*W_up[d],0)
 
-    mat = rod_sel[d]
-    fs = FS_material(mat, f_base)
+    Smax=Pmax/areas[d]/1000
+    Smin=Pmin/areas[d]/1000
 
-    utsa = materiales[mat]["uts_a"]
-    b = materiales[mat]["b"]
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
 
-    Sadm = utsa*fs + b*Smin
-    G = (Smax-Smin)/(Sadm-Smin)*100
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
 
-    rows.append({
-        "Tramo":d,
-        "Material":mat,
-        "FS":round(fs,2),
-        "Max Load":int(Pmax),
-        "Min Load":int(Pmin),
-        "Smax":round(Smax,1),
-        "Smin":round(Smin,1),
-        "Goodman %":int(G)
-    })
+    Sadm=utsa*fs+b*Smin
+    G=(Smax-Smin)/(Sadm-Smin)*100
 
-df = pd.DataFrame(rows)
-st.dataframe(df, use_container_width=True)
+    rows.append([d,mat,colors[i],Smin,Smax])
+
+df=pd.DataFrame(rows,columns=["Tramo","Material","Color","Smin","Smax"])
 
 # ======================
 # GOODMAN
 # ======================
 st.subheader("Diagrama de Goodman")
 
-x_max = min([
-    materiales[rod_sel[d]]["uts_a"] *
-    FS_material(rod_sel[d], f_base)
-    /(1 - materiales[rod_sel[d]]["b"])
-    for d in pct
-])
+x_max=min([(materiales[rod_sel[d]]["uts_a"]*FS_material(rod_sel[d],f_base))/(1-materiales[rod_sel[d]]["b"]) for d in pct])
 
-x = np.linspace(0, x_max, 200)
+x=np.linspace(0,x_max,200)
 
-fig, ax = plt.subplots()
+fig,ax=plt.subplots()
 
 curvas=[]
-for d in pct:
-    mat = rod_sel[d]
-    fs  = FS_material(mat,f_base)
 
-    y = materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
+for d in pct:
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
     curvas.append(y)
     ax.plot(x,y)
 
-y_safe = np.minimum.reduce(curvas)
+y_safe=np.minimum.reduce(curvas)
 
 ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
-for i in df.index:
-    ax.scatter(df["Smin"][i], df["Smax"][i])
+# puntos con leyenda
+for _,r in df.iterrows():
+    ax.scatter(r["Smin"],r["Smax"],color=r["Color"],label=r["Tramo"])
 
+# linea diagonal
 ax.plot(x,x)
 
-# FS crítico
-fs_crit = df.iloc[df["Goodman %"].idxmax()]["FS"]
+# ✅ ejes desde origen
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
 
-ax.text(0.02,0.95,f"Factor de Servicio: {fs_crit}",
-        transform=ax.transAxes)
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+# ✅ leyenda visible
+ax.legend(title="Tramo")
 
 st.pyplot(fig)
 
@@ -237,4 +213,5 @@ st.pyplot(fig)
 # FOOTER
 # ======================
 st.markdown("---")
-st.caption("Calculos Corrosión-Fatiga para usar referencialmente")
+st.caption("Modelo de cálculo solo referencial")
+
