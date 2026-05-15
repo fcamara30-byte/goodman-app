@@ -69,9 +69,9 @@ def FS_material(mat,f):
     return f*0.9
 
 # ======================
-# VARILLAS
+# CANT. VARILLAS
 # ======================
-st.subheader("Varillas")
+st.subheader("Cant. Varillas")
 
 c1,c2,c3=st.columns(3)
 
@@ -97,7 +97,7 @@ st.dataframe(pd.DataFrame({
 }),use_container_width=True)
 
 # ======================
-# MODELO BASE
+# MODELO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
@@ -111,13 +111,17 @@ L_total_ft = L1+L78+L34
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
-Fd=min((S*N)/2600,0.15)
+# ✅ NUEVO Fd (RESPONDE A SPM)
+Fd = (S * N) / (2600 + S * N)
 
 # ======================
-# CARGAS
+# PPRL
 # ======================
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
+# ======================
+# MPRL
+# ======================
 E=30_000_000
 Aeq=0.58
 
@@ -128,15 +132,16 @@ dx=0.52*S*(Fd**0.78)
 prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
-dF=kr*dx*prop_L*(1+0.35*prop_F)
+# ✅ CLAVE: efecto dinámico fuerte
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
 
 limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 
-# ✅ MPRL FINAL
-MPRL = MPRL_base * 0.85 * 0.95
+# factores finales
+MPRL = MPRL_base * 0.85 * 0.9
 
 # ======================
 # DISPLAY
@@ -165,7 +170,7 @@ colors=["red","green","orange"]
 for i,d in enumerate(pct):
 
     Pmax=PPRL-W_up[d]
-    Pmin=max(MPRL-0.3*W_up[d],0)  # ✅ corrección para evitar 0 físico exagerado
+    Pmin=max(MPRL-0.3*W_up[d],0)
 
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
@@ -200,8 +205,8 @@ st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
 st.subheader("Diagrama de Goodman")
 
 x_max=min([
-    materiales[rod_sel[d]]["uts_a"]*
-    FS_material(rod_sel[d],f_base)/(1-materiales[rod_sel[d]]["b"])
+    materiales[rod_sel[d]]["uts_a"] *
+    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
     for d in pct
 ])
 
@@ -216,7 +221,6 @@ for d in pct:
 
     y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
     curvas.append(y)
-
     ax.plot(x,y)
 
 y_safe=np.minimum.reduce(curvas)
