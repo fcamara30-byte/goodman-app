@@ -2,45 +2,19 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import os   # 👈 agregar esto
-
-====================
-# CONTADOR DE VISITAS
-# ======================
-def contador_visitas():
-    archivo = "visitas.txt"
-
-    if not os.path.exists(archivo):
-        with open(archivo, "w") as f:
-            f.write("0")
-
-    with open(archivo, "r+") as f:
-        try:
-            count = int(f.read())
-        except:
-            count = 0
-
-        count += 1
-        f.seek(0)
-        f.write(str(count))
-        f.truncate()
-
-    return count
-
-visitas = contador_visitas()
-
-st.set_page_config(layout="wide")
-
-st.set_page_config(layout="wide")
+import os
 
 # ======================
-# CONTADOR DE VISITAS
+# CONTADOR DE VISITAS (CORREGIDO)
 # ======================
 archivo_contador = "visitas.txt"
 
 if os.path.exists(archivo_contador):
     with open(archivo_contador, "r") as f:
-        visitas = int(f.read())
+        try:
+            visitas = int(f.read())
+        except:
+            visitas = 0
 else:
     visitas = 0
 
@@ -49,7 +23,9 @@ visitas += 1
 with open(archivo_contador, "w") as f:
     f.write(str(visitas))
 
-# ✅ Mostrar arriba a la izquierda (FIXED)
+st.set_page_config(layout="wide")
+
+# ✅ Mostrar arriba a la izquierda
 st.markdown(
     f"""
     <div style="position:fixed;
@@ -170,17 +146,10 @@ L_total_ft = L1+L78+L34
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
-# ✅ dinámica dependiente de SPM
 Fd = (S * N) / (2600 + S * N)
 
-# ======================
-# PPRL
-# ======================
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-# ======================
-# MPRL
-# ======================
 E=30_000_000
 Aeq=0.58
 
@@ -197,7 +166,6 @@ limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
-
 MPRL = MPRL_base * 0.97
 
 # ======================
@@ -300,7 +268,7 @@ ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
 
 ax.set_xlabel("Smin (ksi)")
-ax.set_ylabel("Smax (ksi)")
+ax.set_ylabel("Smax (ksi")
 
 ax.legend(title="Tramo")
 
@@ -308,10 +276,4 @@ st.pyplot(fig)
 
 st.markdown("---")
 st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo. Fcam")
-
-st.markdown(f"""
-<div style='font-size:14px;color:#666;'>
-Visitas totales: <b>{visitas}</b>
-</div>
-""", unsafe_allow_html=True)
 
