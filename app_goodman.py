@@ -206,57 +206,44 @@ if abs(f_base - 1.0) < 1e-6:
 
 df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
-st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
+col_tabla, col_der = st.columns([2,1])
 
-col_tabla, _ = st.columns([3,7])
-
+# ======================
+# TABLA (IZQUIERDA)
+# ======================
 with col_tabla:
-    st.dataframe(df.drop(columns=["FS"]), use_container_width=True)
+
+    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
+
+    st.dataframe(
+        df.drop(columns=["FS"]),
+        use_container_width=True
+    )
 
 # ======================
-# RESULTADOS
+# DERECHA: RESULTADOS + RECOMENDACIÓN
 # ======================
-goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
+with col_der:
 
-st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
+    # RESULTADOS
+    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
+    col1, col2 = st.columns(2)
+    col3, col4 = st.columns(2)
 
-col1, col2, col3, col4, _ = st.columns([1,1,1,1,6])  # ← pegados a la izquierda
+    col1.metric("FS", f"{fs_sel:.1f}")
+    col2.metric("Factor base", f"{f_base:.1f}")
+    col3.metric("Sadm", f"{sadm_user:.1f}")
+    col4.metric("%Goodman", f"{goodman_pct:.1f}")
 
+    # RECOMENDACION
+    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
-def mini_metric(label, value):
-    st.markdown(f"<div style='text-align:left; line-height:1;'>"
-                f"<div style='font-size:11px; color:#555;'>{label}</div>"
-                f"<div style='font-size:16px; font-weight:600;'>{value}</div>"
-                f"</div>", unsafe_allow_html=True)
-
-
-with col1:
-    mini_metric("FS", f"{fs_sel:.1f}")
-
-with col2:
-    mini_metric("Factor base", f"{f_base:.1f}")
-
-with col3:
-    mini_metric("Sadm", f"{sadm_user:.1f}")
-
-with col4:
-    mini_metric("%Goodman", f"{goodman_pct:.1f}")
-
-
-# ======================
-# RECOMENDACION (ARREGLADA)
-# ======================
-st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-col_rec, _ = st.columns([4,6])
-
-with col_rec:
     validos = df[df["Margen"] >= 0]
 
     if len(validos) > 0:
-
         top = validos.head(3)
 
         for i, row in top.iterrows():
