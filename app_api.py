@@ -247,6 +247,7 @@ MPRL = MPRL_base * 0.97
 st.subheader("Cargas")
 
 
+
 c1, c2, _ = st.columns([1, 1, 5])  # más juntas
 
 def carga_estilo(titulo, valor):
@@ -265,6 +266,8 @@ with c1:
     carga_estilo("PPRL (lb)", f"{int(PPRL):,}")
 
 with c2:
+    carga_estilo("MPRL (lb)", f"{int(MPRL):,}")
+
 
 
 # ======================
