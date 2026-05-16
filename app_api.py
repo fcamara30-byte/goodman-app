@@ -314,8 +314,34 @@ for i,d in enumerate(pct):
         "Color":colors[i]
     })
 
-df=pd.DataFrame(rows)
-st.dataframe(df.drop(columns=["Color"]),use_container_width=True)
+
+df = pd.DataFrame(rows)
+
+def estilo_tabla(df):
+    return (
+        df.style
+        # ✅ fondo gris suave
+        .set_properties(**{
+            'background-color': '#F2F2F2',
+            'font-size': '13px'
+        })
+        # ✅ Material en azul fuerte
+        .applymap(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
+        # ✅ valores más compactos
+        .set_table_styles([
+            {'selector': 'th', 'props': [('font-size', '13px')]},
+            {'selector': 'td', 'props': [('padding', '4px 8px')]}  # ↓ achica columnas
+        ])
+    )
+
+col_res, _ = st.columns([4,6])  # ✅ achica ancho tabla
+
+with col_res:
+    st.dataframe(
+        estilo_tabla(df.drop(columns=["Color"])),
+        use_container_width=True
+    )
+
 
 
 # ======================
