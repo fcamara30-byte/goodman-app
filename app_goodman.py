@@ -243,7 +243,7 @@ with col3:
 
 with col4:
     mini_metric("%Goodman", f"{goodman_pct:.1f}")
-``
+
 
 # ======================
 # RECOMENDACION (ARREGLADA)
