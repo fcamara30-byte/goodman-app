@@ -96,12 +96,21 @@ CO2={"Nada":1,"Bajo":0.98,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.93,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-c1,c2,c3,c4 = st.columns(4)
 
-co2=c1.selectbox("CO₂",CO2)
-h2s=c2.selectbox("H₂S",H2S)
-bsr=c3.selectbox("BSR",BSR)
-cl=c4.number_input("Cloruros (ppm)",0,250000,0,step=1000)
+col1, col2, col3, col4, _ = st.columns([1,1,1,1,2])  # ← mismo criterio compacto
+
+with col1:
+    co2 = st.selectbox("CO₂", CO2)
+
+with col2:
+    h2s = st.selectbox("H₂S", H2S)
+
+with col3:
+    bsr = st.selectbox("BSR", BSR)
+
+with col4:
+    cl = st.number_input("Cloruros (ppm)", 0, 250000, 0, step=1000)
+
 
 def f_cl(ppm):
     return 1 if ppm<6000 else 1-(0.00007*(ppm**0.8))
