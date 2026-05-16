@@ -211,6 +211,9 @@ st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', un
 
 col_tabla, _ = st.columns([3,7])  # ← achica ancho total
 
+with
+col_tabla, _ = st.columns([3,7])  # ← achica ancho total
+
 with col_tabla:
     st.dataframe(
         df.drop(columns=["FS"]).style
@@ -228,6 +231,7 @@ with col_tabla:
         ]),
         use_container_width=True
     )
+
 
 
 goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
