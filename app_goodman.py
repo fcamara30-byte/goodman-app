@@ -155,7 +155,6 @@ with r:
             fs_sel = fs
             sadm_user = sadm
 
-    # Corte curva
     diff = y_sel - x
     idx = np.where(diff <= 0)[0]
     corte = idx[0] if len(idx)>0 else len(x)
@@ -163,21 +162,17 @@ with r:
     x_clip = x[:corte]
     y_clip = y_sel[:corte]
 
-    # Curvas
     ax.plot(x_clip, y_clip, "b", linewidth=3)
     ax.plot(x, x, "k", linewidth=2)
 
-    # Zona segura
     ax.fill_between(x_clip, x_clip, y_clip,
                     where=(y_clip>=x_clip),
                     color='green', alpha=0.15)
 
-    # Punto crítico
     ax.scatter(smin_user, smax_user,
                color="red", s=90,
                label="Punto crítico de sarta")
 
-    # ✅ Mensaje Goodman
     if smax_user > sadm_user:
         ax.text(
             0.5, 0.15,
@@ -198,60 +193,6 @@ with r:
 
     ax.legend()
     st.pyplot(fig)
-
-    # ======================
-    # RANKING
-    # ======================
-    df = pd.DataFrame(ranking)
-    df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
-
-    if abs(f_base - 1.0) < 1e-6:
-        if "HS97" in df["Material"].values:
-            fila = df[df["Material"]=="HS97"]
-            df = df[df["Material"]!="HS97"]
-            df = pd.concat([fila,df]).reset_index(drop=True)
-
-    df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
-
-    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-
-    st.dataframe(
-        df.drop(columns=["FS"]).style.format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        }),
-        use_container_width=True
-    )
-
-    
-
-# ======================
-    # RESULTADOS
-    # ======================
-    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
-
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
-
-    c1,c2,c3,c4 = st.columns(4)
-
-    c1.metric("FS", f"{fs_sel:.1f}")
-    c2.metric("Factor base", f"{f_base:.1f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{goodman_pct:.1f}")
-
-    # ======================
-    # RECOMENDACION
-    # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-    validos = df[df["Margen"] >= 0]
-
-    if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
-        st.success(f"Varilla recomendada: {mejor}")
-    else:
-        st.error("Requiere tratamiento químico y/o varillas revestidas")
 
 # ======================
 # FOOTER
