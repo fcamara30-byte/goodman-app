@@ -132,7 +132,7 @@ f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
 x = np.linspace(0,100,200)
 
 # ======================
-# GRAFICO
+# GRAFICO (ORIGINAL)
 # ======================
 with r:
 
@@ -153,7 +153,31 @@ with r:
             fs_sel = fs
             sadm_user = sadm
 
-    ax.plot(x, x)
+    diff = y_sel - x
+    idx = np.where(diff <= 0)[0]
+    corte = idx[0] if len(idx)>0 else len(x)
+
+    x_clip = x[:corte]
+    y_clip = y_sel[:corte]
+
+    ax.plot(x_clip, y_clip, "b", linewidth=3)
+    ax.plot(x, x, "k", linewidth=2)
+
+    ax.fill_between(x_clip, x_clip, y_clip,
+                    where=(y_clip>=x_clip),
+                    color='green', alpha=0.15)
+
+    ax.scatter(smin_user, smax_user,
+               color="red", s=90,
+               label="Punto crítico de sarta")
+
+    ax.set_xlim(0,100)
+    ax.set_ylim(0,100)
+    ax.set_xlabel("Smin (ksi)")
+    ax.set_ylabel("Smax (ksi)")
+    ax.set_title("Diagrama de Goodman Corrosión-Fatiga")
+
+    ax.legend()
     st.pyplot(fig)
 
 # ======================
@@ -166,25 +190,34 @@ df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
 col_tabla, col_der = st.columns([2,1])
 
-# IZQUIERDA
+# TABLA
 with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-    st.dataframe(df.drop(columns=["FS"]), use_container_width=False)
 
-# DERECHA (como estaba funcionando bien)
+    st.dataframe(
+        df.drop(columns=["FS"]).style
+        .format({
+            "Sadm":"{:.1f}",
+            "Margen":"{:.1f}",
+            "%Goodman":"{:.1f}"
+        }),
+        use_container_width=False
+    )
+
+# RESULTADOS + RECOMENDACION (COMO TENÍAS BIEN)
 with col_der:
 
     goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-    col1, col2 = st.columns(2)
-    col3, col4 = st.columns(2)
+    c1,c2 = st.columns(2)
+    c3,c4 = st.columns(2)
 
-    col1.metric("FS", f"{fs_sel:.1f}")
-    col2.metric("Factor base", f"{f_base:.1f}")
-    col3.metric("Sadm", f"{sadm_user:.1f}")
-    col4.metric("%Goodman", f"{goodman_pct:.1f}")
+    c1.metric("FS", f"{fs_sel:.1f}")
+    c2.metric("Factor base", f"{f_base:.1f}")
+    c3.metric("Sadm", f"{sadm_user:.1f}")
+    c4.metric("%Goodman", f"{goodman_pct:.1f}")
 
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
@@ -194,26 +227,14 @@ with col_der:
         top = validos.head(3)
 
         for i, row in top.iterrows():
-            st.markdown(f"""
-            <div style="
-                background-color:#D8E5DF;
-                padding:6px 12px;
-                margin-bottom:6px;
-                border-radius:6px;
-                color:#0B6E4F;
-                font-weight:500;
-            ">
-                {top.index.get_loc(i)+1}. {row['Material']}
-            </div>
-            """, unsafe_allow_html=True)
+            st.markdown(f"{i+1}. {row['Material']}")
     else:
         st.error("Requiere tratamiento químico y/o varillas revestidas")
 
 # ======================
-# FOOTER
+# FOOTER (IMPORTANTE - RESTAURADO)
 # ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
 
