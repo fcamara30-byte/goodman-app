@@ -35,7 +35,17 @@ Visitas totales: <b>{visitas}</b>
 # ======================
 # TITULO
 # ======================
-st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
+
+col_title, col_img = st.columns([5,1])
+
+with col_title:
+    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
+
+with col_img:
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pumpjack.svg/120px-Pumpjack.svg.png",
+        width=100
+    )
 
 # ======================
 # INPUTS
