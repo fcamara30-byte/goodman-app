@@ -215,5 +215,5 @@ with col_der:
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
-``
+
 
