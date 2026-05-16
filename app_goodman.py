@@ -211,8 +211,7 @@ st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', un
 
 col_tabla, _ = st.columns([3,7])  # ← achica ancho total
 
-with
-col_tabla, _ = st.columns([3,7])  # ← achica ancho total
+with col_tabla, _ = st.columns([3,7])  # ← achica ancho total
 
 with col_tabla:
     st.dataframe(
