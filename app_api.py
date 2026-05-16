@@ -429,10 +429,11 @@ if fuera:
     )
 
 
-col_blank, col_plot = st.columns([2, 4])  # corrido a la derecha
+col_plot, col_blank = st.columns([4, 2])  # más chico y a la izquierda
 
 with col_plot:
-    st.pyplot(fig)
+    st.pyplot(fi
+
 
 
 
