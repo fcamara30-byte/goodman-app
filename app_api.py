@@ -317,6 +317,7 @@ for i,d in enumerate(pct):
 
 df = pd.DataFrame(rows)
 
+
 def estilo_tabla(df):
     return (
         df.style
@@ -325,8 +326,15 @@ def estilo_tabla(df):
             'background-color': '#F2F2F2',
             'font-size': '13px'
         })
-        # ✅ Material en azul fuerte
-        .applymap(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
+        # ✅ Material azul fuerte (FORMA SEGURA)
+        .map(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
+        # ✅ columnas más compactas
+        .set_table_styles([
+            {'selector': 'th', 'props': [('font-size', '13px')]},
+            {'selector': 'td', 'props': [('padding', '4px 8px')]}
+        ])
+    
+
         # ✅ valores más compactos
         .set_table_styles([
             {'selector': 'th', 'props': [('font-size', '13px')]},
