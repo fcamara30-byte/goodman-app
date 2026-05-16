@@ -121,14 +121,21 @@ n_default = total_varillas // 3
 
 col1, col2, col3, _ = st.columns([1,1,1,2])  # ← achica inputs
 
+# cálculo automático 33%-33%-33%
+total_varillas = int((L_m / 0.3048) / 25)
+
+n1_def = total_varillas // 3
+n78_def = total_varillas // 3
+n34_def = total_varillas - n1_def - n78_def  # ajusta cierre
+
 with col1:
-    n1 = st.number_input('1"', 10, 300, 75)
+    n1 = st.number_input('1"', 10, 300, n1_def)
 
 with col2:
-    n78 = st.number_input('7/8"', 10, 300, 80)
+    n78 = st.number_input('7/8"', 10, 300, n78_def)
 
 with col3:
-    n34 = st.number_input('3/4"', 10, 300, 80)
+    n34 = st.number_input('3/4"', 10, 300, n34_def)
 
 
 L1,L78,L34=n1*25,n78*25,n34*25
