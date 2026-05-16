@@ -264,18 +264,31 @@ st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>'
 st.markdown("---")
 st.subheader("Contacto")
 
-st.markdown(
-    """
-    <form action="https://formsubmit.co/fcamara30@gmail.com" method="POST">
-        <input type="hidden" name="_captcha" value="false">
-        <textarea name="message" placeholder="Escriba su consulta (máx. 300 palabras)" 
-        style="width:100%; height:150px;" maxlength="2000" required></textarea>
-        <br><br>
-        <button type="submit" style="background-color:#0B3C8C; color:white; padding:10px 20px; border:none;">
-            Enviar mensaje
-        </button>
-    </form>
-    """,
-    unsafe_allow_html=True
+st.markdown("---")
+st.subheader("Contacto")
+
+mensaje = st.text_area(
+    "Escriba su consulta (máximo ~300 palabras):",
+    height=150,
+    max_chars=2000
 )
 
+if st.button("Enviar mensaje"):
+    if mensaje.strip() == "":
+        st.warning("Por favor escriba un mensaje.")
+    else:
+        # reemplazá por tu mail
+        mail = "fcamara30@gmail.com"
+
+        st.markdown(f"""
+        <a href="mailto:{mail}?subject=Consulta%20desde%20app%20SRP&body={mensaje}">
+            <button style="
+                background-color:#0B3C8C;
+                color:white;
+                padding:10px 20px;
+                border:none;
+                font-size:16px;">
+                Abrir email
+            </button>
+        </a>
+        """, unsafe_allow_html=True)
