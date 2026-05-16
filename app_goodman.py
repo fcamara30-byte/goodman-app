@@ -46,8 +46,6 @@ st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_all
 st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
 st.caption(f"Visitas totales: {visitas}")
 
-
-
 # ======================
 # DATOS
 # ======================
@@ -122,6 +120,9 @@ with l:
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0)
 
+    # ✅ NUEVO TITULO
+    st.markdown('<div class="subtitulo">Selector de Solicitaciones Máximas y Mínimas</div>', unsafe_allow_html=True)
+
     smin_user = st.slider("Smin (ksi)",0,100,30)
     smax_user = st.slider("Smax (ksi)",0,100,50)
 
@@ -154,74 +155,33 @@ with r:
             fs_sel = fs
             sadm_user = sadm
 
-    # Corte curva
     diff = y_sel - x
     idx = np.where(diff <= 0)[0]
     corte = idx[0] if len(idx)>0 else len(x)
 
-    x_clip = x[:corte]
-    y_clip = y_sel[:corte]
-
-    # Curvas
-    ax.plot(x_clip, y_clip, "b", linewidth=3)
+    ax.plot(x[:corte], y_sel[:corte], "b", linewidth=3)
     ax.plot(x, x, "k", linewidth=2)
 
-    # Zona segura
-    ax.fill_between(x_clip, x_clip, y_clip,
-                    where=(y_clip>=x_clip),
+    ax.fill_between(x[:corte], x[:corte], y_sel[:corte],
+                    where=(y_sel[:corte]>=x[:corte]),
                     color='green', alpha=0.15)
 
-    # Punto crítico
-    ax.scatter(smin_user, smax_user,
-               color="red", s=90,
-               label="Punto crítico de sarta")
+    ax.scatter(smin_user, smax_user, color="red", s=90)
 
-    # ✅ Mensaje Goodman
     if smax_user > sadm_user:
-        ax.text(
-            0.5, 0.15,
+        ax.text(0.5,0.15,
             "Seleccione otro tipo de varilla\n"
             "o utilice revestimiento + tratamiento químico",
             transform=ax.transAxes,
             fontsize=10,
             color="red",
-            ha="center",
-            bbox=dict(facecolor='white', alpha=0.85)
-        )
+            ha="center")
 
-    ax.set_xlim(0,100)
-    ax.set_ylim(0,100)
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
-    ax.set_title("Diagrama de Goodman Corrosión-Fatiga", fontstyle='italic')
+    ax.set_title("Diagrama de Goodman")
 
-    ax.legend()
     st.pyplot(fig)
-
-    # ======================
-    # RANKING
-    # ======================
-    df = pd.DataFrame(ranking)
-    df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
-
-    if abs(f_base - 1.0) < 1e-6:
-        if "HS97" in df["Material"].values:
-            fila = df[df["Material"]=="HS97"]
-            df = df[df["Material"]!="HS97"]
-            df = pd.concat([fila,df]).reset_index(drop=True)
-
-    df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
-
-    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-
-    st.dataframe(
-        df.drop(columns=["FS"]).style.format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        }),
-        use_container_width=True
-    )
 
     # ======================
     # RESULTADOS
@@ -231,29 +191,34 @@ with r:
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
     c1,c2,c3,c4 = st.columns(4)
-    c1.metric("FS", f"{fs_sel:.3f}")
-    c2.metric("Factor base", f"{f_base:.3f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{goodman_pct:.1f}")
 
-    # ======================
-    # RECOMENDACION
-    # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+    def bloque_resultado(titulo, valor):
+        st.markdown(f"""
+        <div style="text-align:center;">
+            <div style="font-size:16px; font-weight:600; color:#1F4E79;">
+                {titulo}
+            </div>
+            <div style="font-size:18px; margin-top:5px;">
+                {valor}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    validos = df[df["Margen"] >= 0]
+    with c1:
+        bloque_resultado("FS", f"{fs_sel:.1f}")
 
-    if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
-        st.success(f"Varilla recomendada: {mejor}")
-    else:
-        st.error("Requiere tratamiento químico y/o varillas revestidas")
+    with c2:
+        bloque_resultado("Factor base", f"{f_base:.1f}")
+
+    with c3:
+        bloque_resultado("Sadm", f"{sadm_user:.1f}")
+
+    with c4:
+        bloque_resultado("%Goodman", f"{goodman_pct:.1f}")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
 
