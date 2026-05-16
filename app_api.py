@@ -108,9 +108,16 @@ st.subheader("Cant. Varillas")
 
 c1,c2,c3=st.columns(3)
 
-n1=c1.number_input('1"',10,300,75)
-n78=c2.number_input('7/8"',10,300,80)
-n34=c3.number_input('3/4"',10,300,80)
+# cálculo automático 33%-33%-33%
+total_varillas = int((L_m / 0.3048) / 25)  # convertir m → ft → cantidad sticks
+
+n_default = total_varillas // 3
+
+c1,c2,c3=st.columns(3)
+
+n1 = c1.number_input('1"', 10, 300, n_default)
+n78 = c2.number_input('7/8"', 10, 300, n_default)
+n34 = c3.number_input('3/4"', 10, 300, total_varillas - 2*n_default)
 
 L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
