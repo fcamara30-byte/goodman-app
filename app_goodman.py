@@ -240,8 +240,7 @@ with col_tabla:
     )
 
 # DERECHA: RESULTADOS
-with col_der:
-``
+
 
 
 # ======================
