@@ -243,7 +243,7 @@ c4.metric("%Goodman", f"{goodman_pct:.1f}")
     # ======================
     # RECOMENDACION
     # ======================
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True
 
     validos = df[df["Margen"] >= 0]
 
