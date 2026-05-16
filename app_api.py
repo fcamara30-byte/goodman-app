@@ -43,10 +43,11 @@ with col_title:
     st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
 with col_img:
-    st.image(
-        "",
-        width=100
+    st.markdown(
+        "<div style='font-size:60px; text-align:center;'>⚙️</div>",
+        unsafe_allow_html=True
     )
+
 
 
 
