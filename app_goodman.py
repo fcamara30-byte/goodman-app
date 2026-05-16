@@ -207,17 +207,25 @@ with col_tabla:
 # RESULTADOS + RECOMENDACION (COMO TENÍAS BIEN)
 with col_der:
 
-    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
+    c3,c4 = st.columns(2)    goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+    # Métrica chica (HTML)
+    def mini(label, value):
+        st.markdown(f"""
+        <div style="line-height:1;">
+            <div style="font-size:11px; color:#555;">{label}</div>
+            <div style="font-size:20px; font-weight:600;">{value}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    c1,c2 = st.columns(2)
-    c3,c4 = st.columns(2)
-
-    c1.metric("FS", f"{fs_sel:.1f}")
-    c2.metric("Factor base", f"{f_base:.1f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{goodman_pct:.1f}")
+    with c1:
+        mini("FS", f"{fs_sel:.1f}")
+    with c2:
+        mini("Factor base", f"{f_base:.1f}")
+    with c3:
+        mini("Sadm", f"{sadm_user:.1f}")
+    with c4:
+        mini("%Goodman", f"{goodman_pct:.1f}")
 
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
@@ -227,9 +235,34 @@ with col_der:
         top = validos.head(3)
 
         for i, row in top.iterrows():
-            st.markdown(f"{i+1}. {row['Material']}")
+            st.markdown(f"""
+            <div style="
+                background-color:#D6EAF8;
+                padding:5px 10px;
+                margin-bottom:5px;
+                border-radius:6px;
+            ">
+                {i+1}. {row['Material']}
+            </div>
+            """, unsafe_allow_html=True)
     else:
         st.error("Requiere tratamiento químico y/o varillas revestidas")
+
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # CONTENEDOR CON FONDO
+    st.markdown("""
+    <div style="
+        background-color:#E6F2F8;
+        padding:12px;
+        border-radius:8px;
+    ">
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+
+    c1,c2 = st.columns(2)
+
 
 # ======================
 # FOOTER (IMPORTANTE - RESTAURADO)
