@@ -246,9 +246,26 @@ MPRL = MPRL_base * 0.97
 # ======================
 st.subheader("Cargas")
 
-c1,c2=st.columns(2)
-c1.metric("PPRL (lb)",f"{int(PPRL):,}")
-c2.metric("MPRL (lb)",f"{int(MPRL):,}")
+
+c1, c2, _ = st.columns([1, 1, 5])  # más juntas
+
+def carga_estilo(titulo, valor):
+    st.markdown(f"""
+    <div style="text-align:center;">
+        <div style="font-size:14px;">
+            {titulo}
+        </div>
+        <div style="font-size:28px; font-weight:700; color:#003399;">
+            {valor}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c1:
+    carga_estilo("PPRL (lb)", f"{int(PPRL):,}")
+
+with c2:
+
 
 # ======================
 # RESULTADOS
