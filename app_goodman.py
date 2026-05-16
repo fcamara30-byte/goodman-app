@@ -267,12 +267,23 @@ col_rec, _ = st.columns([4,6])
 
 col_rec, _ = st.columns([4,6])
 
+
+col_rec, _ = st.columns([4,6])
+
 with col_rec:
+    validos = df[df["Margen"] >= 0]
+
     if len(validos) > 0:
-        mejor = validos.iloc[0]["Material"]
-        st.success(f"Varilla recomendada: {mejor}")
+
+        # tomar hasta 3 recomendaciones
+        top = validos.head(3)
+
+        for i, row in top.iterrows():
+            st.success(f"{top.index.get_loc(i)+1}) {row['Material']}")
+
     else:
-        st.error("Requiere tratamiento químico y/o varillas revestidas")
+        st.error("Requiere tratamiento químico y/o varillas revestidas"
+
 
 
 # ======================
