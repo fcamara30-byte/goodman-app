@@ -36,6 +36,7 @@ Visitas totales: <b>{visitas}</b>
 # TITULO
 # ======================
 
+
 col_title, col_img = st.columns([5,1])
 
 with col_title:
@@ -43,8 +44,8 @@ with col_title:
 
 with col_img:
     st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/Pumpjack.svg/120px-Pumpjack.svg.png",
-        width=100
+        "https://cdn-icons-png.flaticon.com/512/2917/2917995.png",
+        width=80
     )
 
 # ======================
