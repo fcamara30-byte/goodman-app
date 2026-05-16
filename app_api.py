@@ -47,7 +47,12 @@ G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
 N   = c4.slider("SPM",1,20,6)
 
-S = st.slider("Carrera (in)",0,300,168)
+
+c_slider, _ = st.columns([2, 3])  # controla el ancho
+
+with c_slider:
+    S = st.slider("Carrera (in)", 0, 300, 168)
+
 
 # ======================
 # MATERIALES
