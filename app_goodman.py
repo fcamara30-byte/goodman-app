@@ -261,3 +261,21 @@ st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosi
 st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 
+st.markdown("---")
+st.subheader("Contacto")
+
+st.markdown(
+    """
+    <form action="https://formsubmit.co/TU_EMAIL_AQUI" method="POST">
+        <input type="hidden" name="_captcha" value="false">
+        <textarea name="message" placeholder="Escriba su consulta (máx. 300 palabras)" 
+        style="width:100%; height:150px;" maxlength="2000" required></textarea>
+        <br><br>
+        <button type="submit" style="background-color:#0B3C8C; color:white; padding:10px 20px; border:none;">
+            Enviar mensaje
+        </button>
+    </form>
+    """,
+    unsafe_allow_html=True
+)
+
