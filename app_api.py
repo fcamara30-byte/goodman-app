@@ -168,21 +168,20 @@ total=L1+L78+L34
 # ======================
 st.subheader("Control de longitud")
 
-long_m=total*0.3048
-dif=long_m-L_m
+long_m = total * 0.3048
+dif = long_m - L_m
 
-
-col_tabla, _ = st.columns([3, 7])  # controla ancho (similar a varillas)
-
-with col_tabla:
+# ✅ primero crear dataframe
 df_ctrl = pd.DataFrame({
     "Pozo (m)":[int(L_m)],
     "Sarta (m)":[int(long_m)],
     "Δ (m)":[int(dif)]
 })
 
+# ✅ después crear columnas
 col_tabla, _ = st.columns([3, 7])
 
+# ✅ después mostrar
 with col_tabla:
     st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
 
