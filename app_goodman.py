@@ -213,28 +213,35 @@ col_tabla, col_der = st.columns([2,1])
 # ======================
 with col_tabla:
 
+col_tabla, col_der = st.columns([2,1])
+
+# IZQUIERDA: TABLA
+with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
 
- 
-st.dataframe(
-    df.drop(columns=["FS"]).style
-    .format({
-        "Sadm":"{:.1f}",
-        "Margen":"{:.1f}",
-        "%Goodman":"{:.1f}"
-    })
-    .set_table_styles([
-        {'selector': 'th', 'props': [
-            ('font-size', '13px'),
-            ('padding', '4px 8px')
-        ]},
-        {'selector': 'td', 'props': [
-            ('padding', '3px 8px'),
-            ('white-space','nowrap')
-        ]}
-    ]),
-    use_container_width=False   # ← CLAVE
-)
+    st.dataframe(
+        df.drop(columns=["FS"]).style
+        .format({
+            "Sadm":"{:.1f}",
+            "Margen":"{:.1f}",
+            "%Goodman":"{:.1f}"
+        })
+        .set_table_styles([
+            {'selector': 'th', 'props': [
+                ('font-size', '13px'),
+                ('padding', '4px 8px')
+            ]},
+            {'selector': 'td', 'props': [
+                ('padding', '3px 8px'),
+                ('white-space','nowrap')
+            ]}
+        ]),
+        use_container_width=False
+    )
+
+# DERECHA: RESULTADOS
+with col_der:
+``
 
 
 # ======================
