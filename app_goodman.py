@@ -106,8 +106,17 @@ l,r = st.columns([1,2])
 
 with l:
     material = st.selectbox("Material", list(materiales.keys()))
-    co2 = st.selectbox("PPCO₂ (psi)", ["Nada (0 psi)", "Bajo (0–20 psi)", "Medio (21–100 psi)", "Alto (>100 psi)"])
-    h2s = st.selectbox("PPH₂S (psi)", ["Nada (0 psi)", "Bajo (0–1 psi)", "Medio (1–2 psi)", "Alto (>2 psi)"])
+
+    co2 = st.selectbox("PPCO₂ (psi)", [
+        "Nada (0 psi)", "Bajo (0–20 psi)",
+        "Medio (21–100 psi)", "Alto (>100 psi)"
+    ])
+
+    h2s = st.selectbox("PPH₂S (psi)", [
+        "Nada (0 psi)", "Bajo (0–1 psi)",
+        "Medio (1–2 psi)", "Alto (>2 psi)"
+    ])
+
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
 
@@ -122,9 +131,10 @@ f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
 x = np.linspace(0,100,200)
 
 # ======================
-# GRAFICO CORRECTO + ZONA VERDE + ALERTA
+# GRAFICO
 # ======================
 with r:
+
     fig, ax = plt.subplots(figsize=(6,4))
     ranking=[]
 
@@ -158,7 +168,7 @@ with r:
 
     ax.scatter(smin_user, smax_user, color="red", s=90)
 
-    # ALERTA RECUPERADA
+    # alerta
     if smax_user > sadm_user:
         ax.text(
             0.5, 0.15,
@@ -180,20 +190,42 @@ with r:
     st.pyplot(fig)
 
 # ======================
-# DATA
+# DATA + AJUSTES
 # ======================
 df = pd.DataFrame(ranking)
 df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
+
+# prioridad HS97 en no corrosivo
+if abs(f_base - 1.0) < 1e-6:
+    if "HS97" in df["Material"].values:
+        fila = df[df["Material"]=="HS97"]
+        df = df[df["Material"]!="HS97"]
+        df = pd.concat([fila, df]).reset_index(drop=True)
+
 df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
-col_tabla, col_der = st.columns([2,1])
+# columnas más juntas
+col_tabla, col_der = st.columns([3,1])
 
-# TABLA
+# ======================
+# TABLA IZQUIERDA
+# ======================
 with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-    st.dataframe(df.drop(columns=["FS"]), use_container_width=False)
 
-# RESULTADOS + FONDO CELESTE + TEXTO CHICO
+    st.dataframe(
+        df.drop(columns=["FS"]).style
+        .format({
+            "Sadm":"{:.0f}",
+            "Margen":"{:.0f}",
+            "%Goodman":"{:.0f}"
+        }),
+        use_container_width=False
+    )
+
+# ======================
+# DERECHA
+# ======================
 with col_der:
 
     goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
@@ -207,8 +239,13 @@ with col_der:
     c1,c2 = st.columns(2)
     c3,c4 = st.columns(2)
 
-    def mini(l,v):
-        st.markdown(f"<div style='font-size:14px'><b>{l}</b><br>{v}</div>", unsafe_allow_html=True)
+    def mini(label, value):
+        st.markdown(f"""
+        <div style="line-height:1;">
+            <div style="font-size:11px; color:#555;">{label}</div>
+            <div style="font-size:20px; font-weight:600;">{value}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     with c1: mini("FS", f"{fs_sel:.1f}")
     with c2: mini("Factor base", f"{f_base:.1f}")
@@ -218,14 +255,17 @@ with col_der:
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
     validos = df[df["Margen"] >= 0]
+    top = validos.head(3)
 
-    if len(validos)>0:
-        for i,row in validos.head(3).iterrows():
-            st.markdown(f"{i+1}. {row['Material']}")
+    for i,row in top.iterrows():
+        st.markdown(f"{i+1}. {row['Material']}")
 
     st.markdown("</div>", unsafe_allow_html=True)
 
+# ======================
 # FOOTER
+# ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
+``
