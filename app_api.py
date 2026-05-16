@@ -330,11 +330,15 @@ def estilo_tabla(df):
         # ✅ Material en azul fuerte
         .map(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
         # ✅ formato numérico controlado
-        .format({
-            "Smax (ksi)": "{:.1f}",
-            "Smin (ksi)": "{:.1f}",
-            "Goodman (%)": "{:.0f}"
-        })
+
+.format({
+    "Max Load (lb)": "{:,.0f}",
+    "Min Load (lb)": "{:,.0f}",
+    "Smax (ksi)": "{:.1f}",
+    "Smin (ksi)": "{:.1f}",
+    "Goodman (%)": "{:.0f}"
+})
+
         # ✅ padding compacto pero no exagerado
         .set_table_styles([
             {'selector': 'th', 'props': [('font-size', '14px')]},
