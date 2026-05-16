@@ -347,7 +347,7 @@ def estilo_tabla(df):
     )
 
 
-col_res, _ = st.columns([4,6])  # ✅ achica ancho tabla
+col_res, _ = st.columns([8,2])  # ✅ achica ancho tabla
 
 with col_res:
     st.dataframe(
