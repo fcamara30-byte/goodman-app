@@ -86,17 +86,17 @@ bsr=c3.selectbox("BSR",BSR)
 cl=c4.number_input("Cloruros (ppm)",0,250000,0)
 
 def f_cl(ppm):
-    return 1 if ppm<9000 else 1-(0.000019*(ppm**0.8))
+    return 1 if ppm<6000 else 1-(0.00007*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 def FS_material(mat,f):
     if f==1: return 1
-    if mat=="DA78": return f*0.95
-    elif mat=="HS97": return f*0.96
-    elif mat=="CS propietario": return f*0.96
+    if mat=="DA78": return f*0.90
+    elif mat=="HS97": return f*0.92
+    elif mat=="CS propietario": return f*0.92
     elif mat=="HS propietario": return f*0.75
-    elif mat=="D New": return f*0.94
+    elif mat=="D New": return f*0.90
     elif mat=="DSK75": return f if f < 0.75 else 1
     elif mat=="HA96": return f*0.85
     return f*0.9
