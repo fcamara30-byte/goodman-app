@@ -408,7 +408,7 @@ ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
 # ✅ título (faltaba)
-ax.set_title("Diagrama de Goodman Fatiga–Corrosión por Varilla")
+ax.set_title("Solicitaciones penalizadas por Corrosión")
 
 # ✅ leyenda (faltaba)
 ax.legend(title="Tramo")
