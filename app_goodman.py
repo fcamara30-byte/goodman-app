@@ -282,7 +282,7 @@ with col_rec:
             st.success(f"{top.index.get_loc(i)+1}) {row['Material']}")
 
     else:
-        st.error("Requiere tratamiento químico y/o varillas revestidas"
+        st.error("Requiere tratamiento químico y/o varillas revestidas")
 
 
 
