@@ -120,7 +120,7 @@ with l:
     ])
 
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
-    cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0)
+    cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
 
     st.markdown('<div class="subtitulo">Selector de Solicitaciones Máximas y Mínimas</div>', unsafe_allow_html=True)
     smin_user = st.slider("Smin (ksi)",0,100,30)
