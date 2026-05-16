@@ -232,12 +232,13 @@ with r:
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
  
-c1,c2,c3,c4 = st.columns(4)
 
-c1.metric("FS", f"{fs_sel:.1f}")
-c2.metric("Factor base", f"{f_base:.1f}")
-c3.metric("Sadm", f"{sadm_user:.1f}")
-c4.metric("%Goodman", f"{goodman_pct:.1f}")
+    c1,c2,c3,c4 = st.columns(4)
+
+    c1.metric("FS", f"{fs_sel:.1f}")
+    c2.metric("Factor base", f"{f_base:.1f}")
+    c3.metric("Sadm", f"{sadm_user:.1f}")
+    c4.metric("%Goodman", f"{goodman_pct:.1f}")
 
 
     # ======================
