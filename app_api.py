@@ -44,9 +44,10 @@ with col_title:
 
 with col_img:
     st.image(
-        "https://cdn-icons-png.flaticon.com/512/2917/2917995.png",
-        width=80
+        "https://cdn-icons-png.flaticon.com/512/2224/2224512.png",
+        width=90
     )
+
 
 # ======================
 # INPUTS
