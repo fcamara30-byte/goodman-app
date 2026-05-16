@@ -83,7 +83,7 @@ c1,c2,c3,c4 = st.columns(4)
 co2=c1.selectbox("CO₂",CO2)
 h2s=c2.selectbox("H₂S",H2S)
 bsr=c3.selectbox("BSR",BSR)
-cl=c4.number_input("Cloruros (ppm)",0,250000,0)
+cl=c4.number_input("Cloruros (ppm)",0,250000,0,step=1000)
 
 def f_cl(ppm):
     return 1 if ppm<6000 else 1-(0.00007*(ppm**0.8))
