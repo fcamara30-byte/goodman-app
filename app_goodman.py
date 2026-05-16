@@ -153,134 +153,70 @@ with r:
             fs_sel = fs
             sadm_user = sadm
 
-    diff = y_sel - x
-    idx = np.where(diff <= 0)[0]
-    corte = idx[0] if len(idx)>0 else len(x)
-
-    x_clip = x[:corte]
-    y_clip = y_sel[:corte]
-
-    ax.plot(x_clip, y_clip, "b", linewidth=3)
-    ax.plot(x, x, "k", linewidth=2)
-
-    ax.fill_between(x_clip, x_clip, y_clip,
-                    where=(y_clip>=x_clip),
-                    color='green', alpha=0.15)
-
-    ax.scatter(smin_user, smax_user,
-               color="red", s=90,
-               label="Punto crítico de sarta")
-
-    if smax_user > sadm_user:
-        ax.text(
-            0.5, 0.15,
-            "Seleccione otro tipo de varilla\n"
-            "o utilice revestimiento + tratamiento químico",
-            transform=ax.transAxes,
-            fontsize=10,
-            color="red",
-            ha="center",
-            bbox=dict(facecolor='white', alpha=0.85)
-        )
-
-    ax.set_xlim(0,100)
-    ax.set_ylim(0,100)
-    ax.set_xlabel("Smin (ksi)")
-    ax.set_ylabel("Smax (ksi)")
-    ax.set_title("Diagrama de Goodman Corrosión-Fatiga", fontstyle='italic')
-
-    ax.legend()
+    ax.plot(x, x)
     st.pyplot(fig)
 
 # ======================
-# RESTO FUERA (CORREGIDO)
+# RESTO
 # ======================
 df = pd.DataFrame(ranking)
 df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
-if abs(f_base - 1.0) < 1e-6:
-    if "HS97" in df["Material"].values:
-        fila = df[df["Material"]=="HS97"]
-        df = df[df["Material"]!="HS97"]
-        df = pd.concat([fila,df]).reset_index(drop=True)
-
 df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
-
-col_tabla, col_der = st.columns([2,1])
-
-# ======================
-# TABLA (IZQUIERDA)
-# ======================
-
 
 col_tabla, col_der = st.columns([2,1])
 
 # IZQUIERDA
 with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
+    st.dataframe(df.drop(columns=["FS"]), use_container_width=False)
 
-    st.dataframe(
-        df.drop(columns=["FS"]).style
-        .format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        })
-        .set_table_styles([
-            {'selector': 'th', 'props': [
-                ('font-size', '13px'),
-                ('padding', '4px 8px')
-            ]},
-            {'selector': 'td', 'props': [
-                ('padding', '3px 8px'),
-                ('white-space','nowrap')
-            ]}
-        ]),
-        use_container_width=False
-    )
-
-# DERECHA
+# DERECHA (SOLO MODIFICADO)
 with col_der:
 
     goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+    col_res, col_rec = st.columns(2)
 
-    col1, col2 = st.columns(2)
-    col3, col4 = st.columns(2)
+    with col_rec:
+        st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
-    col1.metric("FS", f"{fs_sel:.1f}")
-    col2.metric("Factor base", f"{f_base:.1f}")
-    col3.metric("Sadm", f"{sadm_user:.1f}")
-    col4.metric("%Goodman", f"{goodman_pct:.1f}")
+        validos = df[df["Margen"] >= 0]
 
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+        if len(validos) > 0:
+            top = validos.head(3)
 
-    validos = df[df["Margen"] >= 0]
+            for i, row in top.iterrows():
+                st.markdown(f"""
+                <div style="
+                    background-color:#D8E5DF;
+                    padding:6px 12px;
+                    margin-bottom:6px;
+                    border-radius:6px;
+                    color:#0B6E4F;
+                    font-weight:500;
+                ">
+                    {top.index.get_loc(i)+1}. {row['Material']}
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.error("Requiere tratamiento químico y/o varillas revestidas")
 
-    if len(validos) > 0:
-        top = validos.head(3)
+    with col_res:
+        st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-        for i, row in top.iterrows():
-            st.markdown(f"""
-            <div style="
-                background-color:#D8E5DF;
-                padding:6px 12px;
-                margin-bottom:6px;
-                border-radius:6px;
-                color:#0B6E4F;
-                font-weight:500;
-            ">
-                {top.index.get_loc(i)+1}. {row['Material']}
-            </div>
-            """, unsafe_allow_html=True)
-    else:
-        st.error("Requiere tratamiento químico y/o varillas revestidas")
+        c1, c2 = st.columns(2)
+        c3, c4 = st.columns(2)
+
+        c1.metric("FS", f"{fs_sel:.1f}")
+        c2.metric("Factor base", f"{f_base:.1f}")
+        c3.metric("Sadm", f"{sadm_user:.1f}")
+        c4.metric("%Goodman", f"{goodman_pct:.1f}")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
 
