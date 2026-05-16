@@ -90,11 +90,11 @@ def factor_cloruros(ppm):
 # ======================
 def FS_material(mat,f):
     if f==1: return 1
-    if mat=="DA78": return f*0.92
-    elif mat=="HS97": return f*0.94
-    elif mat=="CS propietario": return f*0.94
+    if mat=="DA78": return f*0.90
+    elif mat=="HS97": return f*0.92
+    elif mat=="CS propietario": return f*0.92
     elif mat=="HS propietario": return f*0.75
-    elif mat=="D New": return f*0.92
+    elif mat=="D New": return f*0.90
     elif mat=="DSK75": return f if f < 0.75 else 1
     elif mat=="HA96": return f*0.85
 
