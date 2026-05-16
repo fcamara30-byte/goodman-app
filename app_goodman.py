@@ -215,7 +215,7 @@ col_tabla, col_der = st.columns([2,1])
 
 col_tabla, col_der = st.columns([2,1])
 
-# IZQUIERDA: TABLA
+# IZQUIERDA
 with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
 
@@ -239,18 +239,11 @@ with col_tabla:
         use_container_width=False
     )
 
-# DERECHA: RESULTADOS
-
-
-
-# ======================
-# DERECHA: RESULTADOS + RECOMENDACIÓN
-# ======================
+# DERECHA
 with col_der:
 
     goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
-    # RESULTADOS
     st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
@@ -261,7 +254,6 @@ with col_der:
     col3.metric("Sadm", f"{sadm_user:.1f}")
     col4.metric("%Goodman", f"{goodman_pct:.1f}")
 
-    # RECOMENDACION
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
     validos = df[df["Margen"] >= 0]
@@ -282,7 +274,6 @@ with col_der:
                 {top.index.get_loc(i)+1}. {row['Material']}
             </div>
             """, unsafe_allow_html=True)
-
     else:
         st.error("Requiere tratamiento químico y/o varillas revestidas")
 
