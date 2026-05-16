@@ -44,7 +44,7 @@ with col_title:
 
 with col_img:
     st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/3/3b/Pumpjack.svg",
+        "https://www.google.com/search?sxsrf=ANbL-n59yMKQkT5hCbJFBGb_jL92HlP0KA:1778944872412&udm=2&q=pumpjack#sv=CAMSVhoyKhBlLXJDRTBhdlRiUURrdHFNMg5yQ0UwYXZUYlFEa3RxTToOaC1jN1pEbENyM2NydE0gBCocCgZtb3NhaWMSEGUtckNFMGF2VGJRRGt0cU0YADABGAcgoIj81wRKCBABGAEgASgB",
         width=100
     )
 
