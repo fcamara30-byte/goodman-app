@@ -278,8 +278,21 @@ with col_rec:
         # tomar hasta 3 recomendaciones
         top = validos.head(3)
 
-        for i, row in top.iterrows():
-            st.success(f"{top.index.get_loc(i)+1}) {row['Material']}")
+      
+for i, row in top.iterrows():
+    st.markdown(f"""
+    <div style="
+        background-color:#D8E5DF;
+        padding:6px 12px;
+        margin-bottom:6px;
+        border-radius:6px;
+        color:#0B6E4F;
+        font-weight:500;
+    ">
+        {top.index.get_loc(i)+1}. {row['Material']}
+    </div>
+    """, unsafe_allow_html=True)
+
 
     else:
         st.error("Requiere tratamiento químico y/o varillas revestidas")
