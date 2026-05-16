@@ -224,16 +224,13 @@ st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
 col1, col2, col3, col4, _ = st.columns([1,1,1,1,6])  # ← pegados a la izquierda
 
+
 def mini_metric(label, value):
-    st.markdown(f"""
-    <div style="
-        text-align:left;
-        line-height:1.1;
-    ">
-        <div style="font-size:11px; color:#555;">{label}</div>
-        <div style="font-size:16px; font-weight:600;">{value}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(f"<div style='text-align:left; line-height:1;'>"
+                f"<div style='font-size:11px; color:#555;'>{label}</div>"
+                f"<div style='font-size:16px; font-weight:600;'>{value}</div>"
+                f"</div>", unsafe_allow_html=True)
+
 
 with col1:
     mini_metric("FS", f"{fs_sel:.1f}")
