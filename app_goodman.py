@@ -132,7 +132,7 @@ f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
 x = np.linspace(0,100,200)
 
 # ======================
-# SOLO GRAFICO EN LA DERECHA
+# GRAFICO
 # ======================
 with r:
 
@@ -208,65 +208,29 @@ df["%Goodman"] = ((smax_user - smin_user) / (df["Sadm"] - smin_user)) * 100
 
 st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
 
-
-col_tabla, _ = st.columns([3,7])  # ← achica ancho total
+col_tabla, _ = st.columns([3,7])
 
 with col_tabla:
-    st.dataframe(
-        df.drop(columns=["FS"]).style
-        .format({
-            "Sadm":"{:.1f}",
-            "Margen":"{:.1f}",
-            "%Goodman":"{:.1f}"
-        })
-        .set_table_styles([
-            {'selector': 'th', 'props': [('font-size', '13px')]},
-            {'selector': 'td', 'props': [
-                ('padding', '4px 8px'),   # ← clave: celdas angostas
-                ('white-space','nowrap')
-            ]}
-        ]),
-        use_container_width=True
-    )
+    st.dataframe(df.drop(columns=["FS"]), use_container_width=True)
 
-
-
+# ======================
+# RESULTADOS
+# ======================
 goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
 st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-col1, col2, col3, col4, _ = st.columns([1,1,1,1,6])  # ← los junta a la izquierda
+col1,col2,col3,col4=st.columns(4)
 
-def mini_metric(label, value):
-    st.markdown(f"""
-    <div style="text-align:left;">
-        <div style="font-size:11px; color:#555;">{label}</div>
-        <div style="font-size:18px; font-weight:600;">{value}</div>
-    </div>
-    """, unsafe_allow_html=True)
+col1.metric("FS",f"{fs_sel:.1f}")
+col2.metric("Factor base",f"{f_base:.1f}")
+col3.metric("Sadm",f"{sadm_user:.1f}")
+col4.metric("%Goodman",f"{goodman_pct:.1f}")
 
-with col1:
-    mini_metric("FS", f"{fs_sel:.1f}")
-
-with col2:
-    mini_metric("Factor base", f"{f_base:.1f}")
-
-with col3:
-    mini_metric("Sadm", f"{sadm_user:.1f}")
-
-with col4:
-    mini_metric("%Goodman", f"{goodman_pct:.1f}")
-
+# ======================
+# RECOMENDACION (ARREGLADA)
+# ======================
 st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-validos = df[df["Margen"] >= 0]
-
-
-col_rec, _ = st.columns([4,6])
-
-
-col_rec, _ = st.columns([4,6])
-
 
 col_rec, _ = st.columns([4,6])
 
@@ -275,29 +239,24 @@ with col_rec:
 
     if len(validos) > 0:
 
-        # tomar hasta 3 recomendaciones
         top = validos.head(3)
 
-      
-for i, row in top.iterrows():
-    st.markdown(f"""
-    <div style="
-        background-color:#D8E5DF;
-        padding:6px 12px;
-        margin-bottom:6px;
-        border-radius:6px;
-        color:#0B6E4F;
-        font-weight:500;
-    ">
-        {top.index.get_loc(i)+1}. {row['Material']}
-    </div>
-    """, unsafe_allow_html=True)
-
+        for i, row in top.iterrows():
+            st.markdown(f"""
+            <div style="
+                background-color:#D8E5DF;
+                padding:6px 12px;
+                margin-bottom:6px;
+                border-radius:6px;
+                color:#0B6E4F;
+                font-weight:500;
+            ">
+                {top.index.get_loc(i)+1}. {row['Material']}
+            </div>
+            """, unsafe_allow_html=True)
 
     else:
         st.error("Requiere tratamiento químico y/o varillas revestidas")
-
-
 
 # ======================
 # FOOTER
@@ -305,4 +264,3 @@ for i, row in top.iterrows():
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
