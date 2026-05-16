@@ -432,7 +432,7 @@ if fuera:
 col_plot, col_blank = st.columns([4, 2])  # más chico y a la izquierda
 
 with col_plot:
-    st.pyplot(fi
+    st.pyplot(fig)
 
 
 
