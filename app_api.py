@@ -175,11 +175,35 @@ dif=long_m-L_m
 col_tabla, _ = st.columns([3, 7])  # controla ancho (similar a varillas)
 
 with col_tabla:
-    st.dataframe(pd.DataFrame({
-        "Pozo (m)":[int(L_m)],
-        "Sarta (m)":[int(long_m)],
-        "Δ (m)":[int(dif)]
-    }), use_container_width=True)
+df_ctrl = pd.DataFrame({
+    "Pozo (m)":[int(L_m)],
+    "Sarta (m)":[int(long_m)],
+    "Δ (m)":[int(dif)]
+})
+
+col_tabla, _ = st.columns([3, 7])
+
+with col_tabla:
+    st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
+
+# ✅ ALERTA
+if abs(dif) > 20:
+    st.markdown("""
+    <style>
+    @keyframes blink {
+        0% {opacity: 1;}
+        50% {opacity: 0;}
+        100% {opacity: 1;}
+    }
+    .alerta {
+        color: red;
+        font-weight: bold;
+        animation: blink 0.6s linear 4;
+    }
+    </style>
+
+    <div class="alerta">⚠ Chequear longitud de Sarta</div>
+    """, unsafe_allow_html=True)
 
 
 # ======================
