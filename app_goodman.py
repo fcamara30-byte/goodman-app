@@ -83,7 +83,7 @@ def factor_h2s(sel):
     }[sel]
 
 def factor_cloruros(ppm):
-    return 1 if ppm < 9000 else 1 - (0.000019 * (ppm**0.8))
+    return 1 if ppm < 8000 else 1 - (0.000023 * (ppm**0.8))
 
 # ======================
 # FUNCIONES
