@@ -318,29 +318,30 @@ for i,d in enumerate(pct):
 df = pd.DataFrame(rows)
 
 
+
 def estilo_tabla(df):
     return (
         df.style
         # ✅ fondo gris suave
         .set_properties(**{
             'background-color': '#F2F2F2',
-            'font-size': '13px'
+            'font-size': '15px'   # ← un poco más grande
         })
-        # ✅ Material azul fuerte (FORMA SEGURA)
+        # ✅ Material en azul fuerte
         .map(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
-        # ✅ columnas más compactas
+        # ✅ formato numérico controlado
+        .format({
+            "Smax (ksi)": "{:.1f}",
+            "Smin (ksi)": "{:.1f}",
+            "Goodman (%)": "{:.0f}"
+        })
+        # ✅ padding compacto pero no exagerado
         .set_table_styles([
-            {'selector': 'th', 'props': [('font-size', '13px')]},
-            {'selector': 'td', 'props': [('padding', '4px 8px')]}
-        ])
-    
-
-        # ✅ valores más compactos
-        .set_table_styles([
-            {'selector': 'th', 'props': [('font-size', '13px')]},
-            {'selector': 'td', 'props': [('padding', '4px 8px')]}  # ↓ achica columnas
+            {'selector': 'th', 'props': [('font-size', '14px')]},
+            {'selector': 'td', 'props': [('padding', '6px 10px')]}
         ])
     )
+
 
 col_res, _ = st.columns([4,6])  # ✅ achica ancho tabla
 
