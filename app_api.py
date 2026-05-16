@@ -428,7 +428,12 @@ if fuera:
         bbox=dict(facecolor='white', alpha=0.8, edgecolor='red')
     )
 
-st.pyplot(fig)
+
+col_blank, col_plot = st.columns([2, 4])  # corrido a la derecha
+
+with col_plot:
+    st.pyplot(fig)
+
 
 
 
