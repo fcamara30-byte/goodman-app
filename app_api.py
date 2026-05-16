@@ -142,11 +142,16 @@ st.subheader("Control de longitud")
 long_m=total*0.3048
 dif=long_m-L_m
 
-st.dataframe(pd.DataFrame({
-    "Pozo (m)":[int(L_m)],
-    "Sarta (m)":[int(long_m)],
-    "Δ (m)":[int(dif)]
-}),use_container_width=True)
+
+col_tabla, _ = st.columns([3, 7])  # controla ancho (similar a varillas)
+
+with col_tabla:
+    st.dataframe(pd.DataFrame({
+        "Pozo (m)":[int(L_m)],
+        "Sarta (m)":[int(long_m)],
+        "Δ (m)":[int(dif)]
+    }), use_container_width=True)
+
 
 # ======================
 # MODELO
