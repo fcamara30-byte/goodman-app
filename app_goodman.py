@@ -220,12 +220,33 @@ goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
 st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-col1,col2,col3,col4=st.columns(4)
 
-col1.metric("FS",f"{fs_sel:.1f}")
-col2.metric("Factor base",f"{f_base:.1f}")
-col3.metric("Sadm",f"{sadm_user:.1f}")
-col4.metric("%Goodman",f"{goodman_pct:.1f}")
+
+col1, col2, col3, col4, _ = st.columns([1,1,1,1,6])  # ← pegados a la izquierda
+
+def mini_metric(label, value):
+    st.markdown(f"""
+    <div style="
+        text-align:left;
+        line-height:1.1;
+    ">
+        <div style="font-size:11px; color:#555;">{label}</div>
+        <div style="font-size:16px; font-weight:600;">{value}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with col1:
+    mini_metric("FS", f"{fs_sel:.1f}")
+
+with col2:
+    mini_metric("Factor base", f"{f_base:.1f}")
+
+with col3:
+    mini_metric("Sadm", f"{sadm_user:.1f}")
+
+with col4:
+    mini_metric("%Goodman", f"{goodman_pct:.1f}")
+``
 
 # ======================
 # RECOMENDACION (ARREGLADA)
