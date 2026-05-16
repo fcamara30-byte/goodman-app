@@ -261,9 +261,16 @@ st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=Tru
 
 validos = df[df["Margen"] >= 0]
 
-if len(validos) > 0:
-    mejor = validos.iloc[0]["Material"]
-    st.success(f"Varilla recomendada: {mejor}")
+
+col_rec, _ = st.columns([4,6])
+
+with col_rec:
+    if len(validos) > 0:
+        mejor = validos.iloc[0]["Material"]
+        st.success(f"Primer recomendación: {mejor}")
+    else:
+        st.error("Requiere tratamiento químico y/o varillas revestidas")
+
 else:
     st.error("Requiere tratamiento químico y/o varillas revestidas")
 
