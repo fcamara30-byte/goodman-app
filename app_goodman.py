@@ -171,52 +171,49 @@ with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
     st.dataframe(df.drop(columns=["FS"]), use_container_width=False)
 
-# DERECHA (SOLO MODIFICADO)
+# DERECHA (como estaba funcionando bien)
 with col_der:
 
     goodman_pct = ((smax_user - smin_user)/(sadm_user - smin_user))*100
 
-    col_res, col_rec = st.columns(2)
+    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
 
-    with col_rec:
-        st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    col3, col4 = st.columns(2)
 
-        validos = df[df["Margen"] >= 0]
+    col1.metric("FS", f"{fs_sel:.1f}")
+    col2.metric("Factor base", f"{f_base:.1f}")
+    col3.metric("Sadm", f"{sadm_user:.1f}")
+    col4.metric("%Goodman", f"{goodman_pct:.1f}")
 
-        if len(validos) > 0:
-            top = validos.head(3)
+    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
-            for i, row in top.iterrows():
-                st.markdown(f"""
-                <div style="
-                    background-color:#D8E5DF;
-                    padding:6px 12px;
-                    margin-bottom:6px;
-                    border-radius:6px;
-                    color:#0B6E4F;
-                    font-weight:500;
-                ">
-                    {top.index.get_loc(i)+1}. {row['Material']}
-                </div>
-                """, unsafe_allow_html=True)
-        else:
-            st.error("Requiere tratamiento químico y/o varillas revestidas")
+    validos = df[df["Margen"] >= 0]
 
-    with col_res:
-        st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+    if len(validos) > 0:
+        top = validos.head(3)
 
-        c1, c2 = st.columns(2)
-        c3, c4 = st.columns(2)
-
-        c1.metric("FS", f"{fs_sel:.1f}")
-        c2.metric("Factor base", f"{f_base:.1f}")
-        c3.metric("Sadm", f"{sadm_user:.1f}")
-        c4.metric("%Goodman", f"{goodman_pct:.1f}")
+        for i, row in top.iterrows():
+            st.markdown(f"""
+            <div style="
+                background-color:#D8E5DF;
+                padding:6px 12px;
+                margin-bottom:6px;
+                border-radius:6px;
+                color:#0B6E4F;
+                font-weight:500;
+            ">
+                {top.index.get_loc(i)+1}. {row['Material']}
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.error("Requiere tratamiento químico y/o varillas revestidas")
 
 # ======================
 # FOOTER
 # ======================
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
-
+st.markdown('<div class="cursiva">Desarrollado por Fcam. SP-Brazil May-26</div>', unsafe_allow_html=True)
+``
 
