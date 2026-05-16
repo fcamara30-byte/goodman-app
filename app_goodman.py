@@ -266,7 +266,7 @@ st.subheader("Contacto")
 
 st.markdown(
     """
-    <form action="https://formsubmit.co/TU_EMAIL_AQUI" method="POST">
+    <form action="https://formsubmit.co/fcamara30@gmail.com" method="POST">
         <input type="hidden" name="_captcha" value="false">
         <textarea name="message" placeholder="Escriba su consulta (máx. 300 palabras)" 
         style="width:100%; height:150px;" maxlength="2000" required></textarea>
