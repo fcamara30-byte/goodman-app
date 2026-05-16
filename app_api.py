@@ -69,12 +69,23 @@ materiales={
 
 st.subheader("Material por tramo")
 
-c1,c2,c3 = st.columns(3)
-rod_sel={
-    "1":c1.selectbox('1"',materiales.keys()),
-    "7/8":c2.selectbox('7/8"',materiales.keys()),
-    "3/4":c3.selectbox('3/4"',materiales.keys())
-}
+
+col1, col2, col3, _ = st.columns([1,1,1,2])  # mismo criterio que antes
+
+with col1:
+    sel1 = st.selectbox('1"', materiales.keys())
+
+with col2:
+    sel78 = st.selectbox('7/8"', materiales.keys())
+
+with col3:
+    sel34 = st.selectbox('3/4"', materiales.keys())
+
+rod_sel = {
+    "1": sel1,
+    "7/8": sel78,
+ 
+
 
 # ======================
 # AMBIENTE
