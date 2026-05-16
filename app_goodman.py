@@ -211,7 +211,7 @@ col_tabla, col_der = st.columns([2,1])
 # ======================
 # TABLA (IZQUIERDA)
 # ======================
-with col_tabla:
+
 
 col_tabla, col_der = st.columns([2,1])
 
