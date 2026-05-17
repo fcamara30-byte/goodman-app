@@ -455,7 +455,7 @@ with col_plot:
 
 
 st.markdown("---")
-st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo.")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y experiencias de Campo..")
 st.markdown("---")
 st.caption("Desarrollado por Fcam-Pro.Eng May-26.")
 
