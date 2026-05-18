@@ -122,4 +122,4 @@ if st.button("CALCULAR"):
 
     fs = sigma_y / von
     st.metric("Factor de Seguridad", f"{fs:.2f}")
-``
+
