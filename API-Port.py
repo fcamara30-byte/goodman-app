@@ -43,6 +43,11 @@ with col_title:
     st.title("Cálculo das solicitações SRP por corrosão-fadiga")
 
 
+st.markdown(
+    "<div style='text-align: right; font-size: 40px;'>🇧🇷</div>",
+    unsafe_allow_html=True
+)
+
 
 
 with col_img:
