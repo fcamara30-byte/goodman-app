@@ -40,7 +40,10 @@ with col_title:
     st.title("Cálculo de Solicitações SRP Corrosão-Fadiga")
 
 with col_img:
-    st.markdown("<div style='font-size:60px; text-align:center;'>⚙️</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='font-size:60px; text-align:center;'>⚙️</div>",
+        unsafe_allow_html=True
+    )
 
 # ======================
 # INPUTS
@@ -52,10 +55,10 @@ G   = c2.slider("Gravidade específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
 N   = c4.slider("SPM",1,20,6)
 
-c_slider, _ = st.columns([2, 3])
+c_slider, _ = st.columns([2,3])
 
 with c_slider:
-    S = st.slider("Curso (in)", 0, 300, 168)
+    S = st.slider("Curso (in)",0,300,168)
 
 # ======================
 # MATERIALES
@@ -81,7 +84,7 @@ with col2:
 with col3:
     sel34 = st.selectbox('3/4"', materiales.keys())
 
-rod_sel = {"1": sel1, "7/8": sel78, "3/4": sel34}
+rod_sel = {"1":sel1,"7/8":sel78,"3/4":sel34}
 
 # ======================
 # AMBIENTE
@@ -90,31 +93,31 @@ CO2={"Nada":1,"Bajo":0.98,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.93,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-col1, col2, col3, col4, _ = st.columns([1,1,1,1,2])
+col1,col2,col3,col4,_ = st.columns([1,1,1,1,2])
 
 with col1:
-    co2 = st.selectbox("CO₂", CO2)
+    co2=st.selectbox("CO₂",CO2)
 with col2:
-    h2s = st.selectbox("H₂S", H2S)
+    h2s=st.selectbox("H₂S",H2S)
 with col3:
-    bsr = st.selectbox("BSR", BSR)
+    bsr=st.selectbox("BSR",BSR)
 with col4:
-    cl = st.number_input("Cloretos (ppm)", 0, 250000, 0, step=1000)
+    cl=st.number_input("Cloretos (ppm)",0,250000,0,step=1000)
 
 def f_cl(ppm):
-    return 1 if ppm < 6000 else 1-(0.00007*(ppm**0.8))
+    return 1 if ppm<6000 else 1-(0.00007*(ppm**0.8))
 
 f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
 def FS_material(mat,f):
-    if f==1: return 1
-    if mat=="DA78": return f*0.90
-    elif mat=="HS97": return f*0.92
-    elif mat=="CS propietario": return f*0.92
-    elif mat=="HS propietario": return f*0.75
-    elif mat=="D New": return f*0.90
-    elif mat=="DSK75": return f if f < 0.75 else 1
-    elif mat=="HA96": return f*0.85
+    if f==1:return 1
+    if mat=="DA78":return f*0.90
+    elif mat=="HS97":return f*0.92
+    elif mat=="CS propietario":return f*0.92
+    elif mat=="HS propietario":return f*0.75
+    elif mat=="D New":return f*0.90
+    elif mat=="DSK75":return f if f<0.75 else 1
+    elif mat=="HA96":return f*0.85
     return f*0.9
 
 # ======================
@@ -122,41 +125,41 @@ def FS_material(mat,f):
 # ======================
 st.subheader("Qtd. hastes")
 
-total_varillas = int((L_m / 0.3048) / 25)
+total_varillas=int((L_m/0.3048)/25)
 
-col1, col2, col3, _ = st.columns([1,1,1,2])
+col1,col2,col3,_=st.columns([1,1,1,2])
 
-n1_def = total_varillas // 3
-n78_def = total_varillas // 3
-n34_def = total_varillas - n1_def - n78_def
+n1_def=total_varillas//3
+n78_def=total_varillas//3
+n34_def=total_varillas-n1_def-n78_def
 
 with col1:
-    n1 = st.number_input('1"', 10, 300, n1_def)
+    n1=st.number_input('1"',10,300,n1_def)
 with col2:
-    n78 = st.number_input('7/8"', 10, 300, n78_def)
+    n78=st.number_input('7/8"',10,300,n78_def)
 with col3:
-    n34 = st.number_input('3/4"', 10, 300, n34_def)
+    n34=st.number_input('3/4"',10,300,n34_def)
 
 L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
 
 # ======================
-# CONTROL LONGITUD
+# CONTROL
 # ======================
 st.subheader("Controle de comprimento")
 
-long_m = total * 0.3048
-dif = long_m - L_m
+long_m=total*0.3048
+dif=long_m-L_m
 
-df_ctrl = pd.DataFrame({
+df_ctrl=pd.DataFrame({
     "Poço (m)":[int(L_m)],
     "Coluna (m)":[int(long_m)],
     "Δ (m)":[int(dif)]
 })
 
-st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
+st.dataframe(df_ctrl,use_container_width=True,hide_index=True)
 
-if abs(dif) > 20:
+if abs(dif)>20:
     st.error("⚠ Verificar comprimento da coluna")
 
 # ======================
@@ -165,35 +168,89 @@ if abs(dif) > 20:
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
 peso={"1":2.9,"7/8":2.22,"3/4":1.63}
 
-Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
-Wr = Wr_air*(1-0.128*G)
+Wr_air=L1*peso["1"]+L78*peso["7/8"]+L34*peso["3/4"]
+Wr=Wr_air*(1-0.128*G)
 
-L_total_ft = L1+L78+L34
+L_total_ft=L1+L78+L34
 
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
-Fd = (S * N) / (2600 + S * N)
+Fd=(S*N)/(2600+S*N)
 
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-MPRL = max(Wr - Fd*Wr,0)
+E=30000000
+Aeq=0.58
+
+kr=(Aeq*E)/(L_total_ft*12)
+
+dx=0.52*S*(Fd**0.78)
+
+prop_L=(L_total_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
+
+dF=kr*dx*prop_L*(1+0.35*prop_F)*(1+2.5*Fd)
+
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
+
+MPRL_base=max(Wr-dF,0)
+MPRL=MPRL_base*0.97
 
 # ======================
 # DISPLAY
 # ======================
 st.subheader("Cargas")
 
-c1, c2 = st.columns(2)
-c1.metric("PPRL (lb)", f"{int(PPRL):,}")
-c2.metric("MPRL (lb)", f"{int(MPRL):,}")
+c1,c2,_=st.columns([1,1,5])
+
+def carga_estilo(titulo,valor):
+    st.markdown(f"""
+    <div style="text-align:center;">
+        <div style="font-size:14px;">{titulo}</div>
+        <div style="font-size:28px;font-weight:700;color:#003399;">{valor}</div>
+    </div>
+    """,unsafe_allow_html=True)
+
+with c1:
+    carga_estilo("PPRL (lb)",f"{int(PPRL):,}")
+with c2:
+    carga_estilo("MPRL (lb)",f"{int(MPRL):,}")
 
 # ======================
-# GOODMAN
+# RESULTADOS
+# ======================
+st.subheader("Resultados por trecho")
+
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
+
+# ======================
+# GOODMAN (TAL CUAL ORIGINAL)
 # ======================
 st.subheader("Diagrama de Goodman")
 
-fig, ax = plt.subplots()
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"]*
+    FS_material(rod_sel[d],f_base)/(1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
+
+x=np.linspace(0,x_max,200)
+
+fig,ax=plt.subplots()
+
+for d in pct:
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+    y=materiales[mat]["uts_a"]*fs+materiales[mat]["b"]*x
+    ax.plot(x,y)
+
+ax.plot(x,x)
+
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
+
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 ax.set_title("Solicitações penalizadas por corrosão")
@@ -206,4 +263,5 @@ st.pyplot(fig)
 st.markdown("---")
 st.caption("Baseado em cálculos APIRP11L, estudos de corrosão-fadiga e experiências de campo.")
 st.caption("Desenvolvido por Fcam & Eng.Pro. SP-Brazil May-26")
+
 
