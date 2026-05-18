@@ -428,7 +428,7 @@ ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
 # ✅ título (faltaba)
-ax.set_title("Solicitaciones penalizadas por Corrosión")
+ax.set_title("Solicitações penalizadas pela corrosão")
 
 # ✅ leyenda (faltaba)
 ax.legend(title="Tramo")
@@ -440,7 +440,7 @@ fuera = any(df["Goodman (%)"] > 100)
 if fuera:
     ax.text(
         0.5, 0.1,
-        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        "Selecione outro tipo de haste ou utilize revestimento\n+ Tratamento químico",
         transform=ax.transAxes,
         fontsize=10,
         color="red",
