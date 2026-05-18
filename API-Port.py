@@ -123,7 +123,7 @@ with col1:
     co2 = st.selectbox("PPCO₂", CO2)
 
 with col2:
-    h2s = st.selectbox("H₂S", H2S)
+    h2s = st.selectbox("PPH₂S", H2S)
 
 with col3:
     bsr = st.selectbox("BSR", BSR)
