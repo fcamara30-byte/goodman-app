@@ -1,5 +1,5 @@
 # ✅ MOSTRAR ARRIBA
-st.markdown(f"""
+st.markdown("""
 <div style="font-size:13px; color:gray;">
 Visitas totais: <b>{visitas}</b>
 </div>
