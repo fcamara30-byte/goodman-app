@@ -164,8 +164,16 @@ if modo=="Desviado":
 
         df["Carga"]=carga
 
-        factor_desvio=1+np.mean(np.sin(inc_rad))*0.4
-        torque_final=torque*factor_desvio
+    
+# =====================
+# TORQUE FINAL SIEMPRE DEFINIDO
+# =====================
+torque_final = torque  # base (vertical)
+
+if len(df) > 1:
+    factor_desvio = 1 + np.mean(np.sin(inc_rad)) * 0.4
+    torque_final = torque * factor_desvio
+
 
 # =========================
 # GRAFICO A LA DERECHA
