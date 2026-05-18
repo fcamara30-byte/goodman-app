@@ -40,7 +40,7 @@ Visitas totales: <b>{visitas}</b>
 col_title, col_img = st.columns([5,1])
 
 with col_title:
-    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
+    st.title("Cálculo das solicitações SRP por corrosão-fadiga")
 
 with col_img:
     st.markdown(
@@ -74,10 +74,10 @@ with c_slider:
 # ======================
 materiales={
     "DA78":{"uts_a":30,"b":0.5625},
-    "HS97":{"uts_a":50,"b":0.375},
-    "CS":{"uts_a":44.64,"b":0.375},
+    "HS97-EH7":{"uts_a":50,"b":0.375},
+    "CS-EHK":{"uts_a":44.64,"b":0.375},
     "HS":{"uts_a":55.36,"b":0.375},
-    "DSK75":{"uts_a":42.86,"b":0.375},
+    "DSK75-EH8":{"uts_a":42.86,"b":0.375},
     "HA96":{"uts_a":50,"b":0.375},
     "D New":{"uts_a":42.86,"b":0.375}
 }
