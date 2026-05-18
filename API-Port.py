@@ -146,7 +146,7 @@ def FS_material(mat,f):
 # ======================
 # VARILLAS
 # ======================
-st.subheader("Cant. Varillas")
+st.subheader("Cant. Hastes")
 
 c1,c2,c3=st.columns(3)
 
@@ -181,7 +181,7 @@ total=L1+L78+L34
 # ======================
 # CONTROL LONGITUD
 # ======================
-st.subheader("Control de longitud")
+st.subheader("Controle Comprimento")
 
 long_m = total * 0.3048
 dif = long_m - L_m
@@ -404,7 +404,7 @@ ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 # ✅ RECUPERAR PUNTOS Y LEYENDA
 labels=set()
 for _,r in df.iterrows():
-    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    etiqueta=f'{r["Tramo"]}" - {r["Haste"]}'
     if etiqueta not in labels:
         ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
         labels.add(etiqueta)
@@ -423,10 +423,10 @@ ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 
 # ✅ título (faltaba)
-ax.set_title("Solicitaciones penalizadas por Corrosión")
+ax.set_title("Solicitações afetadas pela corrosão")
 
 # ✅ leyenda (faltaba)
-ax.legend(title="Tramo")
+ax.legend(title="Haste")
 
 # ✅ DETECCIÓN DE FALLA
 fuera = any(df["Goodman (%)"] > 100)
@@ -435,7 +435,7 @@ fuera = any(df["Goodman (%)"] > 100)
 if fuera:
     ax.text(
         0.5, 0.1,
-        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        "Selecione outro tipo de haste ou utilize revestimento + tratamento químico",
         transform=ax.transAxes,
         fontsize=10,
         color="red",
