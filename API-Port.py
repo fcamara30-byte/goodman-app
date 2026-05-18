@@ -117,7 +117,7 @@ H2S={"Nada":1,"Bajo":0.93,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
 
-col1, col2, col3, col4, _ = st.columns([1,1,1,1,2])  # ← mismo criterio compacto
+col1, col2, col3, col4, _ = st.columns([2,2,2,1,2])  # ← mismo criterio compacto
 
 with col1:
     co2 = st.selectbox("CO₂", CO2)
