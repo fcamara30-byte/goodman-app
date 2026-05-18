@@ -1,135 +1,96 @@
-import tkinter as tk
-from tkinter import ttk
+import streamlit as st
 import math
 
-# -------------------------
-# DATA VARILLAS
-# -------------------------
-RODS = {
-    "7/8": {"d": 0.875, "peso": 2.22},
-    "1": {"d": 1.0, "peso": 2.67},
-    "1 1/8": {"d": 1.125, "peso": 3.37}
-}
+st.set_page_config(layout="wide")
 
-def calcular():
-
-    try:
-        rpm = float(entry_rpm.get())
-        prod = float(entry_prod.get())
-        pres_linea = float(entry_presion.get())
-        nivel = float(entry_nivel.get())
-        densidad = float(entry_densidad.get())
-        visc = float(entry_visc.get())
-        solidos = float(entry_solidos.get())
-        profundidad = float(entry_prof.get())
-        rod = combo_rod.get()
-
-        # -------------------------
-        # PCP
-        # -------------------------
-        pres_nivel = (nivel * densidad)/10000
-        pres_total = pres_linea + pres_nivel
-
-        pot_h = prod * pres_total * 0.0014
-        pot_c = pot_h / 0.6
-
-        torque = (5252 * pot_c) / rpm
-
-        # -------------------------
-        # FACTOR FLUIDO
-        # -------------------------
-        f_visc = 1 + (visc / 1000)
-        f_sol = 1 + (solidos / 100)
-        f_total = f_visc * f_sol
-
-        torque_corr = torque * f_total
-
-        # -------------------------
-        # VARILLA
-        # -------------------------
-        d = RODS[rod]["d"] * 0.0254
-        r = d/2
-
-        A = math.pi * d**2 / 4
-        J = math.pi * d**4 / 32
-
-        peso = RODS[rod]["peso"] * 47.88  # N/m
-        peso_total = peso * profundidad
-
-        carga_fluido = densidad * 9.81 * profundidad * A
-        F = peso_total + carga_fluido
-
-        sigma = F/A/1e6
-        tau = (torque_corr*1.35582*r)/J/1e6
-
-        von = math.sqrt(sigma**2 + 3*tau**2)
-
-        # -------------------------
-        # OUTPUT
-        # -------------------------
-        out_torque.config(text=f"{torque:.1f} lb-ft")
-        out_von.config(text=f"{von:.1f} MPa")
-        out_tau.config(text=f"{tau:.1f} MPa")
-        out_sigma.config(text=f"{sigma:.1f} MPa")
-
-    except:
-        out_torque.config(text="Error")
-
+st.title("📊 PCP + Sarta + Von Mises")
 
 # -------------------------
-# UI
+# INPUTS
 # -------------------------
-root = tk.Tk()
-root.title("PCP Calculator PRO")
+col1, col2 = st.columns(2)
 
-# Inputs
-labels = [
-    ("RPM", "350"),
-    ("Producción m3/d", "150"),
-    ("Presión línea kg/cm2", "14"),
-    ("Nivel m", "570"),
-    ("Densidad kg/m3", "840"),
-    ("Viscosidad cP", "300"),
-    ("% Sólidos", "5"),
-    ("Profundidad m", "600")
-]
+with col1:
+    st.subheader("Datos PCP")
 
-entries = []
+    rpm = st.number_input("RPM", value=350)
+    produccion = st.number_input("Producción (m3/d)", value=150.0)
+    presion_linea = st.number_input("Presión línea (kg/cm2)", value=14.1)
+    nivel = st.number_input("Nivel (m)", value=570.0)
+    densidad = st.number_input("Densidad (kg/m3)", value=840.0)
+    eficiencia = st.number_input("Eficiencia", value=0.6)
 
-for i, (text, val) in enumerate(labels):
-    tk.Label(root, text=text).grid(row=i, column=0)
-    e = tk.Entry(root)
-    e.insert(0, val)
-    e.grid(row=i, column=1)
-    entries.append(e)
+with col2:
+    st.subheader("Fluido + Sarta")
 
-(entry_rpm, entry_prod, entry_presion, entry_nivel,
- entry_densidad, entry_visc, entry_solidos, entry_prof) = entries
+    viscosidad = st.number_input("Viscosidad (cP)", value=300.0)
+    solidos = st.number_input("% Sólidos", value=5.0)
+    profundidad = st.number_input("Profundidad (m)", value=600.0)
 
-# Varillas
-tk.Label(root, text="Varilla").grid(row=8, column=0)
-combo_rod = ttk.Combobox(root, values=list(RODS.keys()))
-combo_rod.set("1")
-combo_rod.grid(row=8, column=1)
+    rod = st.selectbox("Diámetro varilla", ["7/8", "1", "1 1/8"])
 
-# Botón
-tk.Button(root, text="CALCULAR", command=calcular, bg="green").grid(row=9, columnspan=2)
+# -------------------------
+# BOTON
+# -------------------------
+if st.button("CALCULAR"):
 
-# Outputs
-tk.Label(root, text="Torque").grid(row=10, column=0)
-out_torque = tk.Label(root, text="-")
-out_torque.grid(row=10, column=1)
+    # -------------------------
+    # PCP
+    # -------------------------
+    pres_nivel = (nivel * densidad) / 10000
+    pres_total = presion_linea + pres_nivel
 
-tk.Label(root, text="Von Mises").grid(row=11, column=0)
-out_von = tk.Label(root, text="-")
-out_von.grid(row=11, column=1)
+    pot_h = produccion * pres_total * 0.0014
+    pot_c = pot_h / eficiencia
+    torque = (5252 * pot_c) / rpm
 
-tk.Label(root, text="Torsión").grid(row=12, column=0)
-out_tau = tk.Label(root, text="-")
-out_tau.grid(row=12, column=1)
+    # -------------------------
+    # FLUIDO
+    # -------------------------
+    f_visc = 1 + viscosidad / 1000
+    f_sol = 1 + solidos / 100
+    f_total = f_visc * f_sol
 
-tk.Label(root, text="Axial").grid(row=13, column=0)
-out_sigma = tk.Label(root, text="-")
-out_sigma.grid(row=13, column=1)
+    torque_corr = torque * f_total
 
-root.mainloop()
+    # -------------------------
+    # VARILLAS
+    # -------------------------
+    RODS = {
+        "7/8": {"d": 0.875, "peso": 2.22},
+        "1": {"d": 1.0, "peso": 2.67},
+        "1 1/8": {"d": 1.125, "peso": 3.37}
+    }
+
+    d = RODS[rod]["d"] * 0.0254
+    r = d / 2
+
+    A = math.pi * d**2 / 4
+    J = math.pi * d**4 / 32
+
+    peso = RODS[rod]["peso"] * 47.88
+    peso_total = peso * profundidad
+
+    carga_fluido = densidad * 9.81 * profundidad * A
+    F = peso_total + carga_fluido
+
+    sigma = F / A / 1e6
+    tau = (torque_corr * 1.35582 * r) / J / 1e6
+
+    von = math.sqrt(sigma**2 + 3 * tau**2)
+
+    # -------------------------
+    # OUTPUT
+    # -------------------------
+    st.markdown("---")
+    st.subheader("Resultados")
+
+    col3, col4, col5 = st.columns(3)
+
+    col3.metric("Torque base", f"{torque:.1f} lb-ft")
+    col4.metric("Torque corregido", f"{torque_corr:.1f} lb-ft")
+    col5.metric("Von Mises", f"{von:.1f} MPa")
+
+    st.write("Esfuerzo axial:", round(sigma, 1), "MPa")
+    st.write("Esfuerzo torsión:", round(tau, 1), "MPa")
+    st.write("Factor fluido:", round(f_total, 2))
