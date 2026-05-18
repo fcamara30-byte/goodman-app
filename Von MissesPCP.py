@@ -27,24 +27,24 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Datos PCP")
 
-    profundidad = st.number_input("Profundidad (m)", value=600, step=100)
-    rpm = st.number_input("RPM", value=350)
-    prod = st.number_input("Producción (m3/d)", value=150.0)
-    pres_linea = st.number_input("Presión línea (kg/cm2)", value=14.1)
-    nivel = st.number_input("Nivel (m)", value=570, step=50)
-    densidad = st.number_input("Densidad (kg/m3)", value=840.0)
-    eficiencia = st.number_input("Eficiencia", value=0.6)
+    profundidad = st.number_input("Profundidad (m)", 600, step=100)
+    rpm = st.number_input("RPM", 350)
+    prod = st.number_input("Producción (m3/d)", 150.0)
+    pres_linea = st.number_input("Presión línea (kg/cm2)", 14.1)
+    nivel = st.number_input("Nivel (m)", 570, step=50)
+    densidad = st.number_input("Densidad (kg/m3)", 840.0)
+    eficiencia = st.number_input("Eficiencia", 0.6)
 
 with col2:
     st.subheader("Fluido y Sarta")
 
-    viscosidad = st.number_input("Viscosidad (cP)", value=300, step=40)
-    solidos = st.number_input("% Sólidos", value=5.0)
+    viscosidad = st.number_input("Viscosidad (cP)", 300, step=40)
+    solidos = st.number_input("% Sólidos", 5.0)
 
     rod = st.selectbox("Diámetro varilla", ["7/8", "1", "1 1/8"])
 
     material = st.selectbox(
-        "Tipo de varilla",
+        "Material",
         ["DA 78", "HS97", "Alpha CS", "Alpha HS", "D New", "DSK75", "HA96"]
     )
 
@@ -68,128 +68,144 @@ YIELD = {
 }
 
 # =========================
-# BOTON CALCULO
+# CALCULO PRINCIPAL
 # =========================
-if st.button("CALCULAR"):
+pres_nivel = (nivel * densidad) / 10000
+pres_total = pres_linea + pres_nivel
 
-    # -------------------------
-    # TORQUE FINAL
-    # -------------------------
-    pres_nivel = (nivel * densidad) / 10000
-    pres_total = pres_linea + pres_nivel
+pot_h = prod * pres_total * 0.0014
+pot_c = pot_h / eficiencia
 
-    pot_h = prod * pres_total * 0.0014
-    pot_c = pot_h / eficiencia
+torque = (5252 * pot_c) / rpm
 
-    torque = (5252 * pot_c) / rpm
+# fluido
+f_fluido = (1 + viscosidad / 1000) * (1 + solidos / 100)
+torque *= f_fluido
 
-    # factor fluido
-    f_fluido = (1 + viscosidad / 1000) * (1 + solidos / 100)
-    torque *= f_fluido
+# varilla
+d = RODS[rod]["d"] * 0.0254
+r = d / 2
 
-    # -------------------------
-    # VARILLA
-    # -------------------------
-    d = RODS[rod]["d"] * 0.0254
-    r = d / 2
+A = math.pi * d**2 / 4
+J = math.pi * d**4 / 32
 
-    A = math.pi * d**2 / 4
-    J = math.pi * d**4 / 32
+peso_lineal = RODS[rod]["peso"] * 47.88
+peso_total = peso_lineal * profundidad
 
-    peso_lineal = RODS[rod]["peso"] * 47.88
-    peso_total = peso_lineal * profundidad
+carga_fluido = densidad * 9.81 * profundidad * A
+F = peso_total + carga_fluido
 
-    carga_fluido = densidad * 9.81 * profundidad * A
-    F = peso_total + carga_fluido
+# esfuerzos
+sigma = (F / A) / 6894757
+tau = ((torque * 1.35582 * r) / J) / 6894757
 
-    # -------------------------
-    # ESFUERZOS (KSI)
-    # -------------------------
-    sigma = (F / A) / 6894757
-    tau = ((torque * 1.35582 * r) / J) / 6894757
+von = math.sqrt(sigma**2 + 3 * tau**2)
+sigma_y = YIELD[material]
 
-    von = math.sqrt(sigma**2 + 3 * tau**2)
+uso = (von / sigma_y) * 100
+fs = sigma_y / von
 
-    sigma_y = YIELD[material]
-    uso = (von / sigma_y) * 100
-    fs = sigma_y / von
+# =========================
+# RESULTADOS
+# =========================
+st.markdown("---")
+st.subheader("Resultados")
 
-    # -------------------------
-    # RESULTADOS
-    # -------------------------
-    st.markdown("---")
-    st.subheader("Resultados Mecánicos")
+c1, c2, c3 = st.columns(3)
+c1.metric("Torque (lb-ft)", f"{torque:.1f}")
+c2.metric("Tensión Axial (ksi)", f"{sigma:.2f}")
+c3.metric("Tensión Torsional (ksi)", f"{tau:.2f}")
 
-    col3, col4, col5 = st.columns(3)
-    col3.metric("Torque (lb-ft)", f"{torque:.1f}")
-    col4.metric("Tensión Axial (ksi)", f"{sigma:.2f}")
-    col5.metric("Tensión Torsional (ksi)", f"{tau:.2f}")
+c4, c5, c6 = st.columns(3)
+c4.metric("Von Mises (ksi)", f"{von:.2f}")
+c5.metric("Von Mises (%)", f"{uso:.1f}%")
+c6.metric("FS", f"{fs:.2f}")
 
-    col6, col7, col8 = st.columns(3)
-    col6.metric("Von Mises (ksi)", f"{von:.2f}")
-    col7.metric("Von Mises (%)", f"{uso:.1f}%")
-    col8.metric("FS", f"{fs:.2f}")
+# =========================
+# MODO POZO
+# =========================
+st.markdown("---")
+modo = st.selectbox("Modo de Pozo", ["Vertical", "Desviado"])
 
-    # =========================
-    # DESVIACION
-    # =========================
-    st.markdown("---")
-    st.subheader("Trayectoria de Pozo")
+if modo == "Desviado":
 
-    df = pd.DataFrame({
-        "md": [5,165,199,226,245,263,276,323,379,417,442,498,507,517,538,585,639,714,807,873,930],
-        "inc": [0,2.25,2.75,6.25,9.25,11.25,11.25,12,12.75,12.5,16,22,23.75,26,26.25,27.25,29.75,30.5,33,34,34],
-        "az": [0,192,187,120,95,78,62,64,64,63,62,76,76,75,67,73,67,68,67,68,68]
-    })
+    st.subheader("Trayectoria (Copiar/Pegar columnas md-inc-az)")
 
-    df = st.data_editor(df, num_rows="dynamic")
+    df = st.data_editor(
+        pd.DataFrame(columns=["md", "inc", "az"]),
+        height=250,
+        num_rows="dynamic",
+        use_container_width=True
+    )
 
-    # -------------------------
-    # CALCULO DESVIO
-    # -------------------------
-    inc_rad = np.radians(df["inc"])
+    if len(df) > 1:
 
-    peso_lbft = RODS[rod]["peso"]
+        # =====================
+        # DLS
+        # =====================
+        dls = [0]
 
-    carga_lat = peso_lbft * np.sin(inc_rad) * df["md"] * 0.05
+        for i in range(1, len(df)):
+            md1, md2 = df.loc[i-1, "md"], df.loc[i, "md"]
+            inc1, inc2 = np.radians(df.loc[i-1, "inc"]), np.radians(df.loc[i, "inc"])
+            az1, az2 = np.radians(df.loc[i-1, "az"]), np.radians(df.loc[i, "az"])
 
-    clasificacion = []
-    colores = []
+            delta_md = (md2 - md1) * 3.28084
 
-    for c in carga_lat:
-        if c < 30:
-            clasificacion.append("Bajo contacto")
-            colores.append("green")
-        elif c < 60:
-            clasificacion.append("1 Centralizador")
-            colores.append("yellow")
-        elif c < 100:
-            clasificacion.append("3 Centralizadores")
-            colores.append("orange")
-        else:
-            clasificacion.append("Black Mamba")
-            colores.append("red")
+            cos_dogleg = (
+                np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1) +
+                np.cos(inc1)*np.cos(inc2)
+            )
 
-    df["Carga lateral (lb)"] = carga_lat
-    df["Recomendación"] = clasificacion
+            cos_dogleg = np.clip(cos_dogleg, -1, 1)
+            dogleg = np.arccos(cos_dogleg)
 
-    # torque afectado por desvío
-    factor_desvio = 1 + np.mean(np.sin(inc_rad)) * 0.4
-    torque_desviado = torque * factor_desvio
+            dls.append(np.degrees(dogleg) * (100 / delta_md))
 
-    st.write("### Torque con desviación:", round(torque_desviado,1), "lb-ft")
+        df["DLS"] = dls
 
-    # -------------------------
-    # PLOT
-    # -------------------------
-    fig, ax = plt.subplots()
+        # =====================
+        # COORDENADAS 3D
+        # =====================
+        df["inc_rad"] = np.radians(df["inc"])
+        df["az_rad"] = np.radians(df["az"])
 
-    ax.scatter(df["md"], df["inc"], c=colores)
+        df["X"] = np.cumsum(np.sin(df["inc_rad"]) * np.cos(df["az_rad"]))
+        df["Y"] = np.cumsum(np.sin(df["inc_rad"]) * np.sin(df["az_rad"]))
+        df["Z"] = -df["md"]
 
-    ax.set_xlabel("MD (m)")
-    ax.set_ylabel("Inclinación (°)")
-    ax.set_title("Perfil con Contacto")
+        # =====================
+        # CONTACTO
+        # =====================
+        carga_lat = RODS[rod]["peso"] * np.sin(df["inc_rad"]) * df["md"] * 0.05
 
-    st.pyplot(fig)
+        colores = []
+        rec = []
 
-    st.dataframe(df)
+        for c in carga_lat:
+            if c < 30:
+                colores.append("green")
+                rec.append("Bajo contacto")
+            elif c < 60:
+                colores.append("yellow")
+                rec.append("1 centralizador")
+            elif c < 100:
+                colores.append("orange")
+                rec.append("3 centralizadores")
+            else:
+                colores.append("red")
+                rec.append("Black Mamba")
+
+        df["Carga lateral"] = carga_lat
+        df["Recomendación"] = rec
+
+        # torque ajustado
+        factor_desvio = 1 + np.mean(np.sin(df["inc_rad"])) * 0.4
+        torque_desviado = torque * factor_desvio
+
+        st.write("### Torque con desviación:", round(torque_desviado,1), "lb-ft")
+
+        # =====================
+        # PLOT 3D
+        # =====================
+        fig = plt.figure()
