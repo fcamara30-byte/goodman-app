@@ -206,4 +206,4 @@ st.pyplot(fig)
 st.markdown("---")
 st.caption("Baseado em cálculos APIRP11L, estudos de corrosão-fadiga e experiências de campo.")
 st.caption("Desenvolvido por Fcam & Eng.Pro. SP-Brazil May-26")
-``
+
