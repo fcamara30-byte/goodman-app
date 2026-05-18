@@ -1,65 +1,114 @@
-import streamlit as st
+import math
 
-st.set_page_config(layout="wide")
+# =========================
+# DATA VARILLAS
+# =========================
+RODS = {
+    "7/8": {"d_in": 0.875, "peso_lbft": 2.22},
+    "1": {"d_in": 1.0, "peso_lbft": 2.67},
+    "1 1/8": {"d_in": 1.125, "peso_lbft": 3.37}
+}
 
-st.title("📊 Cálculo de Torque PCP (Replica Excel)")
+def in_to_m(x): return x * 0.0254
+def lbft_to_nm(x): return x * 1.35582
 
-# -------------------------------
-# INPUTS (lado izquierdo)
-# -------------------------------
-col1, col2 = st.columns(2)
 
-with col1:
-    st.subheader("Datos de Entrada")
+# =========================
+# FACTOR FLUIDO
+# =========================
+def factor_fluido(viscosidad_cp, solidos_pct):
+    """
+    Modelo empírico simple (ajustable):
+    """
 
-    rpm = st.number_input("RPM", value=350)
-    produccion = st.number_input("Producción (m3/d)", value=150.0)
-    presion_linea = st.number_input("Presión de Línea (kg/cm2)", value=200.0)
-    nivel = st.number_input("Nivel dinámico (m)", value=600.0)
-    densidad = st.number_input("Densidad (kg/m3)", value=950.0)
-    eficiencia = st.number_input("Rendimiento bomba", value=0.6)
+    # viscosidad
+    if viscosidad_cp < 100:
+        f_visc = 1.0
+    elif viscosidad_cp < 300:
+        f_visc = 1.15
+    elif viscosidad_cp < 800:
+        f_visc = 1.35
+    else:
+        f_visc = 1.6
 
-with col2:
-    st.subheader("Variables del Modelo")
+    # sólidos
+    f_sol = 1 + (solidos_pct / 100) * 0.8
 
-    k = 5252
+    return f_visc * f_sol
 
-    presion_nivel = (nivel * densidad) / 10000
-    presion_total = presion_linea + presion_nivel
-    pot_h = produccion * presion_total * 0.0014
-    pot_c = pot_h / eficiencia
-    torque_lbft = (k * pot_c) / rpm
-    torque_nm = torque_lbft * 1.35582
 
-    st.write("Presión de Nivel:", round(presion_nivel, 2))
-    st.write("Presión Total:", round(presion_total, 2))
-    st.write("Potencia Hidráulica:", round(pot_h, 2))
-    st.write("Potencia Consumida:", round(pot_c, 2))
+# =========================
+# CALCULO COMPLETO
+# =========================
+def modelo_pcp_avanzado(
+    diametro,
+    profundidad,
+    torque_superficie_lbft,
+    densidad,
+    viscosidad_cp,
+    solidos_pct
+):
 
-# -------------------------------
-# RESULTADOS (abajo como Excel)
-# -------------------------------
-st.markdown("---")
-st.subheader("Resultados")
+    rod = RODS[diametro]
 
-col3, col4 = st.columns(2)
+    d = in_to_m(rod["d_in"])
+    r = d / 2
 
-with col3:
-    st.metric("Torque [lb-ft]", round(torque_lbft, 2))
+    A = math.pi * d**2 / 4
+    J = math.pi * d**4 / 32
 
-with col4:
-    st.metric("Torque [Nm]", round(torque_nm, 2))
+    # ------------------------
+    # FLUIDO
+    # ------------------------
+    f_fluido = factor_fluido(viscosidad_cp, solidos_pct)
 
-# -------------------------------
-# FORMULAS (como tu Excel)
-# -------------------------------
-st.markdown("---")
-st.subheader("Formulación (igual al Excel)")
+    torque_real_lbft = torque_superficie_lbft * f_fluido
+    torque_nm = lbft_to_nm(torque_real_lbft)
 
-st.text("""
-Torque = (k * Potencia Consumida) / RPM
-Potencia Consumida = Potencia Hidráulica / Eficiencia
-Potencia Hidráulica = Producción * Presión Total * 0.0014
-Presión Total = Presión Línea + Presión Nivel
-Presión Nivel = (Nivel * Densidad) / 10
-""")
+    # ------------------------
+    # CARGAS
+    # ------------------------
+    peso_lineal = rod["peso_lbft"] * 14.5939 / 0.3048
+    peso_total = peso_lineal * profundidad
+
+    g = 9.81
+    carga_fluido = densidad * g * profundidad * A
+
+    F_total = peso_total + carga_fluido
+
+    # ------------------------
+    # ESFUERZOS
+    # ------------------------
+    sigma = F_total / A / 1e6
+    tau = (torque_nm * r) / J / 1e6
+
+    von_mises = math.sqrt(sigma**2 + 3 * tau**2)
+
+    return {
+        "Factor fluido": f_fluido,
+        "Torque corregido (lb-ft)": torque_real_lbft,
+        "Esfuerzo axial (MPa)": sigma,
+        "Esfuerzo torsional (MPa)": tau,
+        "Von Mises (MPa)": von_mises
+    }
+
+
+# =========================
+# EJEMPLO REAL
+# =========================
+if __name__ == "__main__":
+
+    res = modelo_pcp_avanzado(
+        diametro="1",
+        profundidad=600,
+        torque_superficie_lbft=325.1,
+        densidad=840,
+        viscosidad_cp=500,
+        solidos_pct=5
+    )
+
+    print("\n===== MODELO PCP AVANZADO =====\n")
+
+    for k, v in res.items():
+        print(f"{k}: {v:.2f}")
+``
