@@ -1,235 +1,463 @@
-
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
+import matplotlib.pyplot as plt
 import os
-
-# ======================
-# CONTADOR DE VISITAS
-# ======================
-def contador_visitas():
-    archivo = "visitas.txt"
-
-    if not os.path.exists(archivo):
-        with open(archivo, "w") as f:
-            f.write("0")
-
-    with open(archivo, "r+") as f:
-        try:
-            count = int(f.read())
-        except:
-            count = 0
-
-        count += 1
-        f.seek(0)
-        f.write(str(count))
-        f.truncate()
-
-    return count
-
-visitas = contador_visitas()
 
 st.set_page_config(layout="wide")
 
 # ======================
-# ESTILO
+# CONTADOR DE VISITAS
 # ======================
-st.markdown("""
-<style>
-.titulo {font-size:43px; font-weight:700; color:#0B3C8C;}
-.subtitulo {font-size:17px; font-weight:600; color:#1F4E79;}
-.cursiva {font-style: italic; color:#444;}
-</style>
+archivo_contador = "visitas.txt"
+
+if os.path.exists(archivo_contador):
+    with open(archivo_contador, "r") as f:
+        try:
+            visitas = int(f.read())
+        except:
+            visitas = 0
+else:
+    visitas = 0
+
+visitas += 1
+
+with open(archivo_contador, "w") as f:
+    f.write(str(visitas))
+
+# ✅ MOSTRAR ARRIBA (FORMA SEGURA)
+st.markdown(f"""
+<div style="font-size:13px; color:gray;">
+Visitas totales: <b>{visitas}</b>
+</div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
-st.caption(f"Visitas totales: {visitas}")
-
 # ======================
-# DATOS
+# TITULO
 # ======================
-materiales = {
-    "DA78":{"uts_a":30,"b":0.5625},
-    "HS97":{"uts_a":50,"b":0.375},
-    "CS propietario":{"uts_a":44.64,"b":0.375},
-    "HS propietario":{"uts_a":55.36,"b":0.375},
-    "D New":{"uts_a":42.86,"b":0.375},
-    "DSK75":{"uts_a":42.86,"b":0.375},
-    "HA96":{"uts_a":50,"b":0.375}
-}
 
-BSR = {"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 
-# ======================
-# FACTORES
-# ======================
-def factor_co2(sel):
-    return {
-        "Nada (0 psi)":1.0,
-        "Bajo (0–20 psi)":0.98,
-        "Medio (21–100 psi)":0.90,
-        "Alto (>100 psi)":0.80
-    }[sel]
+col_title, col_img = st.columns([5,1])
 
-def factor_h2s(sel):
-    return {
-        "Nada (0 psi)":1.0,
-        "Bajo (0–1 psi)":0.95,
-        "Medio (1–2 psi)":0.80,
-        "Alto (>2 psi)":0.75
-    }[sel]
+with col_title:
+    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
 
-def factor_cloruros(ppm):
-    return 1 if ppm < 6000 else 1 - (0.00007 * (ppm**0.8))
+with col_img:
+    st.markdown(
+        "<div style='font-size:60px; text-align:center;'>⚙️</div>",
+        unsafe_allow_html=True
+    )
 
-# ======================
-# FUNCIONES
-# ======================
-def FS_material(mat,f):
-    if f==1: return 1
-    if mat=="DA78": return f*0.90
-    elif mat=="HS97": return f*0.91
-    elif mat=="CS propietario": return f*0.955
-    elif mat=="HS propietario": return f*0.75
-    elif mat=="D New": return f*0.90
-    elif mat=="DSK75": return f if f < 0.75 else 1
-    elif mat=="HA96": return f*0.8
 
-def goodman(x,uts,b,fs):
-    return (uts + b*x) * fs
+
+
 
 # ======================
 # INPUTS
 # ======================
-l,r = st.columns([1,2])
+c1,c2,c3,c4 = st.columns(4)
 
-with l:
-    material = st.selectbox("Material", list(materiales.keys()))
-    co2 = st.selectbox("PPCO₂ (psi)", [
-        "Nada (0 psi)", "Bajo (0–20 psi)",
-        "Medio (21–100 psi)", "Alto (>100 psi)"
-    ])
-    h2s = st.selectbox("PPH₂S (psi)", [
-        "Nada (0 psi)", "Bajo (0–1 psi)",
-        "Medio (1–2 psi)", "Alto (>2 psi)"
-    ])
-    bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
-    cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
+L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
+G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
+D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+N   = c4.slider("SPM",1,20,6)
 
-    st.markdown('<div class="subtitulo">Selector de Solicitaciones Máximas y Mínimas</div>', unsafe_allow_html=True)
-    smin_user = st.slider("Smin (ksi)",0,100,30)
-    smax_user = st.slider("Smax (ksi)",0,100,50)
+
+c_slider, _ = st.columns([2, 3])  # controla el ancho
+
+with c_slider:
+    S = st.slider("Carrera (in)", 0, 300, 168)
+
 
 # ======================
-# BASE
+# MATERIALES
 # ======================
-f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
-x = np.linspace(0,100,200)
+materiales={
+    "DA78":{"uts_a":30,"b":0.5625},
+    "HS97":{"uts_a":50,"b":0.375},
+    "CS":{"uts_a":44.64,"b":0.375},
+    "HS":{"uts_a":55.36,"b":0.375},
+    "DSK75":{"uts_a":42.86,"b":0.375},
+    "HA96":{"uts_a":50,"b":0.375},
+    "D New":{"uts_a":42.86,"b":0.375}
+}
+
+st.subheader("Material por tramo")
+
+
+col1, col2, col3, _ = st.columns([1,1,1,2])  # mismo criterio que antes
+
+with col1:
+    sel1 = st.selectbox('1"', materiales.keys())
+
+with col2:
+    sel78 = st.selectbox('7/8"', materiales.keys())
+
+with col3:
+    sel34 = st.selectbox('3/4"', materiales.keys())
+
+rod_sel = {
+    "1": sel1,
+    "7/8": sel78,
+    "3/4": sel34
+}
+
+
 
 # ======================
-# GRAFICO
+# AMBIENTE
 # ======================
-with r:
-    fig, ax = plt.subplots(figsize=(6,4))
-    ranking=[]
+CO2={"Nada":1,"Bajo":0.98,"Medio":0.9,"Alto":0.8}
+H2S={"Nada":1,"Bajo":0.93,"Medio":0.8,"Alto":0.75}
+BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-    for mat in materiales:
-        fs = FS_material(mat,f_base)
-        y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
 
-        sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
-        margen = sadm - smax_user
+col1, col2, col3, col4, _ = st.columns([1,1,1,1,2])  # ← mismo criterio compacto
 
-        ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
+with col1:
+    co2 = st.selectbox("CO₂", CO2)
 
-        if mat == material:
-            y_sel = y
-            fs_sel = fs
-            sadm_user = sadm
+with col2:
+    h2s = st.selectbox("H₂S", H2S)
 
-    diff = y_sel - x
-    idx = np.where(diff <= 0)[0]
-    corte = idx[0] if len(idx)>0 else len(x)
+with col3:
+    bsr = st.selectbox("BSR", BSR)
 
-    x_clip = x[:corte]
-    y_clip = y_sel[:corte]
+with col4:
+    cl = st.number_input("Cloruros (ppm)", 0, 250000, 0, step=1000)
 
-    ax.plot(x_clip, y_clip, "b", linewidth=3)
-    ax.plot(x, x, "k", linewidth=2)
 
-    ax.fill_between(x_clip, x_clip, y_clip,
-                    where=(y_clip>=x_clip),
-                    color='green', alpha=0.15)
+def f_cl(ppm):
+    return 1 if ppm<6000 else 1-(0.00007*(ppm**0.8))
 
-    ax.scatter(smin_user, smax_user, color="red", s=90)
+f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
 
-    if smax_user > sadm_user:
-        ax.text(
-            0.5,0.15,
-            "Seleccione otro tipo de varilla\n"
-            "o utilice revestimiento + tratamiento químico",
-            transform=ax.transAxes,
-            fontsize=10,
-            color="red",
-            ha="center",
-            bbox=dict(facecolor='white', alpha=0.85)
-        )
+def FS_material(mat,f):
+    if f==1: return 1
+    if mat=="DA78": return f*0.90
+    elif mat=="HS97": return f*0.92
+    elif mat=="CS propietario": return f*0.92
+    elif mat=="HS propietario": return f*0.75
+    elif mat=="D New": return f*0.90
+    elif mat=="DSK75": return f if f < 0.75 else 1
+    elif mat=="HA96": return f*0.85
+    return f*0.9
 
-    # ✅ CAMBIO ÚNICO: eje Y pasa por origen
-    ax.spines['left'].set_position(('data', 0))
+# ======================
+# VARILLAS
+# ======================
+st.subheader("Cant. Varillas")
 
-    ax.set_xlim(0,100)
-    ax.set_ylim(0,100)
-    ax.set_xlabel("Smin (ksi)")
-    ax.set_ylabel("Smax (ksi)")
-    ax.set_title("Diagrama de Goodman Corrosión-Fatiga")
+c1,c2,c3=st.columns(3)
 
+# cálculo automático 33%-33%-33%
+total_varillas = int((L_m / 0.3048) / 25)  # convertir m → ft → cantidad sticks
+
+n_default = total_varillas // 3
+
+
+col1, col2, col3, _ = st.columns([1,1,1,2])  # ← achica inputs
+
+# cálculo automático 33%-33%-33%
+total_varillas = int((L_m / 0.3048) / 25)
+
+n1_def = total_varillas // 3
+n78_def = total_varillas // 3
+n34_def = total_varillas - n1_def - n78_def  # ajusta cierre
+
+with col1:
+    n1 = st.number_input('1"', 10, 300, n1_def)
+
+with col2:
+    n78 = st.number_input('7/8"', 10, 300, n78_def)
+
+with col3:
+    n34 = st.number_input('3/4"', 10, 300, n34_def)
+
+
+L1,L78,L34=n1*25,n78*25,n34*25
+total=L1+L78+L34
+
+# ======================
+# CONTROL LONGITUD
+# ======================
+st.subheader("Control de longitud")
+
+long_m = total * 0.3048
+dif = long_m - L_m
+
+# ✅ primero crear dataframe
+df_ctrl = pd.DataFrame({
+    "Pozo (m)":[int(L_m)],
+    "Sarta (m)":[int(long_m)],
+    "Δ (m)":[int(dif)]
+})
+
+# ✅ después crear columnas
+col_tabla, _ = st.columns([3, 7])
+
+# ✅ después mostrar
+with col_tabla:
+    st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
+
+# ✅ ALERTA
+if abs(dif) > 20:
+    st.markdown("""
+    <style>
+    @keyframes blink {
+        0% {opacity: 1;}
+        50% {opacity: 0;}
+        100% {opacity: 1;}
+    }
+    .alerta {
+        color: red;
+        font-weight: bold;
+        animation: blink 0.6s linear 4;
+    }
+    </style>
+
+    <div class="alerta">⚠ Chequear longitud de Sarta</div>
+    """, unsafe_allow_html=True)
+
+
+# ======================
+# MODELO
+# ======================
+areas={"1":0.786,"7/8":0.601,"3/4":0.442}
+peso={"1":2.9,"7/8":2.22,"3/4":1.63}
+
+Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
+Wr = Wr_air*(1-0.128*G)
+
+L_total_ft = L1+L78+L34
+
+Ap=np.pi*D**2/4
+Fh=0.433*G*L_total_ft*Ap
+
+Fd = (S * N) / (2600 + S * N)
+
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
+
+E=30_000_000
+Aeq=0.58
+
+kr=(Aeq*E)/(L_total_ft*12)
+
+dx=0.52*S*(Fd**0.78)
+
+prop_L=(L_total_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
+
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
+
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
+
+MPRL_base=max(Wr-dF,0)
+MPRL = MPRL_base * 0.97
+
+# ======================
+# DISPLAY
+# ======================
+st.subheader("Cargas")
+
+
+
+c1, c2, _ = st.columns([1, 1, 5])  # más juntas
+
+def carga_estilo(titulo, valor):
+    st.markdown(f"""
+    <div style="text-align:center;">
+        <div style="font-size:14px;">
+            {titulo}
+        </div>
+        <div style="font-size:28px; font-weight:700; color:#003399;">
+            {valor}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c1:
+    carga_estilo("PPRL (lb)", f"{int(PPRL):,}")
+
+with c2:
+    carga_estilo("MPRL (lb)", f"{int(MPRL):,}")
+
+
+
+# ======================
+# RESULTADOS
+# ======================
+st.subheader("Resultados por tramo")
+
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
+
+W1=pct["1"]*Wr_air
+W78=pct["7/8"]*Wr_air
+
+W_up={"1":0,"7/8":W1,"3/4":W1+W78}
+
+rows=[]
+colors=["red","green","orange"]
+
+for i,d in enumerate(pct):
+
+    Pmax=PPRL-W_up[d]
+    Pmin=max(MPRL-0.3*W_up[d],0)
+
+    Smax=Pmax/areas[d]/1000
+    Smin=Pmin/areas[d]/1000
+
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+
+    Sadm=utsa*fs+b*Smin
+    Gval=(Smax-Smin)/(Sadm-Smin)*100
+
+    rows.append({
+        "Tramo":d,
+        "Material":mat,
+        "FS":round(fs,2),
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
+        "Smax (ksi)":round(Smax,1),
+        "Smin (ksi)":round(Smin,1),
+        "Goodman (%)":int(Gval),
+        "Color":colors[i]
+    })
+
+
+df = pd.DataFrame(rows)
+
+
+
+def estilo_tabla(df):
+    return (
+        df.style
+        # ✅ fondo gris suave
+        .set_properties(**{
+            'background-color': '#F2F2F2',
+            'font-size': '15px'   # ← un poco más grande
+        })
+        # ✅ Material en azul fuerte
+        .map(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
+        # ✅ formato numérico controlado
+
+.format({
+    "Max Load (lb)": "{:,.0f}",
+    "Min Load (lb)": "{:,.0f}",
+    "Smax (ksi)": "{:.1f}",
+    "Smin (ksi)": "{:.1f}",
+    "Goodman (%)": "{:.0f}"
+})
+
+        # ✅ padding compacto pero no exagerado
+        .set_table_styles([
+            {'selector': 'th', 'props': [('font-size', '14px')]},
+            {'selector': 'td', 'props': [('padding', '6px 10px')]}
+        ])
+    )
+
+
+col_res, _ = st.columns([8,2])  # ✅ achica ancho tabla
+
+with col_res:
+    st.dataframe(
+        estilo_tabla(df.drop(columns=["Color"])),
+        use_container_width=True
+    )
+
+
+
+# ======================
+# GOODMAN
+# ======================
+st.subheader("Diagrama de Goodman")
+
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"] *
+    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
+
+x=np.linspace(0,x_max,200)
+
+fig,ax=plt.subplots()
+
+curvas=[]
+for d in pct:
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
+    curvas.append(y)
+
+    ax.plot(x,y)
+
+# ✅ zona segura
+y_safe=np.minimum.reduce(curvas)
+ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
+
+# ✅ RECUPERAR PUNTOS Y LEYENDA
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"])
+
+# ✅ línea 45°
+ax.plot(x,x)
+
+# ✅ límites
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
+
+# ✅ etiquetas
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+# ✅ título (faltaba)
+ax.set_title("Solicitaciones penalizadas por Corrosión")
+
+# ✅ leyenda (faltaba)
+ax.legend(title="Tramo")
+
+# ✅ DETECCIÓN DE FALLA
+fuera = any(df["Goodman (%)"] > 100)
+
+# ✅ MENSAJE EN EL GRÁFICO
+if fuera:
+    ax.text(
+        0.5, 0.1,
+        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.8, edgecolor='red')
+    )
+
+
+col_plot, col_blank = st.columns([4, 2])  # más chico y a la izquierda
+
+with col_plot:
     st.pyplot(fig)
 
-# ======================
-# DATA
-# ======================
-df = pd.DataFrame(ranking)
-df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
-if abs(f_base - 1.0) < 1e-6:
-    if "HS97" in df["Material"].values:
-        fila = df[df["Material"]=="HS97"]
-        df = df[df["Material"]!="HS97"]
-        df = pd.concat([fila, df]).reset_index(drop=True)
 
-df["%Goodman"] = ((smax_user - smin_user) /
-(df["Sadm"] - smin_user)) * 100
 
-col_tabla, col_der = st.columns([2.7,1.8])
 
-with col_tabla:
-    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-    st.dataframe(df.drop(columns=["FS"]).style.format({
-        "Sadm":"{:.0f}",
-        "Margen":"{:.0f}",
-        "%Goodman":"{:.0f}"
-    }), use_container_width=False)
-
-with col_der:
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
-
-    c1,c2 = st.columns(2)
-    c3,c4 = st.columns(2)
-
-    c1.metric("FS", f"{fs_sel:.1f}")
-    c2.metric("Factor base", f"{f_base:.1f}")
-    c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{((smax_user-smin_user)/(sadm_user-smin_user)*100):.1f}")
-
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
-
-    validos = df[df["Margen"] >= 0]
-    for i,row in validos.head(3).iterrows():
-        st.markdown(f"{i+1}. {row['Material']}")
 
 st.markdown("---")
-st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y Experiencias de Campo..")
+st.caption("Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26")
+
+
+
+ 
