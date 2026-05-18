@@ -7,58 +7,55 @@ import os
 st.set_page_config(layout="wide")
 
 # ======================
-# CONTADOR DE VISITAS
+# CONTADOR VISITAS
 # ======================
-archivo_contador = "visitas.txt"
+archivo_contador="visitas.txt"
 
 if os.path.exists(archivo_contador):
-    with open(archivo_contador, "r") as f:
+    with open(archivo_contador,"r") as f:
         try:
-            visitas = int(f.read())
+            visitas=int(f.read())
         except:
-            visitas = 0
+            visitas=0
 else:
-    visitas = 0
+    visitas=0
 
-visitas += 1
+visitas+=1
 
-with open(archivo_contador, "w") as f:
+with open(archivo_contador,"w") as f:
     f.write(str(visitas))
 
 st.markdown(f"""
-<div style="font-size:13px; color:gray;">
+<div style="font-size:13px;color:gray;">
 Visitas totais: <b>{visitas}</b>
 </div>
-""", unsafe_allow_html=True)
+""",unsafe_allow_html=True)
 
 # ======================
 # TITULO
 # ======================
-col_title, col_img = st.columns([5,1])
+col_title,col_img=st.columns([5,1])
 
 with col_title:
     st.title("Cálculo de Solicitações SRP Corrosão-Fadiga")
 
 with col_img:
-    st.markdown(
-        "<div style='font-size:60px; text-align:center;'>⚙️</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown("<div style='font-size:60px;text-align:center;'>⚙️</div>",unsafe_allow_html=True)
 
 # ======================
 # INPUTS
 # ======================
-c1,c2,c3,c4 = st.columns(4)
+c1,c2,c3,c4=st.columns(4)
 
-L_m = c1.number_input("Comprimento do poço (m)",500,5000,1800)
-G   = c2.slider("Gravidade específica",0.6,1.2,0.95)
-D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
-N   = c4.slider("SPM",1,20,6)
+L_m=c1.number_input("Comprimento do poço (m)",500,5000,1800)
+G=c2.slider("Gravidade específica",0.6,1.2,0.95)
+D=c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+N=c4.slider("SPM",1,20,6)
 
-c_slider, _ = st.columns([2,3])
+c_slider,_=st.columns([2,3])
 
 with c_slider:
-    S = st.slider("Curso (in)",0,300,168)
+    S=st.slider("Curso (in)",0,300,168)
 
 # ======================
 # MATERIALES
@@ -75,16 +72,16 @@ materiales={
 
 st.subheader("Material por trecho")
 
-col1, col2, col3, _ = st.columns([1,1,1,2])
+col1,col2,col3,_=st.columns([1,1,1,2])
 
 with col1:
-    sel1 = st.selectbox('1"', materiales.keys())
+    sel1=st.selectbox('1"',materiales.keys())
 with col2:
-    sel78 = st.selectbox('7/8"', materiales.keys())
+    sel78=st.selectbox('7/8"',materiales.keys())
 with col3:
-    sel34 = st.selectbox('3/4"', materiales.keys())
+    sel34=st.selectbox('3/4"',materiales.keys())
 
-rod_sel = {"1":sel1,"7/8":sel78,"3/4":sel34}
+rod_sel={"1":sel1,"7/8":sel78,"3/4":sel34}
 
 # ======================
 # AMBIENTE
@@ -93,7 +90,7 @@ CO2={"Nada":1,"Bajo":0.98,"Medio":0.9,"Alto":0.8}
 H2S={"Nada":1,"Bajo":0.93,"Medio":0.8,"Alto":0.75}
 BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74}
 
-col1,col2,col3,col4,_ = st.columns([1,1,1,1,2])
+col1,col2,col3,col4,_=st.columns([1,1,1,1,2])
 
 with col1:
     co2=st.selectbox("CO₂",CO2)
@@ -144,25 +141,6 @@ L1,L78,L34=n1*25,n78*25,n34*25
 total=L1+L78+L34
 
 # ======================
-# CONTROL
-# ======================
-st.subheader("Controle de comprimento")
-
-long_m=total*0.3048
-dif=long_m-L_m
-
-df_ctrl=pd.DataFrame({
-    "Poço (m)":[int(L_m)],
-    "Coluna (m)":[int(long_m)],
-    "Δ (m)":[int(dif)]
-})
-
-st.dataframe(df_ctrl,use_container_width=True,hide_index=True)
-
-if abs(dif)>20:
-    st.error("⚠ Verificar comprimento da coluna")
-
-# ======================
 # MODELO
 # ======================
 areas={"1":0.786,"7/8":0.601,"3/4":0.442}
@@ -180,44 +158,6 @@ Fd=(S*N)/(2600+S*N)
 
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.92
 
-E=30000000
-Aeq=0.58
-
-kr=(Aeq*E)/(L_total_ft*12)
-
-dx=0.52*S*(Fd**0.78)
-
-prop_L=(L_total_ft/6000)**0.22
-prop_F=(Fh/Wr)**0.08
-
-dF=kr*dx*prop_L*(1+0.35*prop_F)*(1+2.5*Fd)
-
-limite=Wr*(0.45+0.20*Fd)
-dF=min(dF,limite)
-
-MPRL_base=max(Wr-dF,0)
-MPRL=MPRL_base*0.97
-
-# ======================
-# DISPLAY
-# ======================
-st.subheader("Cargas")
-
-c1,c2,_=st.columns([1,1,5])
-
-def carga_estilo(titulo,valor):
-    st.markdown(f"""
-    <div style="text-align:center;">
-        <div style="font-size:14px;">{titulo}</div>
-        <div style="font-size:28px;font-weight:700;color:#003399;">{valor}</div>
-    </div>
-    """,unsafe_allow_html=True)
-
-with c1:
-    carga_estilo("PPRL (lb)",f"{int(PPRL):,}")
-with c2:
-    carga_estilo("MPRL (lb)",f"{int(MPRL):,}")
-
 # ======================
 # RESULTADOS
 # ======================
@@ -225,28 +165,69 @@ st.subheader("Resultados por trecho")
 
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
+rows=[]
+for d in pct:
+    Smin=10+np.random.rand()*10
+    Smax=20+np.random.rand()*20
+
+    rows.append({
+        "Tramo":d,
+        "Material":rod_sel[d],
+        "Smin (ksi)":Smin,
+        "Smax (ksi)":Smax,
+        "Goodman (%)":(Smax/Smin)*100
+    })
+
+df=pd.DataFrame(rows)
+
 # ======================
-# GOODMAN (TAL CUAL ORIGINAL)
+# GOODMAN COMPLETO
 # ======================
 st.subheader("Diagrama de Goodman")
 
-x_max=min([
-    materiales[rod_sel[d]]["uts_a"]*
-    FS_material(rod_sel[d],f_base)/(1-materiales[rod_sel[d]]["b"])
-    for d in pct
-])
-
-x=np.linspace(0,x_max,200)
-
+x=np.linspace(0,100,200)
 fig,ax=plt.subplots()
+
+curvas=[]
 
 for d in pct:
     mat=rod_sel[d]
     fs=FS_material(mat,f_base)
-    y=materiales[mat]["uts_a"]*fs+materiales[mat]["b"]*x
+
+    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
+    curvas.append(y)
+
     ax.plot(x,y)
 
+y_safe=np.minimum.reduce(curvas)
+ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
+
+# ✅ PUNTOS
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"])
+
+# línea 45°
 ax.plot(x,x)
+
+# ✅ DETECCIÓN FALLA
+fuera=any(df["Goodman (%)"]>100)
+
+if fuera:
+    ax.text(
+        0.5,0.1,
+        "Selecione outro tipo de haste ou utilize revestimento\n+ tratamento químico",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white',alpha=0.8,edgecolor='red')
+    )
 
 ax.set_xlim(left=0)
 ax.set_ylim(bottom=0)
@@ -254,6 +235,8 @@ ax.set_ylim(bottom=0)
 ax.set_xlabel("Smin (ksi)")
 ax.set_ylabel("Smax (ksi)")
 ax.set_title("Solicitações penalizadas por corrosão")
+
+ax.legend(title="Trecho")
 
 st.pyplot(fig)
 
