@@ -66,7 +66,7 @@ df_ctrl = pd.DataFrame({
 })
 
 # ✅ ALERTA
-if abs(dif) &gt; 20:
+if abs(dif) > 20:
     st.markdown("""
     &lt;style&gt;
     @keyframes blink {
