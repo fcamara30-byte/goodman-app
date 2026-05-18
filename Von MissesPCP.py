@@ -1,114 +1,135 @@
+import tkinter as tk
+from tkinter import ttk
 import math
 
-# =========================
+# -------------------------
 # DATA VARILLAS
-# =========================
+# -------------------------
 RODS = {
-    "7/8": {"d_in": 0.875, "peso_lbft": 2.22},
-    "1": {"d_in": 1.0, "peso_lbft": 2.67},
-    "1 1/8": {"d_in": 1.125, "peso_lbft": 3.37}
+    "7/8": {"d": 0.875, "peso": 2.22},
+    "1": {"d": 1.0, "peso": 2.67},
+    "1 1/8": {"d": 1.125, "peso": 3.37}
 }
 
-def in_to_m(x): return x * 0.0254
-def lbft_to_nm(x): return x * 1.35582
+def calcular():
+
+    try:
+        rpm = float(entry_rpm.get())
+        prod = float(entry_prod.get())
+        pres_linea = float(entry_presion.get())
+        nivel = float(entry_nivel.get())
+        densidad = float(entry_densidad.get())
+        visc = float(entry_visc.get())
+        solidos = float(entry_solidos.get())
+        profundidad = float(entry_prof.get())
+        rod = combo_rod.get()
+
+        # -------------------------
+        # PCP
+        # -------------------------
+        pres_nivel = (nivel * densidad)/10000
+        pres_total = pres_linea + pres_nivel
+
+        pot_h = prod * pres_total * 0.0014
+        pot_c = pot_h / 0.6
+
+        torque = (5252 * pot_c) / rpm
+
+        # -------------------------
+        # FACTOR FLUIDO
+        # -------------------------
+        f_visc = 1 + (visc / 1000)
+        f_sol = 1 + (solidos / 100)
+        f_total = f_visc * f_sol
+
+        torque_corr = torque * f_total
+
+        # -------------------------
+        # VARILLA
+        # -------------------------
+        d = RODS[rod]["d"] * 0.0254
+        r = d/2
+
+        A = math.pi * d**2 / 4
+        J = math.pi * d**4 / 32
+
+        peso = RODS[rod]["peso"] * 47.88  # N/m
+        peso_total = peso * profundidad
+
+        carga_fluido = densidad * 9.81 * profundidad * A
+        F = peso_total + carga_fluido
+
+        sigma = F/A/1e6
+        tau = (torque_corr*1.35582*r)/J/1e6
+
+        von = math.sqrt(sigma**2 + 3*tau**2)
+
+        # -------------------------
+        # OUTPUT
+        # -------------------------
+        out_torque.config(text=f"{torque:.1f} lb-ft")
+        out_von.config(text=f"{von:.1f} MPa")
+        out_tau.config(text=f"{tau:.1f} MPa")
+        out_sigma.config(text=f"{sigma:.1f} MPa")
+
+    except:
+        out_torque.config(text="Error")
 
 
-# =========================
-# FACTOR FLUIDO
-# =========================
-def factor_fluido(viscosidad_cp, solidos_pct):
-    """
-    Modelo empírico simple (ajustable):
-    """
+# -------------------------
+# UI
+# -------------------------
+root = tk.Tk()
+root.title("PCP Calculator PRO")
 
-    # viscosidad
-    if viscosidad_cp < 100:
-        f_visc = 1.0
-    elif viscosidad_cp < 300:
-        f_visc = 1.15
-    elif viscosidad_cp < 800:
-        f_visc = 1.35
-    else:
-        f_visc = 1.6
+# Inputs
+labels = [
+    ("RPM", "350"),
+    ("Producción m3/d", "150"),
+    ("Presión línea kg/cm2", "14"),
+    ("Nivel m", "570"),
+    ("Densidad kg/m3", "840"),
+    ("Viscosidad cP", "300"),
+    ("% Sólidos", "5"),
+    ("Profundidad m", "600")
+]
 
-    # sólidos
-    f_sol = 1 + (solidos_pct / 100) * 0.8
+entries = []
 
-    return f_visc * f_sol
+for i, (text, val) in enumerate(labels):
+    tk.Label(root, text=text).grid(row=i, column=0)
+    e = tk.Entry(root)
+    e.insert(0, val)
+    e.grid(row=i, column=1)
+    entries.append(e)
 
+(entry_rpm, entry_prod, entry_presion, entry_nivel,
+ entry_densidad, entry_visc, entry_solidos, entry_prof) = entries
 
-# =========================
-# CALCULO COMPLETO
-# =========================
-def modelo_pcp_avanzado(
-    diametro,
-    profundidad,
-    torque_superficie_lbft,
-    densidad,
-    viscosidad_cp,
-    solidos_pct
-):
+# Varillas
+tk.Label(root, text="Varilla").grid(row=8, column=0)
+combo_rod = ttk.Combobox(root, values=list(RODS.keys()))
+combo_rod.set("1")
+combo_rod.grid(row=8, column=1)
 
-    rod = RODS[diametro]
+# Botón
+tk.Button(root, text="CALCULAR", command=calcular, bg="green").grid(row=9, columnspan=2)
 
-    d = in_to_m(rod["d_in"])
-    r = d / 2
+# Outputs
+tk.Label(root, text="Torque").grid(row=10, column=0)
+out_torque = tk.Label(root, text="-")
+out_torque.grid(row=10, column=1)
 
-    A = math.pi * d**2 / 4
-    J = math.pi * d**4 / 32
+tk.Label(root, text="Von Mises").grid(row=11, column=0)
+out_von = tk.Label(root, text="-")
+out_von.grid(row=11, column=1)
 
-    # ------------------------
-    # FLUIDO
-    # ------------------------
-    f_fluido = factor_fluido(viscosidad_cp, solidos_pct)
+tk.Label(root, text="Torsión").grid(row=12, column=0)
+out_tau = tk.Label(root, text="-")
+out_tau.grid(row=12, column=1)
 
-    torque_real_lbft = torque_superficie_lbft * f_fluido
-    torque_nm = lbft_to_nm(torque_real_lbft)
+tk.Label(root, text="Axial").grid(row=13, column=0)
+out_sigma = tk.Label(root, text="-")
+out_sigma.grid(row=13, column=1)
 
-    # ------------------------
-    # CARGAS
-    # ------------------------
-    peso_lineal = rod["peso_lbft"] * 14.5939 / 0.3048
-    peso_total = peso_lineal * profundidad
-
-    g = 9.81
-    carga_fluido = densidad * g * profundidad * A
-
-    F_total = peso_total + carga_fluido
-
-    # ------------------------
-    # ESFUERZOS
-    # ------------------------
-    sigma = F_total / A / 1e6
-    tau = (torque_nm * r) / J / 1e6
-
-    von_mises = math.sqrt(sigma**2 + 3 * tau**2)
-
-    return {
-        "Factor fluido": f_fluido,
-        "Torque corregido (lb-ft)": torque_real_lbft,
-        "Esfuerzo axial (MPa)": sigma,
-        "Esfuerzo torsional (MPa)": tau,
-        "Von Mises (MPa)": von_mises
-    }
-
-
-# =========================
-# EJEMPLO REAL
-# =========================
-if __name__ == "__main__":
-
-    res = modelo_pcp_avanzado(
-        diametro="1",
-        profundidad=600,
-        torque_superficie_lbft=325.1,
-        densidad=840,
-        viscosidad_cp=500,
-        solidos_pct=5
-    )
-
-    print("\n===== MODELO PCP AVANZADO =====\n")
-
-    for k, v in res.items():
-        print(f"{k}: {v:.2f}")
-
+root.mainloop()
