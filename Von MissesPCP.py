@@ -1,72 +1,65 @@
-import math
+import streamlit as st
 
+st.set_page_config(layout="wide")
 
-def calcular_pcp(
-    rpm,
-    desplazamiento,
-    presion_linea,
-    nivel,
-    densidad,
-    eficiencia=0.6
-):
-    """
-    rpm: revoluciones por minuto
-    desplazamiento: m3/d por RPM
-    presion_linea: kg/cm2
-    nivel: metros
-    densidad: kg/m3
-    """
+st.title("📊 Cálculo de Torque PCP (Replica Excel)")
 
-    # --- PRODUCCIÓN ---
-    produccion = desplazamiento * rpm
+# -------------------------------
+# INPUTS (lado izquierdo)
+# -------------------------------
+col1, col2 = st.columns(2)
 
-    # --- PRESIONES ---
-    presion_nivel = (nivel * densidad) / 10000  # kg/cm2
-    presion_total = presion_linea + presion_nivel
+with col1:
+    st.subheader("Datos de Entrada")
 
-    # --- POTENCIAS ---
-    potencia_hidraulica = produccion * presion_total * 0.0014
-    potencia_consumida = potencia_hidraulica / eficiencia
+    rpm = st.number_input("RPM", value=350)
+    produccion = st.number_input("Producción (m3/d)", value=150.0)
+    presion_linea = st.number_input("Presión de Línea (kg/cm2)", value=200.0)
+    nivel = st.number_input("Nivel dinámico (m)", value=600.0)
+    densidad = st.number_input("Densidad (kg/m3)", value=950.0)
+    eficiencia = st.number_input("Rendimiento bomba", value=0.6)
 
-    # --- TORQUE ---
+with col2:
+    st.subheader("Variables del Modelo")
+
     k = 5252
-    torque_lbft = (k * potencia_consumida) / rpm
+
+    presion_nivel = (nivel * densidad) / 10000
+    presion_total = presion_linea + presion_nivel
+    pot_h = produccion * presion_total * 0.0014
+    pot_c = pot_h / eficiencia
+    torque_lbft = (k * pot_c) / rpm
     torque_nm = torque_lbft * 1.35582
 
-    return {
-        "Produccion (m3/d)": produccion,
-        "Presion Nivel (kg/cm2)": presion_nivel,
-        "Presion Total (kg/cm2)": presion_total,
-        "Potencia Hidraulica (HP)": potencia_hidraulica,
-        "Potencia Consumida (HP)": potencia_consumida,
-        "Torque (lb-ft)": torque_lbft,
-        "Torque (Nm)": torque_nm
-    }
+    st.write("Presión de Nivel:", round(presion_nivel, 2))
+    st.write("Presión Total:", round(presion_total, 2))
+    st.write("Potencia Hidráulica:", round(pot_h, 2))
+    st.write("Potencia Consumida:", round(pot_c, 2))
 
+# -------------------------------
+# RESULTADOS (abajo como Excel)
+# -------------------------------
+st.markdown("---")
+st.subheader("Resultados")
 
-# =========================
-# EJECUCIÓN INTERACTIVA
-# =========================
-if __name__ == "__main__":
+col3, col4 = st.columns(2)
 
-    print("\n=== CALCULO PCP - TORQUE ===\n")
+with col3:
+    st.metric("Torque [lb-ft]", round(torque_lbft, 2))
 
-    rpm = float(input("RPM: "))
-    desplazamiento = float(input("Desplazamiento [m3/d/RPM]: "))
-    presion_linea = float(input("Presion de linea [kg/cm2]: "))
-    nivel = float(input("Nivel dinamico [m]: "))
-    densidad = float(input("Densidad fluido [kg/m3]: "))
+with col4:
+    st.metric("Torque [Nm]", round(torque_nm, 2))
 
-    resultados = calcular_pcp(
-        rpm,
-        desplazamiento,
-        presion_linea,
-        nivel,
-        densidad
-    )
+# -------------------------------
+# FORMULAS (como tu Excel)
+# -------------------------------
+st.markdown("---")
+st.subheader("Formulación (igual al Excel)")
 
-    print("\n===== RESULTADOS =====\n")
-
-    for k, v in resultados.items():
-        print(f"{k}: {v:.2f}")
-
+st.text("""
+Torque = (k * Potencia Consumida) / RPM
+Potencia Consumida = Potencia Hidráulica / Eficiencia
+Potencia Hidráulica = Producción * Presión Total * 0.0014
+Presión Total = Presión Línea + Presión Nivel
+Presión Nivel = (Nivel * Densidad) / 10
+""")
