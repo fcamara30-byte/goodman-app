@@ -45,7 +45,7 @@ with col_title:
 with col_flag:
     st.markdown(
         "<div style='font-size:30px; text-align:right;'>🇧🇷</div>",
-        unsafe_allow_html=True
+        unsafe_allow_html=True)
 
 with col_img:
     st.markdown(
