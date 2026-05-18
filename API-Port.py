@@ -42,14 +42,6 @@ col_title, col_img = st.columns([5,1])
 with col_title:
     st.title("Cálculo das solicitações SRP por corrosão-fadiga")
 
-
-st.markdown(
-    "<div style='text-align: right; font-size: 40px;'>🇧🇷</div>",
-    unsafe_allow_html=True
-)
-
-
-
 with col_img:
     st.markdown(
         "<div style='font-size:60px; text-align:center;'>⚙️</div>",
@@ -57,7 +49,7 @@ with col_img:
     )
 
 st.markdown(
-    '<div style="color:gray; font-size:18px;">Uso Petroreconcavo</div>',
+    '<div style="color:gray; font-size:14px;">Uso Petroreconcavo</div>',
     unsafe_allow_html=True
 )
 
