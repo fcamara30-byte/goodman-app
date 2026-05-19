@@ -197,11 +197,11 @@ df["Recomendación"]=rec
 
 
 
-        # =====================
-        # ✅ TORQUE FRICCIÓN
-        # =====================
-        mu=0.25
-        R_eff=0.04
+# =====================
+# ✅ TORQUE FRICCIÓN
+# =====================
+mu=0.25
+R_eff=0.04
 
 
         for i in range(1,len(df)):
