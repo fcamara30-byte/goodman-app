@@ -252,7 +252,7 @@ with colR:
    colG, colS, colT = st.columns([3,1,1.5])
 
     # ✅ sliders (derecha)
-    with colS:
+   with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
