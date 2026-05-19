@@ -1,25 +1,12 @@
 import streamlit as st
+import numpy as np
 import math
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
+st.title("PCP Modelo Acoplado (Nivel PCPump Simulado)")
 
-# =========================
-# UI COMPACTA
-# =========================
-st.markdown("""
-<style>
-div[data-testid="stNumberInput"] {width: 140px;}
-</style>
-""", unsafe_allow_html=True)
-
-st.title("PCP + Sarta (Ingeniería Completa)")
-
-# =========================
-# LAYOUT
-# =========================
 colL, colR = st.columns([2,2])
 
 # =========================
@@ -27,164 +14,226 @@ colL, colR = st.columns([2,2])
 # =========================
 with colL:
 
-    c1,c2 = st.columns(2)
+    profundidad = st.number_input("Profundidad [m]",2000,step=100)
+    rpm = st.number_input("RPM",350)
+    prod = st.number_input("Producción [m3/d]",150.0)
 
-    with c1:
-        profundidad = st.number_input("Profundidad (m)",600,step=100)
-        rpm = st.number_input("RPM (rev/min)",350)
-        prod = st.number_input("Producción (m³/d)",150.0)
-        pres_linea = st.number_input("Presión línea (kg/cm²)",14.1)
-        nivel = st.number_input("Nivel dinámico (m)",570,step=50)
-        densidad = st.number_input("Densidad (kg/m³)",840.0)
-        eficiencia = st.number_input("Eficiencia (-)",0.6)
+    pres_linea = st.number_input("Presión línea [kg/cm2]",14.1)
 
-    with c2:
-        viscosidad = st.number_input("Viscosidad (cP)",300,step=40)
-        solidos = st.number_input("Sólidos (%)",5.0)
-        rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
-        material = st.selectbox("Material",
-            ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"]
-        )
+    nivel = st.number_input("Nivel dinámico [m]",500)
+    sumergencia = st.number_input("Sumergencia [m]",200)
 
-# =========================
-# DATA
-# =========================
-RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
+    densidad = st.number_input("Densidad [kg/m3]",850.0)
+    eficiencia = st.number_input("Eficiencia [-]",0.6)
 
-YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":85,"DSK75":85,"HA96":115}
+    viscosidad = st.number_input("Viscosidad [cP]",300)
+    solidos = st.number_input("Sólidos [%]",5.0)
+
+with colR:
+
+    tubing_sel = st.selectbox("Tubing",["2 7/8","3 1/2","4"])
+
+    rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
 
 # =========================
-# CALCULO BASE
+# DATOS
 # =========================
-pres_nivel=(nivel*densidad)/10000
-pres_total=pres_linea+pres_nivel
+TBG_ID={"2 7/8":62,"3 1/2":76,"4":89}
+RODS={"7/8":{"d":0.875,"peso":2.22},
+      "1":{"d":1.0,"peso":2.67},
+      "1 1/8":{"d":1.125,"peso":3.37}}
 
-pot_h=prod*pres_total*0.0014
-pot_c=pot_h/eficiencia
+tubing=TBG_ID[tubing_sel]
 
-torque=(5252*pot_c)/rpm
-torque*= (1+viscosidad/1000)*(1+solidos/100)
+d = RODS[rod]["d"]*0.0254
+A = math.pi*d**2/4
+r = d/2
+J = math.pi*d**4/32
+peso = RODS[rod]["peso"]*47.88
 
-d=RODS[rod]["d"]*0.0254
-A=math.pi*d**2/4
-J=math.pi*d**4/32
-r=d/2
+rho_steel=7850
+peso_eff = peso*(1-densidad/rho_steel)
 
-peso=RODS[rod]["peso"]*47.88
-F=peso*profundidad+densidad*9.81*profundidad*A
+# =========================
+# HIDRAULICA ACOPLADA
+# =========================
+pres_total = pres_linea + ((nivel + sumergencia)*densidad)/10000
 
-sigma=(F/A)/6894757
-tau=((torque*1.35582*r)/J)/6894757
+pot_h = prod * pres_total * 0.0014
+pot_c = pot_h / eficiencia
 
-von=math.sqrt(sigma**2+3*tau**2)
+T_hid = (5252 * pot_c) / rpm
+T_hid *= (1+viscosidad/1000)*(1+solidos/100)
+T_hid *= (62/tubing)**0.5
 
-YS=YIELD[material]
-uso=von/YS*100
-fs=YS/von
+# =========================
+# CARGAS Y DEFLEXION
+# =========================
+F_peso = peso_eff * profundidad
+F_hid = pres_total * A * 1e5
+F_total = F_peso + F_hid
+
+E = 2.1e11
+elong = F_total / (E*A)
 
 # =========================
 # TRAYECTORIA
 # =========================
-st.markdown("---")
-modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
+modo = st.selectbox("Trayectoria",["Vertical","Desviado"])
 
-df=pd.DataFrame()
-torque_final=torque
+T_fric = 0
 
 if modo=="Desviado":
 
-    st.subheader("Pegar datos de Profundidad, Inclinación y Azimuth")
-
-    text=st.text_area("Formato: md inc az",height=120)
+    text = st.text_area("Pegar md inc az",height=120)
 
     if text:
+
         data=[]
-        for row in text.strip().split("\n"):
-            vals=row.replace(",",".").split()
-            if len(vals)>=3:
-                try:data.append([float(vals[0]),float(vals[1]),float(vals[2])])
-                except:pass
+        for row in text.split("\n"):
+            v=row.replace(",",".").split()
+            if len(v)>=3:
+                try:data.append([float(v[0]),float(v[1]),float(v[2])])
+                except: pass
 
         df=pd.DataFrame(data,columns=["md","inc","az"])
 
-    if len(df)>1:
+        if len(df)>1:
 
-        inc=np.radians(df["inc"])
-        az=np.radians(df["az"])
+            # DLS
+            dls=[0]
+            for i in range(1,len(df)):
+                dmd=df["md"][i]-df["md"][i-1]
 
-        # DLS
-        dls=[0]
-        for i in range(1,len(df)):
-            dmd=(df["md"][i]-df["md"][i-1])*3.28084
-            cosdl=(np.sin(inc[i-1])*np.sin(inc[i])*np.cos(az[i]-az[i-1])
-                   +np.cos(inc[i-1])*np.cos(inc[i]))
-            cosdl=np.clip(cosdl,-1,1)
-            dls.append(np.degrees(np.arccos(cosdl))*100/dmd)
+                inc1=np.radians(df["inc"][i-1])
+                inc2=np.radians(df["inc"][i])
+                az1=np.radians(df["az"][i-1])
+                az2=np.radians(df["az"][i])
 
-        df["DLS"]=dls
+                if dmd>0:
+                    cos_dl = (
+                        np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)+
+                        np.cos(inc1)*np.cos(inc2))
+                    cos_dl=np.clip(cos_dl,-1,1)
 
-        # coordenadas más juntas
-        scale=0.2
-        df["X"]=np.cumsum(np.sin(inc)*np.cos(az))*scale
-        df["Y"]=np.cumsum(np.sin(inc)*np.sin(az))*scale
-        df["Z"]=-df["md"]*scale
+                    dl=np.degrees(np.arccos(cos_dl))
 
-        # contacto
-        carga=RODS[rod]["peso"]*np.sin(inc)*df["md"]*0.05
+                    dls.append(dl*(100/(dmd*3.28)))
+                else:
+                    dls.append(0)
 
-        colores=[]
-        rec=[]
-        for c in carga:
-            if c<30:colores.append("green");rec.append("Bajo")
-            elif c<60:colores.append("yellow");rec.append("1 centralizador")
-            elif c<100:colores.append("orange");rec.append("3 centralizadores")
-            else:colores.append("red");rec.append("Black Mamba")
+            df["DLS"]=dls
 
-        df["Carga"]=carga
-        df["Recomendación"]=rec
+            # trayectoria real
+            X=[0]; Y=[0]; Z=[0]
 
-        torque_final=torque*(1+np.mean(np.sin(inc))*0.4)
+            for i in range(1,len(df)):
+                dmd=df["md"][i]-df["md"][i-1]
+
+                inc1=np.radians(df["inc"][i-1])
+                inc2=np.radians(df["inc"][i])
+                az1=np.radians(df["az"][i-1])
+                az2=np.radians(df["az"][i])
+
+                dX = dmd/2*(np.sin(inc1)*np.cos(az1)+np.sin(inc2)*np.cos(az2))
+                dY = dmd/2*(np.sin(inc1)*np.sin(az1)+np.sin(inc2)*np.sin(az2))
+                dZ = dmd/2*(np.cos(inc1)+np.cos(inc2))
+
+                X.append(X[-1]+dX)
+                Y.append(Y[-1]+dY)
+                Z.append(Z[-1]-dZ)
+
+            df["X"]=X
+            df["Y"]=Y
+            df["Z"]=Z
+
+            mu=0.1
+            R_eff=tubing/2000
+
+            torque_profile=[]
+
+            for i in range(1,len(df)):
+
+                dz=df["md"][i]-df["md"][i-1]
+                inc_rad=np.radians(df["inc"][i])
+
+                N1 = peso_eff*np.sin(inc_rad)
+                N2 = 3*(df["DLS"][i]**1.5)
+                N3 = elong*2e5
+
+                N=N1+N2+N3
+
+                dT=mu*N*R_eff*dz
+
+                T_fric+=dT
+                torque_profile.append(T_fric)
 
 # =========================
-# RESULTADOS + GRAFICO
+# RESULTADOS
+# =========================
+T_total=T_hid+T_fric
+potencia=T_total*rpm/5252
+
+st.markdown("---")
+
+st.metric("Torque Final [lb-ft]",f"{T_total:.1f}")
+st.metric("Potencia [HP]",f"{potencia:.1f}")
+
+# =========================
+# CURVA PCPUMP (P vs POTENCIA)
+# =========================
+pres_range=np.linspace(500,3500,20)
+
+pot_curve=[]
+
+for p in pres_range:
+    T=(5252*(prod*p*0.0014/eficiencia)/rpm)
+    pot_curve.append(T*rpm/5252)
+
+st.markdown("### Curva Potencia vs Presión")
+
+fig1,ax1=plt.subplots()
+ax1.plot(pres_range,pot_curve)
+ax1.set_xlabel("Presión (kPa)")
+ax1.set_ylabel("Potencia (HP)")
+st.pyplot(fig1)
+
+# =========================
+# TORQUE VS PROFUNDIDAD
+# =========================
+if modo=="Desviado" and len(df)>1:
+
+    st.markdown("### Torque vs Profundidad")
+
+    fig2,ax2=plt.subplots()
+    ax2.plot(df["md"][1:],torque_profile)
+    ax2.set_xlabel("MD (m)")
+    ax2.set_ylabel("Torque acumulado")
+    st.pyplot(fig2)
+
+# =========================
+# 3D
 # =========================
 with colR:
 
-    st.subheader("Torque Final")
-    st.metric("Torque (lb-ft)",f"{torque_final:.1f}")
+    if modo=="Desviado" and len(df)>1:
 
-    elev=st.slider("Vista elevación",0,90,25)
-    azim=st.slider("Vista azimut",0,360,45)
+        elev=st.slider("Elevación",0,90,25)
+        azim=st.slider("Azimut",0,360,45)
 
-    if len(df)>1:
+        colores=[]
+        for d in df["DLS"]:
+            if d<2:colores.append("green")
+            elif d<5:colores.append("yellow")
+            else:colores.append("red")
 
-        fig=plt.figure(figsize=(5,8))
+        fig=plt.figure(figsize=(6,8))
         ax=fig.add_subplot(111,projection='3d')
 
-        ax.scatter(df["X"],df["Y"],df["Z"],c=colores,s=25)
+        ax.plot(df["X"],df["Y"],df["Z"],color="black")
+        ax.scatter(df["X"],df["Y"],df["Z"],c=colores,s=15)
 
-        ax.view_init(elev=elev,azim=azim)
-        ax.tick_params(labelsize=7)
         ax.set_box_aspect([1,1,2])
+        ax.view_init(elev=elev,azim=azim)
 
         st.pyplot(fig)
-
-        st.markdown("### Referencia de contacto")
-        st.write("🟢 Bajo | 🟡 1 centralizador | 🟠 3 centralizadores | 🔴 Black Mamba")
-
-        st.markdown("### Recomendación de intervención")
-        st.dataframe(df[["md","DLS","Recomendación"]])
-
-# =========================
-# RESULTADOS MECANICOS
-# =========================
-st.markdown("---")
-c1,c2,c3=st.columns(3)
-c1.metric("Axial (ksi)",f"{sigma:.2f}")
-c2.metric("Torsión (ksi)",f"{tau:.2f}")
-c3.metric("Von Mises (ksi)",f"{von:.2f}")
-
-c4,c5=st.columns(2)
-c4.metric("Uso (%)",f"{uso:.1f}")
-c5.metric("FS (-)",f"{fs:.2f}")
-
