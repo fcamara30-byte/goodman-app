@@ -276,15 +276,9 @@ with colR:
 
             st.pyplot(fig)
 
-    # ✅ torque abajo
-    st.subheader("Torque Final")
-    st.metric("Torque (lb-ft)", f"{torque_final:.1f}")
+  
 
-    # =========================
-    # ✅ TORQUE ABAJO DE TODO
-    # =========================
-    st.subheader("Torque Final")
-    st.metric("Torque (lb-ft)", f"{torque_final:.1f}")
+
 
 # =========================
 # MÉTRICAS
