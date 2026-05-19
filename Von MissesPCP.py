@@ -230,4 +230,4 @@ c3.metric("Von Mises [ksi]", f"{von:.2f}")
 c4,c5=st.columns(2)
 c4.metric("Torque [lb-ft]", f"{T_total:.1f}")
 c5.metric("Potencia [HP]", f"{potencia:.1f}")
-``
+
