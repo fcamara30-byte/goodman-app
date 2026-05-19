@@ -54,7 +54,15 @@ with colL:
         rpm = st.number_input("RPM (rev/min)",350)
         prod = st.number_input("Producción (m³/d)",150.0)
         pres_linea = st.number_input("Presión línea (kg/cm²)",14.1)
-        nivel = st.number_input("Nivel dinámico (m)",570,step=50)
+        
+nivel = st.number_input(
+    "Nivel dinámico (m)",
+    min_value=0.0,
+    max_value=float(profundidad),  # ✅ no puede superar profundidad
+    value=float(profundidad),      # ✅ default = profundidad
+    step=50.0
+)
+
         densidad = st.number_input("Densidad (kg/m³)",840.0)
         eficiencia = st.number_input("Eficiencia (-)",0.6)
 
