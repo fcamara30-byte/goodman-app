@@ -62,7 +62,7 @@ with colL:
 )
 
         densidad = st.number_input("Densidad (kg/m³)",840.0)
-        eficiencia = st.number_input("Eficiencia (-)",0.6)
+        eficiencia = st.number_input("Eficiencia (-)",0.85)
 
     with c2:
         viscosidad = st.number_input("Viscosidad (cP)",300,step=40)
