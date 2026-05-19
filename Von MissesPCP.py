@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
-st.title("PCP + Sarta – Modelo Ingeniería")
+st.title("PCP + Sarta – Modelo Ingeniería Completo")
 
 colL, colR = st.columns([2,2])
 
@@ -14,25 +14,22 @@ colL, colR = st.columns([2,2])
 # =========================
 with colL:
 
-    profundidad = st.number_input("Profundidad [m]", 0, 3000, 1000, 100)
+    profundidad = st.number_input("Profundidad [m]", 0, 3000, 0, 100)
 
-    rpm = st.number_input("RPM", 50, 500, 350)
+    rpm = st.number_input("RPM", 0, 500, 0)
+    prod = st.number_input("Producción [m3/d]", 0)
 
-    prod = st.number_input("Producción [m3/d]", value=150)
+    pres_linea = st.number_input("Presión línea [kg/cm²]", 0)
 
-    pres_linea = st.number_input("Presión línea [kg/cm²]", value=14)
+    nivel = st.number_input("Nivel dinámico [m]", 0)
+    sumergencia = st.number_input("Sumergencia [m]", 0)
 
-    nivel = st.number_input("Nivel dinámico [m]", value=500)
+    densidad = st.number_input("Densidad [kg/m3]", 600, 1200, 0, 50)
 
-    sumergencia = st.number_input("Sumergencia [m]", value=200)
+    eficiencia = st.number_input("Eficiencia", value=0.6)
 
-    densidad = st.number_input("Densidad [kg/m3]", 600, 1200, 850, 50)
-
-    eficiencia = st.number_input("Eficiencia [-]", value=0.6)
-
-    viscosidad = st.number_input("Viscosidad [cP]", 0, 2000, 300, 50)
-
-    solidos = st.number_input("Sólidos [%]", value=5)
+    viscosidad = st.number_input("Viscosidad [cP]", 0, 2000, 0, 50)
+    solidos = st.number_input("Sólidos [%]", 0)
 
 with colR:
 
@@ -47,80 +44,94 @@ with colR:
 # =========================
 # DATA
 # =========================
-TBG_ID = {"2 7/8":62,"3 1/2":76,"4":89}
+TBG_ID={"2 7/8":62,"3 1/2":76,"4":89}
 
-RODS = {
+RODS={
  "7/8":{"d":0.875,"peso":2.22},
  "1":{"d":1.0,"peso":2.67},
  "1 1/8":{"d":1.125,"peso":3.37}
 }
 
-YIELD = {
+YIELD={
  "DA 78":85,"HS97":115,"Alpha CS":110,
  "Alpha HS":135,"D New":85,"DSK75":85,"HA96":115
 }
 
-tubing = TBG_ID[tubing_sel]
+tubing=TBG_ID[tubing_sel]
 
-d = RODS[rod]["d"] * 0.0254
-A = math.pi * d**2 / 4
-r = d / 2
-J = math.pi * d**4 / 32
+d=RODS[rod]["d"]*0.0254
+A=math.pi*d**2/4
+r=d/2
+J=math.pi*d**4/32
+peso=RODS[rod]["peso"]*47.88
 
-peso = RODS[rod]["peso"] * 47.88
-
-# flotabilidad
-rho_steel = 7850
-peso_eff = peso * (1 - densidad / rho_steel)
+rho_steel=7850
+peso_eff=peso*(1-densidad/rho_steel)
 
 # =========================
 # HIDRAULICA
 # =========================
-pres_total = pres_linea + ((nivel + sumergencia) * densidad) / 10000
+pres_total=pres_linea+((nivel+sumergencia)*densidad)/10000
 
-pot_h = prod * pres_total * 0.0014
-pot_c = pot_h / eficiencia
+pot_h=prod*pres_total*0.0014
+pot_c=pot_h/eficiencia if eficiencia!=0 else 0
 
-T_hid = (5252 * pot_c) / rpm
-T_hid *= (1 + viscosidad/1000)*(1 + solidos/100)
-T_hid *= (62/tubing)**0.5
+T_hid=(5252*pot_c)/rpm if rpm!=0 else 0
+T_hid*=(1+viscosidad/1000)*(1+solidos/100)
+T_hid*=(62/tubing)**0.5
 
 # =========================
 # TRAYECTORIA
 # =========================
-modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"])
+modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 
-T_fric = 0
+T_fric=0
 
-if modo == "Desviado":
+if modo=="Desviado":
 
-    st.subheader("Pegar perfil: MD – Inclinación – Azimuth")
+    st.subheader("Pegar perfil (MD – Inc – Az)")
 
-    text = st.text_area("Ejemplo:\n100 5 120\n200 10 130", height=120)
+    text=st.text_area("Ejemplo:\n100 5 120\n200 10 130")
 
     if text:
 
         data=[]
         for row in text.split("\n"):
-            vals=row.strip().split()
-            if len(vals)>=3:
+            v=row.strip().split()
+            if len(v)>=3:
                 try:
-                    data.append([float(vals[0]),float(vals[1]),float(vals[2])])
+                    data.append([float(v[0]),float(v[1]),float(v[2])])
                 except:
                     pass
 
-        df = pd.DataFrame(data, columns=["md","inc","az"])
+        df=pd.DataFrame(data,columns=["md","inc","az"])
 
         if len(df)>1:
+
+            # =====================
+            # INTERPOLACION A 7.62 m
+            # =====================
+            step=7.62
+
+            md_new=np.arange(df["md"].min(),df["md"].max(),step)
+
+            inc_interp=np.interp(md_new,df["md"],df["inc"])
+            az_interp=np.interp(md_new,df["md"],df["az"])
+
+            df=pd.DataFrame({
+                "md":md_new,
+                "inc":inc_interp,
+                "az":az_interp
+            })
+
+            inc=np.radians(df["inc"])
 
             # =====================
             # DLS
             # =====================
             dls=[0]
-
             for i in range(1,len(df)):
-
-                dmd = df["md"][i] - df["md"][i-1]
+                dmd=df["md"][i]-df["md"][i-1]
 
                 inc1=np.radians(df["inc"][i-1])
                 inc2=np.radians(df["inc"][i])
@@ -128,11 +139,9 @@ if modo == "Desviado":
                 az2=np.radians(df["az"][i])
 
                 if dmd>0:
-                    cos_dl = (np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1) +
-                              np.cos(inc1)*np.cos(inc2))
-                    cos_dl = np.clip(cos_dl,-1,1)
-
-                    dl=np.degrees(np.arccos(cos_dl))
+                    cos_dl=(np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)+
+                            np.cos(inc1)*np.cos(inc2))
+                    dl=np.degrees(np.arccos(np.clip(cos_dl,-1,1)))
                     dls.append(dl*(100/(dmd*3.28084)))
                 else:
                     dls.append(0)
@@ -142,10 +151,9 @@ if modo == "Desviado":
             # =====================
             # TRAYECTORIA 3D
             # =====================
-            X=[0]; Y=[0]; Z=[0]
+            X=[0];Y=[0];Z=[0]
 
             for i in range(1,len(df)):
-
                 dmd=df["md"][i]-df["md"][i-1]
 
                 inc1=np.radians(df["inc"][i-1])
@@ -166,7 +174,7 @@ if modo == "Desviado":
             df["Z"]=Z
 
             # =====================
-            # CONTACTO
+            # CONTACTO REAL
             # =====================
             mu=0.1
             R_eff=tubing/2000
@@ -175,20 +183,19 @@ if modo == "Desviado":
             centr=[]
 
             for i in range(1,len(df)):
-
                 dz=df["md"][i]-df["md"][i-1]
                 inc_rad=np.radians(df["inc"][i])
 
-                N = peso_eff*np.sin(inc_rad)
-                N = N*(1 + df["DLS"][i]/20)
+                N=peso_eff*np.sin(inc_rad)
+                N=N*(1+df["DLS"][i]/20)
 
                 carga.append(N)
 
-                if N <= 10:
+                if N<=10:
                     c=0
-                elif N <= 40:
+                elif N<=40:
                     c=2
-                elif N <= 55:
+                elif N<=55:
                     c=3
                 else:
                     c="Black Mamba"
@@ -202,8 +209,15 @@ if modo == "Desviado":
             df["Carga (lb)"]=carga
             df["Centralizadores"]=centr
 
-            st.markdown("### Tabla de centralizadores")
-            st.dataframe(df)
+            # =====================
+            # TABLA PROLIJA
+            # =====================
+            st.markdown("### Distribución por Varilla")
+
+            st.dataframe(
+                df[["md","inc","DLS","Carga (lb)","Centralizadores"]]
+                .style.background_gradient(subset=["Carga (lb)"],cmap="RdYlGn_r")
+            )
 
             # =====================
             # DIAGNOSTICO GLOBAL
@@ -211,10 +225,18 @@ if modo == "Desviado":
             max_carga=max(carga)
             avg_carga=sum(carga)/len(carga)
 
-            st.markdown("## Diagnóstico del String")
+            st.markdown("## Diagnóstico completo del string")
 
-            st.write(f"Carga máxima: {max_carga:.1f} lb")
-            st.write(f"Carga promedio: {avg_carga:.1f} lb")
+            if max_carga<=10:
+                reco="Sin centralizadores"
+            elif max_carga<=40:
+                reco="2 centralizadores en tramos activos"
+            elif max_carga<=55:
+                reco="3 centralizadores en gran parte del tramo"
+            else:
+                reco="Black Mamba requerido"
+
+            st.success(f"{reco}")
 
             # =====================
             # 3D
@@ -222,43 +244,4 @@ if modo == "Desviado":
             with colR:
 
                 elev=st.slider("Elevación",0,90,25)
-                azim=st.slider("Azimut",0,360,45)
 
-                fig=plt.figure(figsize=(5,8))
-                ax=fig.add_subplot(111,projection='3d')
-
-                ax.plot(df["X"],df["Y"],df["Z"],color="black")
-                ax.scatter(df["X"],df["Y"],df["Z"],c="blue",s=20)
-
-                ax.view_init(elev=elev,azim=azim)
-                ax.set_box_aspect([1,1,2])
-
-                st.pyplot(fig)
-
-# =========================
-# ESFUERZOS
-# =========================
-T_total=T_hid+T_fric
-potencia=T_total*rpm/5252
-
-F = peso_eff*profundidad
-
-sigma=(F/A)/6894757
-tau=((T_total*1.35582*r)/J)/6894757
-von=math.sqrt(sigma**2+3*tau**2)
-
-YS=YIELD[material]
-uso=(von/YS)*100
-
-st.markdown("---")
-
-c1,c2,c3=st.columns(3)
-c1.metric("Axial [ksi]", f"{sigma:.2f}")
-c2.metric("Torsión [ksi]", f"{tau:.2f}")
-c3.metric("Von Mises [ksi]", f"{von:.2f}")
-
-c4,c5=st.columns(2)
-c4.metric("Torque [lb-ft]", f"{T_total:.1f}")
-c5.metric("Potencia [HP]", f"{potencia:.1f}")
-
-st.metric("Uso [%]", f"{uso:.1f}")
