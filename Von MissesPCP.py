@@ -61,7 +61,26 @@ J=math.pi*d**4/32
 r=d/2
 
 peso=RODS[rod]["peso"]*47.88
-F=peso*profundidad+densidad*9.81*profundidad*A
+
+# =========================
+# ✅ ÁREA EFECTIVA (manual)
+# =========================
+D_rotor = d * 1.2  # simplificación válida
+d_rod = d
+
+Ae = math.pi/4 * (D_rotor**2 - d_rod**2)
+
+# =========================
+# ✅ CARGA AXIAL REAL
+# =========================
+dp_pa = pres_total * 98066  # kg/cm2 → Pa
+
+L = Ae * dp_pa  # carga hidráulica (N)
+
+Wr = peso * profundidad  # peso sarta
+
+F = Wr + L  # carga total real
+
 
 sigma=(F/A)/6894757
 tau=((torque*1.35582*r)/J)/6894757
