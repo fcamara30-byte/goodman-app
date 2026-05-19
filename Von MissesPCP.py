@@ -349,7 +349,6 @@ with c5:
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
-with c4:
-    st.markdown(f"""
+
 
 
