@@ -322,7 +322,9 @@ with c3:
     """, unsafe_allow_html=True)
 
 
-c4, c5 = st.columns(2)c4, c5 = st.columns(2 lógica color rojo si >100
+c4, c5 = st.columns(2)
+
+# 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
 with c4:
@@ -340,7 +342,6 @@ with c5:
         <div class="metric-value">{torque_final:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
-
 
 
 
