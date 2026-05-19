@@ -249,7 +249,7 @@ if modo=="Desviado":
 # =========================
 
 
-with colR:with colR.5])
+    with colR:
 
     # usar columnas
     with colS:
