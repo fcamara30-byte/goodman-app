@@ -1,8 +1,9 @@
-
-import streamlit as stimport stream
+import streamlit as st
+import math
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as p
+import matplotlib.pyplot as plt
+
 
 st.set_page_config(layout="wide")
 
