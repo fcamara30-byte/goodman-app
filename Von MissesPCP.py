@@ -249,7 +249,7 @@ if modo=="Desviado":
 # =========================
 with colR:
 
-    colG, colS = st.columns([3,1])
+   colG, colS, colT = st.columns([3,1,1.5])
 
     # ✅ sliders (derecha)
     with colS:
