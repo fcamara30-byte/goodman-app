@@ -40,7 +40,7 @@ st.markdown("""
 
 st.title("FCAM-PCP-CALCULATION")
 
-colL, colR = st.columns([3,1])
+colL, colR = st.columns([1,3])
 
 # =========================
 # INPUTS
