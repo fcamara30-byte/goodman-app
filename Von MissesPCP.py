@@ -99,6 +99,17 @@ modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 df=pd.DataFrame()
 torque_final=torque
 
+# =========================
+# ✅ FRICCIÓN REAL (manual)
+# =========================
+# factor típico basado en tablas (simplificado)
+factor = 0.00008 + (0.0000005 * prod)
+
+T_fric = factor * profundidad * viscosidad
+
+torque_final = torque + T_fric
+
+
 if modo=="Desviado":
 
     text=st.text_area("Perfil: MD Inc Az")
