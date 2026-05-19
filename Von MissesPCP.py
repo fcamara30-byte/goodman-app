@@ -244,9 +244,21 @@ with colR:
     # =========================
     # ✅ GRAFICO ARRIBA
     # =========================
+# =========================
+# ✅ GRAFICO + SLIDERS LADO A LADO
+# =========================
+colG, colS = st.columns([3,1])
+
+# ✅ sliders primero → gobiernan el gráfico
+with colS:
+    elev = st.slider("Vista elevación", 0, 90, 25)
+    azim = st.slider("Vista azimut", 0, 360, 45)
+
+# ✅ gráfico más chico y usando sliders
+with colG:
     if len(df) > 1:
 
-        fig = plt.figure(figsize=(5,7))
+        fig = plt.figure(figsize=(4,6))  # ✅ 30% más chico
         ax = fig.add_subplot(111, projection='3d')
 
         for i in range(len(df)-1):
@@ -255,22 +267,13 @@ with colR:
                     df["Z"].iloc[i:i+2],
                     color=colores[i], linewidth=2)
 
-        ax.view_init(elev=25, azim=45)
+        # ✅ ahora SI responde
+        ax.view_init(elev=elev, azim=azim)
+
         ax.tick_params(labelsize=6)
         ax.set_box_aspect([1,1,2])
 
         st.pyplot(fig)
-
-    # =========================
-    # ✅ SLIDERS ABAJO DEL GRAFICO
-    # =========================
-    cA, cB = st.columns([1,1])  # los hace más cortos
-
-    with cA:
-        elev = st.slider("Vista elevación", 0, 90, 25)
-
-    with cB:
-        azim = st.slider("Vista azimut", 0, 360, 45)
 
     # =========================
     # ✅ TORQUE ABAJO DE TODO
