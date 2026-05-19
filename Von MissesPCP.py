@@ -315,11 +315,4 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
-with c5:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">FS (-)</div>
-        <div class="metric-value">{fs:.2f}</div>
-    </div>
-    """, unsafe_allow_html=True)
 
