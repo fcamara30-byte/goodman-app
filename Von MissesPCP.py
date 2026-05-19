@@ -38,7 +38,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("PCP + Sarta (Ingeniería Completa)")
+st.title("FCAM-PCP-CALCULATION")
 
 colL, colR = st.columns([2,2])
 
@@ -270,14 +270,56 @@ with colR:
 # MÉTRICAS
 # =========================
 st.markdown("---")
+# =========================
+# MÉTRICAS VISUALES PRO
+# =========================
+st.markdown("---")
 
 c1,c2,c3=st.columns(3)
 
-c1.metric("Axial (ksi)",f"{sigma:.2f}")
-c2.metric("Torsión (ksi)",f"{tau:.2f}")
-c3.metric("Von Mises (ksi)",f"{von:.2f}")
+with c1:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Axial (ksi)</div>
+        <div class="metric-value">{sigma:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Torsión (ksi)</div>
+        <div class="metric-value">{tau:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Von Mises (ksi)</div>
+        <div class="metric-value">{von:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 c4,c5=st.columns(2)
 
-c4.metric("Uso (%)",f"{uso:.1f}")
-c5.metric("FS (-)",f"{fs:.2f}")
+# 🔴 lógica color rojo si >100
+color_class = "metric-red" if uso > 100 else ""
+
+with c4:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Rod Load (%)</div>
+        <div class="metric-value {color_class}">{uso:.1f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c5:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">FS (-)</div>
+        <div class="metric-value">{fs:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
