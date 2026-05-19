@@ -6,9 +6,6 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-# =========================
-# UI COMPACTA
-# =========================
 st.markdown("""
 <style>
 div[data-testid="stNumberInput"] {width: 140px;}
@@ -17,9 +14,6 @@ div[data-testid="stNumberInput"] {width: 140px;}
 
 st.title("PCP + Sarta (Ingeniería Completa)")
 
-# =========================
-# LAYOUT
-# =========================
 colL, colR = st.columns([2,2])
 
 # =========================
@@ -46,11 +40,7 @@ with colL:
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"]
         )
 
-# =========================
-# DATA
-# =========================
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
-
 YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":85,"DSK75":85,"HA96":115}
 
 # =========================
@@ -89,15 +79,13 @@ modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 
 df=pd.DataFrame()
 torque_final=torque
-T_fric=0
 
 if modo=="Desviado":
 
-    st.subheader("Pegar datos de Profundidad, Inclinación y Azimuth")
-
-    text=st.text_area("Formato: md inc az",height=120)
+    text=st.text_area("Perfil: MD Inc Az")
 
     if text:
+
         data=[]
         for row in text.strip().split("\n"):
 
@@ -108,7 +96,6 @@ if modo=="Desviado":
                     data.append([float(vals[0]),float(vals[1]),float(vals[2])])
 
                 elif len(vals)==2:
-                    # ✅ PARSEO ROBUSTO
                     val=vals[0]
                     if len(val)>3:
                         md=float(val[:-2])
@@ -125,9 +112,6 @@ if modo=="Desviado":
 
     if len(df)>1:
 
-        # =====================
-        # INTERPOLACION 7.62 m
-        # =====================
         step=7.62
         md_new=np.arange(df["md"].min(),df["md"].max()+step,step)
 
@@ -169,46 +153,31 @@ if modo=="Desviado":
 
         df["X"]=X;df["Y"]=Y;df["Z"]=Z
 
-# =====================# =================colores=[]
-rec=[]
+        # =====================
+        # ✅ RECOMENDACIÓN POR DLS
+        # =====================
+        colores=[]
+        rec=[]
 
-for d in df["DLS"]:
+        for dls_val in df["DLS"]:
 
-    if d <= 1:
-        colores.append("green")
-        rec.append("Bajo")
+            if dls_val <= 1:
+                colores.append("green")
+                rec.append("Bajo")
 
-    elif d <= 3:
-        colores.append("yellow")
-        rec.append("2 centralizadores")
+            elif dls_val <= 3:
+                colores.append("yellow")
+                rec.append("2 centralizadores")
 
-    elif d <= 6:
-        colores.append("orange")
-        rec.append("3 centralizadores")
+            elif dls_val <= 6:
+                colores.append("orange")
+                rec.append("3 centralizadores")
 
-    else:
-        colores.append("red")
-        rec.append("Black Mamba")
+            else:
+                colores.append("red")
+                rec.append("Black Mamba")
 
-df["Recomendación"]=rec
-
-# ✅ RECOMENDACIÓN SOLO POR DLS
-# =====================
-
-
-
-# =====================
-# ✅ TORQUE FRICCIÓN
-# =====================
-mu=0.25
-R_eff=0.04
-
-
-        for i in range(1,len(df)):
-            dz=df["md"][i]-df["md"][i-1]
-            T_fric += mu * df["Carga"].iloc[i] * R_eff * dz
-
-        torque_final = torque + T_fric
+        df["Recomendación"]=rec
 
 # =========================
 # RESULTADOS + GRAFICO
@@ -226,7 +195,6 @@ with colR:
         fig=plt.figure(figsize=(5,8))
         ax=fig.add_subplot(111,projection='3d')
 
-        # ✅ LÍNEA COLOREADA CONTINUA
         for i in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
                     df["Y"].iloc[i:i+2],
@@ -240,10 +208,10 @@ with colR:
         st.pyplot(fig)
 
         st.markdown("### Recomendación de intervención")
-        st.dataframe(df[["md","DLS","Carga","Recomendación"]])
+        st.dataframe(df[["md","DLS","Recomendación"]])
 
 # =========================
-# ✅ CORRECCIÓN C1 MÉTRICAS
+# MÉTRICAS
 # =========================
 st.markdown("---")
 
@@ -254,5 +222,6 @@ c2.metric("Torsión (ksi)",f"{tau:.2f}")
 c3.metric("Von Mises (ksi)",f"{von:.2f}")
 
 c4,c5=st.columns(2)
+
 c4.metric("Uso (%)",f"{uso:.1f}")
 c5.metric("FS (-)",f"{fs:.2f}")
