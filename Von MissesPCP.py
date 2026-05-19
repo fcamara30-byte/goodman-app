@@ -1,6 +1,4 @@
-import streamlit as st
-import math
-import pandas as pd
+import streamlit as stimport streamlit pd
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -14,6 +12,9 @@ div[data-testid="stNumberInput"] {width: 140px;}
 
 st.title("PCP + Sarta (Ingeniería Completa)")
 
+# =========================
+# LAYOUT
+# =========================
 colL, colR = st.columns([2,2])
 
 # =========================
@@ -26,9 +27,9 @@ with colL:
     with c1:
         profundidad = st.number_input("Profundidad (m)",600,step=100)
         rpm = st.number_input("RPM",350)
-        prod = st.number_input("Producción (m3/d)",150.0)
+        prod = st.number_input("Producción",150.0)
         pres_linea = st.number_input("Presión línea",14.1)
-        nivel = st.number_input("Nivel dinámico (m)",570,step=50)
+        nivel = st.number_input("Nivel dinámico",570,step=50)
         densidad = st.number_input("Densidad",840.0)
         eficiencia = st.number_input("Eficiencia",0.6)
 
@@ -57,7 +58,7 @@ r=d/2
 peso=RODS[rod]["peso"]*47.88
 
 # =========================
-# HIDRÁULICA + MECÁNICA
+# HIDRÁULICA
 # =========================
 pres_nivel=(nivel*densidad)/10000
 pres_total=pres_linea+pres_nivel
@@ -68,6 +69,9 @@ pot_c=pot_h/eficiencia
 torque=(5252*pot_c)/rpm
 torque*=(1+viscosidad/1000)*(1+solidos/100)
 
+# =========================
+# MECÁNICA
+# =========================
 F=peso*profundidad
 sigma=(F/A)/6894757
 tau=((torque*1.35582*r)/J)/6894757
@@ -84,10 +88,11 @@ st.markdown("---")
 modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 
 df=pd.DataFrame()
+torque_final=torque
 
 if modo=="Desviado":
 
-    st.subheader("Perfil: MD Inc Az")
+    st.subheader("Pegar perfil (MD Inc Az)")
     text=st.text_area("",height=120)
 
     if text:
@@ -105,7 +110,9 @@ if modo=="Desviado":
 
         if len(df_raw)>1:
 
-            # ✅ INTERPOLACIÓN COMPLETA (hasta fondo)
+            # =====================
+            # INTERPOLACIÓN REAL
+            # =====================
             step=7.62
             md_new=np.arange(df_raw["md"].min(),
                              df_raw["md"].max()+step,
@@ -120,7 +127,9 @@ if modo=="Desviado":
             inc=np.radians(df["inc"])
             az=np.radians(df["az"])
 
+            # =====================
             # DLS
+            # =====================
             dls=[0]
             for i in range(1,len(df)):
                 dmd=(df["md"][i]-df["md"][i-1])*3.28084
@@ -131,16 +140,22 @@ if modo=="Desviado":
 
             df["DLS"]=np.round(dls,1)
 
-            # ✅ COORDENADAS REALES
+            # =====================
+            # COORDENADAS
+            # =====================
             df["X"]=np.cumsum(np.sin(inc)*np.cos(az))
             df["Y"]=np.cumsum(np.sin(inc)*np.sin(az))
             df["Z"]=-df["md"]
 
-            # ✅ TU MODELO ORIGINAL (NO TOCADO)
-            carga=peso*np.sin(inc)*df["md"]*0.05
+            # =====================
+            # ✅ CARGA CORRECTA
+            # =====================
+            carga=peso*np.sin(inc)*5   # <<< clave: sin *md
             df["Carga"]=np.round(carga,1)
 
-            # ✅ CENTRALIZADORES
+            # =====================
+            # CENTRALIZADORES
+            # =====================
             centr=[]
             for c in carga:
                 if c<30:
@@ -154,10 +169,16 @@ if modo=="Desviado":
 
             df["Centralizadores"]=centr
 
+            # torque ajustado
+            torque_final=torque*(1+np.mean(np.sin(inc))*0.4)
+
 # =========================
-# GRAFICO 3D
+# GRAFICO + OUTPUT
 # =========================
 with colR:
+
+    st.subheader("Torque")
+    st.metric("Torque (lb-ft)",f"{torque_final:.1f}")
 
     elev=st.slider("Elevación",0,90,25)
     azim=st.slider("Azimut",0,360,45)
@@ -169,11 +190,11 @@ with colR:
 
         for i in range(len(df)-1):
 
-            carga_i=df["Carga"].iloc[i]
+            c=df["Carga"].iloc[i]
 
-            if carga_i<30: color="green"
-            elif carga_i<60: color="yellow"
-            elif carga_i<100: color="orange"
+            if c<30: color="green"
+            elif c<60: color="yellow"
+            elif c<100: color="orange"
             else: color="red"
 
             ax.plot(
@@ -206,4 +227,5 @@ c3.metric("Von Mises (ksi)",f"{von:.2f}")
 c4,c5=st.columns(2)
 c4.metric("Uso (%)",f"{uso:.1f}")
 c5.metric("FS",f"{fs:.2f}")
+import math
 
