@@ -239,59 +239,44 @@ if modo=="Desviado":
 # RESULTADOS + GRAFICO
 # =========================
 
-
 with colR:
 
+    # =========================
+    # ✅ GRAFICO ARRIBA
+    # =========================
+    if len(df) > 1:
+
+        fig = plt.figure(figsize=(5,7))
+        ax = fig.add_subplot(111, projection='3d')
+
+        for i in range(len(df)-1):
+            ax.plot(df["X"].iloc[i:i+2],
+                    df["Y"].iloc[i:i+2],
+                    df["Z"].iloc[i:i+2],
+                    color=colores[i], linewidth=2)
+
+        ax.view_init(elev=25, azim=45)
+        ax.tick_params(labelsize=6)
+        ax.set_box_aspect([1,1,2])
+
+        st.pyplot(fig)
+
+    # =========================
+    # ✅ SLIDERS ABAJO DEL GRAFICO
+    # =========================
+    cA, cB = st.columns([1,1])  # los hace más cortos
+
+    with cA:
+        elev = st.slider("Vista elevación", 0, 90, 25)
+
+    with cB:
+        azim = st.slider("Vista azimut", 0, 360, 45)
+
+    # =========================
+    # ✅ TORQUE ABAJO DE TODO
+    # =========================
     st.subheader("Torque Final")
     st.metric("Torque (lb-ft)", f"{torque_final:.1f}")
-
-
-
-    if len(df)>1:
-
-        fig=plt.figure(figsize=(5,7))  # un poco más alto
-        ax=fig.add_subplot(111,projection='3d')
-
-        for i in range(len(df)-1):
-            ax.plot(df["X"].iloc[i:i+2],
-                    df["Y"].iloc[i:i+2],
-                    df["Z"].iloc[i:i+2],
-                    color=colores[i], linewidth=2)
-
-        ax.view_init(elev=25,azim=45)
-        ax.tick_params(labelsize=6)
-        ax.set_box_aspect([1,1,2])
-
-        st.pyplot(fig)
-
-        # ✅ sliders ABAJO del gráfico
-        cA, cB = st.columns([1,1])
-
-        with cA:
-            elev = st.slider("Vista elevación",0,90,25)
-
-        with cB:
-            azim = st.slider("Vista azimut",0,360,45)
-
-
-
-        fig=plt.figure(figsize=(5,8))
-        ax=fig.add_subplot(111,projection='3d')
-
-        for i in range(len(df)-1):
-            ax.plot(df["X"].iloc[i:i+2],
-                    df["Y"].iloc[i:i+2],
-                    df["Z"].iloc[i:i+2],
-                    color=colores[i], linewidth=2)
-
-        ax.view_init(elev=elev,azim=azim)
-        ax.tick_params(labelsize=6)
-        ax.set_box_aspect([1,1,2])
-
-        st.pyplot(fig)
-
-        st.markdown("### Recomendación de intervención")
-        st.dataframe(df[["md","DLS","Recomendación"]])
 
 # =========================
 # MÉTRICAS
