@@ -247,17 +247,16 @@ if modo=="Desviado":
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
-with colR:
 
-   colG, colS, colT = st.columns([3,1,1.5])
+with colR:with colG, colS, colT = st.columns([3,1,1.5])
 
     # ✅ sliders (derecha)
-   with cols:
+    with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
     # ✅ gráfico (izquierda)
-    with colg:
+    with colG:
         if len(df) > 1:
 
             fig = plt.figure(figsize=(4,6))
@@ -268,6 +267,7 @@ with colR:
                         df["Y"].iloc[i:i+2],
                         df["Z"].iloc[i:i+2],
                         color=colores[i], linewidth=2)
+
 
             ax.view_init(elev=elev, azim=azim)
 
