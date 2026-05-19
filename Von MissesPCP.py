@@ -248,18 +248,21 @@ if modo=="Desviado":
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
 
-with colR:
-    with colRS, colT = st.columns([3,1,1.5])
 
+with colR:with colR.5])
 
-    # ✅ sliders (derecha)
+    # usar columnas
     with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
-    # ✅ gráfico (izquierda)
     with colG:
         if len(df) > 1:
+            st.write("grafico...")
+
+    with colT:
+        st.write("tabla...")
+
 
             fig = plt.figure(figsize=(4,6))
             ax = fig.add_subplot(111, projection='3d')
