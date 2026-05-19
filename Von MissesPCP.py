@@ -4,9 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 st.set_page_config(layout="wide")
-
 st.title("PCP + Sarta – Modelo Ingeniería")
 
 colL, colR = st.columns([2,2])
@@ -16,24 +14,19 @@ colL, colR = st.columns([2,2])
 # =========================
 with colL:
 
-    c1,c2 = st.columns(2)
+    profundidad = st.number_input("Profundidad (m)",600,step=100)
+    rpm = st.number_input("RPM",350)
+    prod = st.number_input("Producción",150.0)
 
-    with c1:
-        profundidad = st.number_input("Profundidad (m)",600,step=100)
-        rpm = st.number_input("RPM",350)
-        prod = st.number_input("Producción",150.0)
-        pres_linea = st.number_input("Presión línea",14.1)
-        nivel = st.number_input("Nivel dinámico",570)
-        densidad = st.number_input("Densidad",840.0)
-        eficiencia = st.number_input("Eficiencia",0.6)
+    pres_linea = st.number_input("Presión línea",14.1)
+    nivel = st.number_input("Nivel dinámico",570)
+    densidad = st.number_input("Densidad",840.0)
 
-    with c2:
-        viscosidad = st.number_input("Viscosidad",300)
-        solidos = st.number_input("Sólidos",5.0)
-        rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
-        material = st.selectbox("Material",
-            ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"]
-        )
+    eficiencia = st.number_input("Eficiencia",0.6)
+    viscosidad = st.number_input("Viscosidad",300)
+    solidos = st.number_input("Sólidos",5.0)
+
+    rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
 
 # =========================
 # DATA
@@ -42,17 +35,11 @@ RODS={"7/8":{"d":0.875,"peso":2.22},
       "1":{"d":1.0,"peso":2.67},
       "1 1/8":{"d":1.125,"peso":3.37}}
 
-YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,
-       "Alpha HS":135,"D New":85,"DSK75":85,"HA96":115}
-
 d=RODS[rod]["d"]*0.0254
-A=math.pi*d**2/4
-J=math.pi*d**4/32
-r=d/2
 peso=RODS[rod]["peso"]*47.88
 
 # =========================
-# HIDRÁULICA
+# TORQUE HIDRAULICO
 # =========================
 pres_nivel=(nivel*densidad)/10000
 pres_total=pres_linea+pres_nivel
@@ -73,19 +60,41 @@ df=pd.DataFrame()
 
 if modo=="Desviado":
 
-    text=st.text_area("Perfil: MD Inc Az")
+    text=st.text_area("Perfil (MD Inc Az)")
 
     if text:
+
         data=[]
-        for r in text.split("\n"):
-            v=r.split()
-            if len(v)>=3:
-                data.append([float(v[0]),float(v[1]),float(v[2])])
+
+        for row in text.split("\n"):
+            v=row.strip().split()
+
+            try:
+                if len(v)==3:
+                    data.append([float(v[0]),float(v[1]),float(v[2])])
+
+                elif len(v)==2:
+                    # ✅ PARSEO ROBUSTO tipo 80733 67
+                    val=v[0]
+                    if len(val)>3:
+                        md=float(val[:-2])
+                        inc=float(val[-2:])
+                    else:
+                        md=float(val)
+                        inc=float(v[1])
+
+                    az=float(v[1])
+                    data.append([md,inc,az])
+            except:
+                pass
 
         df_raw=pd.DataFrame(data,columns=["md","inc","az"])
 
         if len(df_raw)>1:
 
+            # =====================
+            # INTERPOLACION
+            # =====================
             step=7.62
             md_new=np.arange(df_raw["md"].min(),
                              df_raw["md"].max()+step,
@@ -106,6 +115,7 @@ if modo=="Desviado":
             dls=[0]
             for i in range(1,len(df)):
                 dmd=df["md"][i]-df["md"][i-1]
+
                 inc1=np.radians(df["inc"][i-1])
                 inc2=np.radians(df["inc"][i])
                 az1=np.radians(df["az"][i-1])
@@ -113,7 +123,9 @@ if modo=="Desviado":
 
                 cosdl=(np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)+
                        np.cos(inc1)*np.cos(inc2))
-                dls.append(np.degrees(np.arccos(np.clip(cosdl,-1,1)))*100/(dmd*3.28))
+
+                dl=np.degrees(np.arccos(np.clip(cosdl,-1,1)))
+                dls.append(dl*100/(dmd*3.28))
 
             df["DLS"]=dls
 
@@ -129,97 +141,54 @@ if modo=="Desviado":
                 Y.append(Y[-1]+np.sin(inc[i])*np.sin(az[i])*dz)
                 Z.append(Z[-1]-np.cos(inc[i])*dz)
 
-            df["X"]=X;df["Y"]=Y;df["Z"]=Z
+            df["X"]=X; df["Y"]=Y; df["Z"]=Z
 
             # =====================
-            # ✅ CARGA LATERAL CORRECTA
+            # CONTACTO + TORQUE
             # =====================
-            carga=[];centr=[]
-            mu=0.15
-            R_eff=0.05
+            mu=0.25
+            R_eff=0.04
+
+            carga=[]
 
             for i in range(1,len(df)):
 
                 dz=df["md"][i]-df["md"][i-1]
 
-                N=peso*np.sin(inc[i])
-                N=N*(1+df["DLS"][i]/15)
-                N=N/3   # distribución
+                # ✅ CARGA LOCAL (no crece con profundidad)
+                N = peso*np.sin(inc[i])
+                N = N*(1 + df["DLS"][i]/10)
+
+                # ✅ DISTRIBUCION REAL
+                N = N / 2
 
                 carga.append(N)
 
-                # centralizadores
-                if N<10: c=0
-                elif N<40: c=2
-                elif N<55: c=3
-                else: c="Black Mamba"
-
-                centr.append(c)
-
-                T_fric += mu*N*R_eff*dz
+                # ✅ TORQUE ACUMULADO (ESTO ES LA CLAVE)
+                dT = mu * N * R_eff * dz
+                T_fric += dT
 
             df=df.iloc[1:]
             df["Carga"]=np.round(carga,1)
-            df["Centralizadores"]=centr
 
 # =========================
-# RESULTADOS
+# RESULTADO FINAL
 # =========================
-T_total=T_hid+T_fric
+T_total = T_hid + T_fric
 
-F=peso*profundidad
-sigma=(F/A)/6894757
-tau=((T_total*1.35582*r)/J)/6894757
-von=math.sqrt(sigma**2+3*tau**2)
-
-YS=YIELD[material]
-uso=von/YS*100
-fs=YS/von
+st.metric("Torque total [lb-ft]", f"{T_total:.1f}")
 
 # =========================
 # GRAFICO
 # =========================
-with colR:
+if len(df)>1:
 
-    st.metric("Torque Total [lb-ft]",f"{T_total:.1f}")
+    fig=plt.figure(figsize=(5,8))
+    ax=fig.add_subplot(111,projection='3d')
 
-    if len(df)>1:
-        fig=plt.figure(figsize=(5,8))
-        ax=fig.add_subplot(111,projection='3d')
+    ax.plot(df["X"],df["Y"],df["Z"],color="black")
 
-        for i in range(len(df)-1):
+    ax.set_box_aspect([1,1,2])
+    st.pyplot(fig)
 
-            c=df["Carga"].iloc[i]
-
-            if c<10:color="green"
-            elif c<40:color="yellow"
-            elif c<55:color="orange"
-            else:color="red"
-
-            ax.plot(
-                [df["X"].iloc[i],df["X"].iloc[i+1]],
-                [df["Y"].iloc[i],df["Y"].iloc[i+1]],
-                [df["Z"].iloc[i],df["Z"].iloc[i+1]],
-                color=color
-            )
-
-        ax.set_box_aspect([1,1,2])
-        ax.tick_params(labelsize=6)
-        st.pyplot(fig)
-
-        st.dataframe(df[["md","DLS","Carga","Centralizadores"]])
-
-# =========================
-# MECÁNICA
-# =========================
-st.markdown("---")
-
-c1,c2,c3=st.columns(3)
-c1.metric("Axial (ksi)",f"{sigma:.2f}")
-c2.metric("Torsión (ksi)",f"{tau:.2f}")
-c3.metric("Von Mises (ksi)",f"{von:.2f}")
-
-c4,c5=st.columns(2)
-c4.metric("Uso (%)",f"{uso:.1f}")
-c5.metric("FS",f"{fs:.2f}")
-
+    st.dataframe(df[["md","DLS","Carga"]])
