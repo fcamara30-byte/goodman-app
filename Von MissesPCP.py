@@ -11,6 +11,32 @@ st.markdown("""
 div[data-testid="stNumberInput"] {width: 140px;}
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+.metric-box {
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #f5f5f5;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.metric-title {
+    font-size: 14px;
+    color: #666;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #1f3b5c;
+}
+
+.metric-red {
+    color: #ff1a1a;
+}
+</style>
+""", unsafe_allow_html=True)
 
 st.title("PCP + Sarta (Ingeniería Completa)")
 
