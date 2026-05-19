@@ -240,13 +240,35 @@ if modo=="Desviado":
 # =========================
 with colR:
 
-    st.subheader("Torque Final")
-    st.metric("Torque (lb-ft)",f"{torque_final:.1f}")
-
-    elev=st.slider("Vista elevación",0,90,25)
-    azim=st.slider("Vista azimut",0,360,45)
+    st.subheader("    st.metric("Torque (lb-ft)",f"{torque_final:.1f}")    st.subheader("Torque Final")
 
     if len(df)>1:
+
+        fig=plt.figure(figsize=(5,7))  # un poco más alto
+        ax=fig.add_subplot(111,projection='3d')
+
+        for i in range(len(df)-1):
+            ax.plot(df["X"].iloc[i:i+2],
+                    df["Y"].iloc[i:i+2],
+                    df["Z"].iloc[i:i+2],
+                    color=colores[i], linewidth=2)
+
+        ax.view_init(elev=25,azim=45)
+        ax.tick_params(labelsize=6)
+        ax.set_box_aspect([1,1,2])
+
+        st.pyplot(fig)
+
+        # ✅ sliders ABAJO del gráfico
+        cA, cB = st.columns([1,1])
+
+        with cA:
+            elev = st.slider("Vista elevación",0,90,25)
+
+        with cB:
+            azim = st.slider("Vista azimut",0,360,45)
+
+
 
         fig=plt.figure(figsize=(5,8))
         ax=fig.add_subplot(111,projection='3d')
