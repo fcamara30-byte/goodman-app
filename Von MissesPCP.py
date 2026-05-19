@@ -1,12 +1,10 @@
 import streamlit as st
-import math
-import pandas as pd
+import pandas as pdimport math
 import numpy as np
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 
-# UI compacta
 st.markdown("""
 <style>
 div[data-testid="stNumberInput"] {width: 140px;}
@@ -48,7 +46,6 @@ d=RODS[rod]["d"]*0.0254
 A=math.pi*d**2/4
 J=math.pi*d**4/32
 r=d/2
-
 peso=RODS[rod]["peso"]*47.88
 
 pres_nivel=(nivel*densidad)/10000
@@ -56,12 +53,10 @@ pres_total=pres_linea+pres_nivel
 
 pot_h=prod*pres_total*0.0014
 pot_c=pot_h/eficiencia
-
 torque=(5252*pot_c)/rpm
 torque*=(1+viscosidad/1000)*(1+solidos/100)
 
 F=peso*profundidad
-
 sigma=(F/A)/6894757
 tau=((torque*1.35582*r)/J)/6894757
 von=math.sqrt(sigma**2+3*tau**2)
@@ -79,85 +74,72 @@ torque_final=torque
 
 if modo=="Desviado":
 
-    st.subheader("Pegar datos de Profundidad, Inclinación y Azimuth")
-
-    text=st.text_area("Formato: md inc az",height=120)
+    st.subheader("Pegar datos (MD Inc Az)")
+    text=st.text_area("",height=120)
 
     if text:
 
         data=[]
         for row in text.strip().split("\n"):
+            v=row.replace(",",".").split()
+            if len(v)>=3:
+                try:
+                    data.append([float(v[0]),float(v[1]),float(v[2])])
+                except:
+                    pass
 
-            vals=row.replace(",",".").split()
+        df_raw=pd.DataFrame(data,columns=["md","inc","az"])
 
-            try:
-                if len(vals)==3:
-                    data.append([float(vals[0]),float(vals[1]),float(vals[2])])
+        if len(df_raw)>1:
 
-                elif len(vals)==2:
-                    # soporte formato 80733 67
-                    if len(vals[0])>3:
-                        md=float(vals[0][:-2])
-                        inc=float(vals[0][-2:])
-                    else:
-                        md=float(vals[0])
-                        inc=float(vals[1])
+            # 🔥 INTERPOLACIÓN 7.62 m
+            step=7.62
+            md_new=np.arange(df_raw["md"].min(),df_raw["md"].max(),step)
 
-                    az=float(vals[1])
-                    data.append([md,inc,az])
-            except:
-                pass
+            inc_interp=np.interp(md_new,df_raw["md"],df_raw["inc"])
+            az_interp=np.interp(md_new,df_raw["md"],df_raw["az"])
 
-        df=pd.DataFrame(data,columns=["md","inc","az"])
+            df=pd.DataFrame({"md":md_new,"inc":inc_interp,"az":az_interp})
 
-    if len(df)>1:
+            inc=np.radians(df["inc"])
+            az=np.radians(df["az"])
 
-        inc=np.radians(df["inc"])
-        az=np.radians(df["az"])
+            # DLS
+            dls=[0]
+            for i in range(1,len(df)):
+                dmd=(df["md"][i]-df["md"][i-1])*3.28084
+                cosdl=(np.sin(inc[i-1])*np.sin(inc[i])*np.cos(az[i]-az[i-1])
+                       +np.cos(inc[i-1])*np.cos(inc[i]))
+                cosdl=np.clip(cosdl,-1,1)
+                dls.append(np.degrees(np.arccos(cosdl))*100/dmd)
 
-        # DLS
-        dls=[0]
-        for i in range(1,len(df)):
-            dmd=(df["md"][i]-df["md"][i-1])*3.28084
-            cosdl=(np.sin(inc[i-1])*np.sin(inc[i])*np.cos(az[i]-az[i-1])+
-                   np.cos(inc[i-1])*np.cos(inc[i]))
-            cosdl=np.clip(cosdl,-1,1)
-            dls.append(np.degrees(np.arccos(cosdl))*100/dmd)
+            df["DLS"]=np.round(dls,1)
 
-        df["DLS"]=np.round(dls,1)
+            # COORDENADAS
+            scale=0.2
+            df["X"]=np.cumsum(np.sin(inc)*np.cos(az))*scale
+            df["Y"]=np.cumsum(np.sin(inc)*np.sin(az))*scale
+            df["Z"]=-df["md"]*scale
 
-        # coordenadas
-        scale=0.2
-        df["X"]=np.cumsum(np.sin(inc)*np.cos(az))*scale
-        df["Y"]=np.cumsum(np.sin(inc)*np.sin(az))*scale
-        df["Z"]=-df["md"]*scale
+            # ✅ CARGA ORIGINAL (NO TOCADA)
+            carga=peso*np.sin(inc)*df["md"]*0.05
+            df["Carga"]=np.round(carga,1)
 
-        # ✅ CARGA ORIGINAL CORREGIDA (NO SE TOCA LÓGICA)
-        carga=peso*np.sin(inc)*df["md"]*0.05
+            # ✅ RECOMENDACIÓN
+            rec=[]; col=[]
+            for c in carga:
+                if c<30:
+                    rec.append("Bajo"); col.append("green")
+                elif c<60:
+                    rec.append("2 centralizadores"); col.append("yellow")
+                elif c<100:
+                    rec.append("3 centralizadores"); col.append("orange")
+                else:
+                    rec.append("Black Mamba"); col.append("red")
 
-        colores=[]
-        rec=[]
+            df["Recomendación"]=rec
 
-        for c in carga:
-            if c<30:
-                colores.append("green")
-                rec.append("Bajo")
-            elif c<60:
-                colores.append("yellow")
-                rec.append("2 centralizadores")
-            elif c<100:
-                colores.append("orange")
-                rec.append("3 centralizadores")
-            else:
-                colores.append("red")
-                rec.append("Black Mamba")
-
-        df["Carga"]=np.round(carga,1)
-        df["Recomendación"]=rec
-
-        torque_final=torque*(1+np.mean(np.sin(inc))*0.4)
-
-# RESULTADOS + 3D
+# RESULTADOS + GRAFICO
 with colR:
 
     st.subheader("Torque Final")
@@ -171,21 +153,22 @@ with colR:
         fig=plt.figure(figsize=(5,8))
         ax=fig.add_subplot(111,projection='3d')
 
-        ax.scatter(df["X"],df["Y"],df["Z"],c=colores,s=25)
+        # ✅ LÍNEA COMPLETA
+        for i in range(len(df)-1):
+            ax.plot(df["X"].iloc[i:i+2],
+                    df["Y"].iloc[i:i+2],
+                    df["Z"].iloc[i:i+2],
+                    color=col[i])
 
         ax.view_init(elev=elev,azim=azim)
         ax.set_box_aspect([1,1,2])
 
         st.pyplot(fig)
 
-        st.markdown("### Referencia de contacto")
-        st.write("🟢 Bajo | 🟡 2 centralizadores | 🟠 3 centralizadores | 🔴 Black Mamba")
+        st.markdown("### Recomendación por varilla (7.62 m)")
+        st.dataframe(df[["md","DLS","Carga","Recomendación"]])
 
-        st.markdown("### Recomendación de intervención")
-        st.dataframe(df[["md","DLS","Recomendación"]])
-
-
-# RESULTADOS MECANICOS
+# RESULTADOS MECÁNICOS
 st.markdown("---")
 c1,c2,c3=st.columns(3)
 c1.metric("Axial (ksi)",f"{sigma:.2f}")
@@ -195,3 +178,5 @@ c3.metric("Von Mises (ksi)",f"{von:.2f}")
 c4,c5=st.columns(2)
 c4.metric("Uso (%)",f"{uso:.1f}")
 c5.metric("FS (-)",f"{fs:.2f}")
+
+
