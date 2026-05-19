@@ -322,7 +322,12 @@ with c3:
     """, unsafe_allow_html=True)
 
 
-c4, c5 = st.columns(2)c4, c5 =metric-box">
+c4, c5 = st.columns(2)c4, c5 = st.columns(2 lógica color rojo si >100
+color_class = "metric-red" if uso > 100 else ""
+
+with c4:
+    st.markdown(f"""
+    <div class="metric-box">
         <div class="metric-title">Rod Load (%)</div>
         <div class="metric-value {color_class}">{uso:.1f}</div>
     </div>
@@ -335,6 +340,9 @@ with c5:
         <div class="metric-value">{torque_final:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
+
+
+
 
 
 # 🔴 lógica color rojo si >100
