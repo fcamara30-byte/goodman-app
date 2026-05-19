@@ -240,7 +240,9 @@ if modo=="Desviado":
 # =========================
 with colR:
 
-    st.subheader("    st.metric("Torque (lb-ft)",f"{torque_final:.1f}")    st.subheader("Torque Final")
+with colR:with col st.subheader("Torque Final")
+    st.metric("Torque (lb-ft)", f"{torque_final:.1f
+
 
     if len(df)>1:
 
