@@ -32,6 +32,7 @@ with colR:
 
     tubing_sel = st.selectbox("Tubing", ["2 7/8","3 1/2","4"])
     rod = st.selectbox("Varilla", ["7/8","1","1 1/8"])
+
     material = st.selectbox("Material", [
         "DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"
     ])
@@ -64,7 +65,7 @@ rho_steel=7850
 peso_eff=peso*(1-densidad/rho_steel)
 
 # =========================
-# HIDRÁULICA
+# HIDRAULICA
 # =========================
 pres_total=pres_linea+((nivel+sumergencia)*densidad)/10000
 pot_h=prod*pres_total*0.0014
@@ -81,7 +82,6 @@ modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 
 T_fric=0
 
-# ✅ CORRECCIÓN DE INDENTACIÓN ACÁ
 if modo=="Desviado":
 
     st.subheader("Pegar perfil (MD - Inc - Az)")
@@ -93,14 +93,20 @@ if modo=="Desviado":
         data=[]
         for row in text.split("\n"):
             v=row.strip().split()
-            if len(v)>=3:
-                data.append([float(v[0]),float(v[1]),float(v[2])])
+
+            if len(v) == 3:
+                data.append([float(v[0]), float(v[1]), float(v[2])])
+
+            elif len(v) == 2:
+                data.append([float(v[0]), float(v[1]), 0])
 
         df=pd.DataFrame(data,columns=["md","inc","az"])
 
         if len(df)>1:
 
-            # INTERPOLACION
+            # =====================
+            # INTERPOLACION 7.62 m
+            # =====================
             step=7.62
             md_new=np.arange(df["md"].min(),df["md"].max(),step)
 
@@ -110,9 +116,9 @@ if modo=="Desviado":
                 "az":np.interp(md_new,df["md"],df["az"])
             })
 
-            inc=np.radians(df["inc"])
-
+            # =====================
             # DLS
+            # =====================
             dls=[0]
             for i in range(1,len(df)):
                 dmd=df["md"][i]-df["md"][i-1]
@@ -122,18 +128,45 @@ if modo=="Desviado":
                 az1=np.radians(df["az"][i-1])
                 az2=np.radians(df["az"][i])
 
-                cos_dl=(np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)
-                        +np.cos(inc1)*np.cos(inc2))
+                cos_dl=(np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)+
+                        np.cos(inc1)*np.cos(inc2))
+
                 dl=np.degrees(np.arccos(np.clip(cos_dl,-1,1)))
                 dls.append(dl*(100/(dmd*3.28084)))
 
-            df["DLS"]=dls
+            df["DLS"]=np.round(dls,1)
 
-            # CARGA
+            # =====================
+            # 3D
+            # =====================
+            X=[0];Y=[0];Z=[0]
+
+            for i in range(1,len(df)):
+                dmd=df["md"][i]-df["md"][i-1]
+
+                inc1=np.radians(df["inc"][i-1])
+                inc2=np.radians(df["inc"][i])
+                az1=np.radians(df["az"][i-1])
+                az2=np.radians(df["az"][i])
+
+                dX=dmd/2*(np.sin(inc1)*np.cos(az1)+np.sin(inc2)*np.cos(az2))
+                dY=dmd/2*(np.sin(inc1)*np.sin(az1)+np.sin(inc2)*np.sin(az2))
+                dZ=dmd/2*(np.cos(inc1)+np.cos(inc2))
+
+                X.append(X[-1]+dX)
+                Y.append(Y[-1]+dY)
+                Z.append(Z[-1]-dZ)
+
+            df["X"]=X; df["Y"]=Y; df["Z"]=Z
+
+            # =====================
+            # CONTACTO
+            # =====================
             mu=0.1
             R_eff=tubing/2000
 
             carga=[]
+            centr=[]
 
             for i in range(1,len(df)):
 
@@ -145,19 +178,5 @@ if modo=="Desviado":
 
                 carga.append(N)
 
-                T_fric+=mu*N*R_eff*dz
-
-            df=df.iloc[1:]
-            df["Carga"]=np.round(carga,1)
-
-            st.dataframe(df)
-
-# =========================
-# RESULTADOS
-# =========================
-T_total=T_hid+T_fric
-potencia=T_total*rpm/5252 if rpm!=0 else 0
-
-st.markdown("---")
-st.metric("Torque [lb-ft]",f"{T_total:.0f}")
-st.metric("Potencia [HP]",f"{potencia:.0f}")
+                if N<=10: c=0
+                elif N<=40: c=2
