@@ -239,7 +239,7 @@ if modo=="Desviado":
 # RESULTADOS + GRAFICO
 # =========================
 
-with colR:
+
 
     # =========================
     # ✅ GRAFICO ARRIBA
