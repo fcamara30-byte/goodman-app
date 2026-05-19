@@ -210,4 +210,39 @@ with colR:
 
         for i in range(len(df)-1):
 
+            c=df["Carga"].iloc[i]
+
+            if c<30: color="green"
+            elif c<60: color="yellow"
+            elif c<100: color="orange"
+            else: color="red"
+
+            ax.plot(
+                [df["X"].iloc[i],df["X"].iloc[i+1]],
+                [df["Y"].iloc[i],df["Y"].iloc[i+1]],
+                [df["Z"].iloc[i],df["Z"].iloc[i+1]],
+                color=color,
+                linewidth=2
+            )
+
+        ax.set_box_aspect([1,1,2])
+        ax.tick_params(labelsize=6)
+
+        st.pyplot(fig)
+
+        st.dataframe(df[["md","DLS","Carga","Recomendación"]])
+
+# =========================
+# MECÁNICA
+# =========================
+st.markdown("---")
+
+c1,c2,c3=st.columns(3)
+c1.metric("Axial (ksi)",f"{sigma:.2f}")
+c2.metric("Torsión (ksi)",f"{tau:.2f}")
+c3.metric("Von Mises (ksi)",f"{von:.2f}")
+
+c4,c5=st.columns(2)
+c4.metric("Uso (%)",f"{uso:.1f}")
+c5.metric("FS",f"{fs:.2f}")
 
