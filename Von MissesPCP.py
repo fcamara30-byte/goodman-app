@@ -81,6 +81,7 @@ modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 
 T_fric=0
 
+# ✅ CORRECCIÓN DE INDENTACIÓN ACÁ
 if modo=="Desviado":
 
     st.subheader("Pegar perfil (MD - Inc - Az)")
@@ -93,4 +94,70 @@ if modo=="Desviado":
         for row in text.split("\n"):
             v=row.strip().split()
             if len(v)>=3:
+                data.append([float(v[0]),float(v[1]),float(v[2])])
 
+        df=pd.DataFrame(data,columns=["md","inc","az"])
+
+        if len(df)>1:
+
+            # INTERPOLACION
+            step=7.62
+            md_new=np.arange(df["md"].min(),df["md"].max(),step)
+
+            df=pd.DataFrame({
+                "md":md_new,
+                "inc":np.interp(md_new,df["md"],df["inc"]),
+                "az":np.interp(md_new,df["md"],df["az"])
+            })
+
+            inc=np.radians(df["inc"])
+
+            # DLS
+            dls=[0]
+            for i in range(1,len(df)):
+                dmd=df["md"][i]-df["md"][i-1]
+
+                inc1=np.radians(df["inc"][i-1])
+                inc2=np.radians(df["inc"][i])
+                az1=np.radians(df["az"][i-1])
+                az2=np.radians(df["az"][i])
+
+                cos_dl=(np.sin(inc1)*np.sin(inc2)*np.cos(az2-az1)
+                        +np.cos(inc1)*np.cos(inc2))
+                dl=np.degrees(np.arccos(np.clip(cos_dl,-1,1)))
+                dls.append(dl*(100/(dmd*3.28084)))
+
+            df["DLS"]=dls
+
+            # CARGA
+            mu=0.1
+            R_eff=tubing/2000
+
+            carga=[]
+
+            for i in range(1,len(df)):
+
+                dz=df["md"][i]-df["md"][i-1]
+                inc_rad=np.radians(df["inc"][i])
+
+                N=peso_eff*np.sin(inc_rad)
+                N=N*(1+df["DLS"][i]/20)
+
+                carga.append(N)
+
+                T_fric+=mu*N*R_eff*dz
+
+            df=df.iloc[1:]
+            df["Carga"]=np.round(carga,1)
+
+            st.dataframe(df)
+
+# =========================
+# RESULTADOS
+# =========================
+T_total=T_hid+T_fric
+potencia=T_total*rpm/5252 if rpm!=0 else 0
+
+st.markdown("---")
+st.metric("Torque [lb-ft]",f"{T_total:.0f}")
+st.metric("Potencia [HP]",f"{potencia:.0f}")
