@@ -248,7 +248,8 @@ if modo=="Desviado":
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
 
-with colR:with colRS, colT = st.columns([3,1,1.5])
+with colR:
+    with colRS, colT = st.columns([3,1,1.5])
 
 
     # ✅ sliders (derecha)
