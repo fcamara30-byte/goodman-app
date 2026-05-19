@@ -248,22 +248,17 @@ if modo=="Desviado":
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
 
+with colR:
+    colG, colS, colT = st.columns([3,1,1.5])
 
-    with colR:
-
-    # usar columnas
+    # sliders (derecha)
     with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
+    # grafico (izquierda)
     with colG:
         if len(df) > 1:
-            st.write("grafico...")
-
-    with colT:
-        st.write("tabla...")
-
-
             fig = plt.figure(figsize=(4,6))
             ax = fig.add_subplot(111, projection='3d')
 
@@ -273,13 +268,22 @@ if modo=="Desviado":
                         df["Z"].iloc[i:i+2],
                         color=colores[i], linewidth=2)
 
-
             ax.view_init(elev=elev, azim=azim)
-
             ax.tick_params(labelsize=6)
             ax.set_box_aspect([1,1,2])
 
             st.pyplot(fig)
+
+    # tabla derecha
+    with colT:
+        if len(df) > 1:
+            st.markdown("### Centralización")
+            st.dataframe(
+                df[["md","DLS","Recomendación"]],
+                height=300,
+                use_container_width=True
+            )
+
 
   
 
