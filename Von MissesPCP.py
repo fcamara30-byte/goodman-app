@@ -247,33 +247,38 @@ if modo=="Desviado":
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
-colG, colS = st.columns([3,1])
+with colR:
 
-# ✅ sliders primero → gobiernan el gráfico
-with colS:
-    elev = st.slider("Vista elevación", 0, 90, 25)
-    azim = st.slider("Vista azimut", 0, 360, 45)
+    colG, colS = st.columns([3,1])
 
-# ✅ gráfico más chico y usando sliders
-with colG:
-    if len(df) > 1:
+    # ✅ sliders (derecha)
+    with colS:
+        elev = st.slider("Vista elevación", 0, 90, 25)
+        azim = st.slider("Vista azimut", 0, 360, 45)
 
-        fig = plt.figure(figsize=(4,6))  # ✅ 30% más chico
-        ax = fig.add_subplot(111, projection='3d')
+    # ✅ gráfico (izquierda)
+    with colG:
+        if len(df) > 1:
 
-        for i in range(len(df)-1):
-            ax.plot(df["X"].iloc[i:i+2],
-                    df["Y"].iloc[i:i+2],
-                    df["Z"].iloc[i:i+2],
-                    color=colores[i], linewidth=2)
+            fig = plt.figure(figsize=(4,6))
+            ax = fig.add_subplot(111, projection='3d')
 
-        # ✅ ahora SI responde
-        ax.view_init(elev=elev, azim=azim)
+            for i in range(len(df)-1):
+                ax.plot(df["X"].iloc[i:i+2],
+                        df["Y"].iloc[i:i+2],
+                        df["Z"].iloc[i:i+2],
+                        color=colores[i], linewidth=2)
 
-        ax.tick_params(labelsize=6)
-        ax.set_box_aspect([1,1,2])
+            ax.view_init(elev=elev, azim=azim)
 
-        st.pyplot(fig)
+            ax.tick_params(labelsize=6)
+            ax.set_box_aspect([1,1,2])
+
+            st.pyplot(fig)
+
+    # ✅ torque abajo
+    st.subheader("Torque Final")
+    st.metric("Torque (lb-ft)", f"{torque_final:.1f}")
 
     # =========================
     # ✅ TORQUE ABAJO DE TODO
