@@ -238,7 +238,7 @@ if modo=="Desviado":
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
-with colR:
+
 
 with colR:with col st.subheader("Torque Final")
     st.metric("Torque (lb-ft)", f"{torque_final:.1f
