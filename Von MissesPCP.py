@@ -169,24 +169,32 @@ if modo=="Desviado":
 
         df["X"]=X;df["Y"]=Y;df["Z"]=Z
 
-        # =====================
-        # ✅ CARGA LATERAL CORRECTA
-        # =====================
-        carga = peso*np.sin(inc)
-        carga = carga*(1 + df["DLS"]/15)
-        carga = carga*5
+# =====================# =================colores=[]
+rec=[]
 
-        colores=[]
-        rec=[]
+for d in df["DLS"]:
 
-        for c in carga:
-            if c<30: colores.append("green"); rec.append("Bajo")
-            elif c<60: colores.append("yellow"); rec.append("2 centralizadores")
-            elif c<100: colores.append("orange"); rec.append("3 centralizadores")
-            else: colores.append("red"); rec.append("Black Mamba")
+    if d <= 1:
+        colores.append("green")
+        rec.append("Bajo")
 
-        df["Carga"]=np.round(carga,1)
-        df["Recomendación"]=rec
+    elif d <= 3:
+        colores.append("yellow")
+        rec.append("2 centralizadores")
+
+    elif d <= 6:
+        colores.append("orange")
+        rec.append("3 centralizadores")
+
+    else:
+        colores.append("red")
+        rec.append("Black Mamba")
+
+df["Recomendación"]=rec
+
+# ✅ RECOMENDACIÓN SOLO POR DLS
+# =====================
+
 
         # =====================
         # ✅ TORQUE FRICCIÓN (ACUMULA CON PROFUNDIDAD)
