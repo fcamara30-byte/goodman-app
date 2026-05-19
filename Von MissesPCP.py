@@ -17,18 +17,22 @@ with colL:
     profundidad = st.number_input("Profundidad [m]", 0, 3000, 0, 100)
 
     rpm = st.number_input("RPM", 0, 500, 0)
+
     prod = st.number_input("Producción [m3/d]", 0)
 
     pres_linea = st.number_input("Presión línea [kg/cm²]", 0)
 
     nivel = st.number_input("Nivel dinámico [m]", 0)
+
     sumergencia = st.number_input("Sumergencia [m]", 0)
 
-    densidad = st.number_input("Densidad [kg/m3]", 600, 1200, 0, 50)
+    # ✅ CORRECCIÓN ACÁ
+    densidad = st.number_input("Densidad [kg/m3]", 500, 1500, 500, 50)
 
     eficiencia = st.number_input("Eficiencia", value=0.6)
 
     viscosidad = st.number_input("Viscosidad [cP]", 0, 2000, 0, 50)
+
     solidos = st.number_input("Sólidos [%]", 0)
 
 with colR:
@@ -149,32 +153,7 @@ if modo=="Desviado":
             df["DLS"]=dls
 
             # =====================
-            # TRAYECTORIA 3D
-            # =====================
-            X=[0];Y=[0];Z=[0]
-
-            for i in range(1,len(df)):
-                dmd=df["md"][i]-df["md"][i-1]
-
-                inc1=np.radians(df["inc"][i-1])
-                inc2=np.radians(df["inc"][i])
-                az1=np.radians(df["az"][i-1])
-                az2=np.radians(df["az"][i])
-
-                dX=dmd/2*(np.sin(inc1)*np.cos(az1)+np.sin(inc2)*np.cos(az2))
-                dY=dmd/2*(np.sin(inc1)*np.sin(az1)+np.sin(inc2)*np.sin(az2))
-                dZ=dmd/2*(np.cos(inc1)+np.cos(inc2))
-
-                X.append(X[-1]+dX)
-                Y.append(Y[-1]+dY)
-                Z.append(Z[-1]-dZ)
-
-            df["X"]=X
-            df["Y"]=Y
-            df["Z"]=Z
-
-            # =====================
-            # CONTACTO REAL
+            # CONTACTO
             # =====================
             mu=0.1
             R_eff=tubing/2000
@@ -183,6 +162,7 @@ if modo=="Desviado":
             centr=[]
 
             for i in range(1,len(df)):
+
                 dz=df["md"][i]-df["md"][i-1]
                 inc_rad=np.radians(df["inc"][i])
 
@@ -209,39 +189,24 @@ if modo=="Desviado":
             df["Carga (lb)"]=carga
             df["Centralizadores"]=centr
 
-            # =====================
-            # TABLA PROLIJA
-            # =====================
-            st.markdown("### Distribución por Varilla")
+            st.dataframe(df)
 
-            st.dataframe(
-                df[["md","inc","DLS","Carga (lb)","Centralizadores"]]
-                .style.background_gradient(subset=["Carga (lb)"],cmap="RdYlGn_r")
-            )
+# =========================
+# ESFUERZOS
+# =========================
+T_total=T_hid+T_fric
+potencia=T_total*rpm/5252 if rpm!=0 else 0
 
-            # =====================
-            # DIAGNOSTICO GLOBAL
-            # =====================
-            max_carga=max(carga)
-            avg_carga=sum(carga)/len(carga)
+F=peso_eff*profundidad
 
-            st.markdown("## Diagnóstico completo del string")
+sigma=(F/A)/6894757 if A!=0 else 0
+tau=((T_total*1.35582*r)/J)/6894757 if J!=0 else 0
+von=math.sqrt(sigma**2+3*tau**2)
 
-            if max_carga<=10:
-                reco="Sin centralizadores"
-            elif max_carga<=40:
-                reco="2 centralizadores en tramos activos"
-            elif max_carga<=55:
-                reco="3 centralizadores en gran parte del tramo"
-            else:
-                reco="Black Mamba requerido"
+YS=YIELD[material]
+uso=(von/YS)*100 if YS!=0 else 0
 
-            st.success(f"{reco}")
+st.markdown("---")
 
-            # =====================
-            # 3D
-            # =====================
-            with colR:
-
-                elev=st.slider("Elevación",0,90,25)
+st.metric("Von Mises [% Fluencia]",f"{uso:.1f}")
 
