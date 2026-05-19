@@ -302,7 +302,7 @@ with c3:
     """, unsafe_allow_html=True)
 
 
-c4,c5=st.columns(2)
+c4 = st.columns(1)[0]
 
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
