@@ -252,12 +252,12 @@ with colR:
    colG, colS, colT = st.columns([3,1,1.5])
 
     # ✅ sliders (derecha)
-   with colS:
+   with cols:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
     # ✅ gráfico (izquierda)
-    with colG:
+    with colg:
         if len(df) > 1:
 
             fig = plt.figure(figsize=(4,6))
