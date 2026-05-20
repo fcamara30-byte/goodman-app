@@ -380,7 +380,7 @@ if modo=="Desviado":
 # =========================
 
 with colR:
-    colG, colS, colT = st.columns([2.4,0.9,1.9])
+    colG, colS, colT = st.columns([2.4,0.9,1.7])
 
     # sliders (derecha)
     with colS:
@@ -414,7 +414,7 @@ with colR:
             st.dataframe(
               
                df[["md","DLS","Recomendación"]],
-                height=450,
+                height=550,
                 use_container_width=True
 
              )
