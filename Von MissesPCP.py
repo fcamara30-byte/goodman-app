@@ -82,7 +82,7 @@ with colL:
         liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
      
         # ✅ rugosidad absoluta (m)
-         RUGOSIDAD = {
+        RUGOSIDAD = {
           "Sin liner": 0.00015,   # acero viejo / oxidado
            "Con liner": 0.00001    # polímero / muy liso
 }
