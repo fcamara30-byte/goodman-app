@@ -410,10 +410,13 @@ with colR:
     with colT:
         if len(df) > 1:
             st.markdown("### Centralización")
-            st.dataframe(           
-                df[["md","DLS","Recomendación"]],
-                use_container_width=True
+
+st.dataframe(
+    df[["md","DLS","Re=450,    df[["md","DLS","Recomendación"]],
+    use_container_width=True
 )
+
+
 
                 # =========================
 # ✅ RESUMEN CENTRALIZACIÓN (PANTALLA)
