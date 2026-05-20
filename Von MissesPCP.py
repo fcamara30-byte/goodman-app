@@ -441,7 +441,7 @@ if len(df) > 1:
         with col3:
             st.write(f"{md_min:.0f} → {md_max:.0f} m")
                
-            )
+            
 
 
   
