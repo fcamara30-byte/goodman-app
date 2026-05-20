@@ -427,7 +427,7 @@ if len(df) > 1:
 
     grupos = df.groupby("Recomendación")
 
-    for tipo, grupo in grupos:
+    
 
 if len(df) > 1:
 
