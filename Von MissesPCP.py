@@ -219,14 +219,21 @@ modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
 df=pd.DataFrame()
 torque_final=torque
 
-# =========================
-# ✅ FRICCIÓN# =========================# ✅ FRICCIÓN REAL (manual)
-# factor típico basado en tablas (simplificado)
-factor = 0.00008 + (0.0000005 * prod)
 
-T_fric = factor * profundidad * viscosidad
+# =========================
+# ✅ FRICCIÓN REAL CON LINER (VARILLAS)
+# =========================
+
+mu_rod = MU_ROD[liner]
+
+N = peso * profundidad
+
+radio = d / 2
+
+T_fric = mu_rod * N * radio / 1000
 
 torque_final = torque + T_fric
+
 
 
 
