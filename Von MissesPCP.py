@@ -79,14 +79,16 @@ with colL:
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
         tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
-        
+        liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
      
-# rugosidad absoluta (m)# rugosidadRUGOSIDAD = {
-    "Sin liner": 0.00015,   # acero viejo / oxidado
-    "Con liner": 0.00001    # polímero / muy liso
+        # ✅ rugosidad absoluta (m)
+         RUGOSIDAD = {
+          "Sin liner": 0.00015,   # acero viejo / oxidado
+           "Con liner": 0.00001    # polímero / muy liso
 }
 
-        liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
+
+     
         
         solidos = st.number_input("Sólidos (%)",5.0)
         rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
