@@ -10,27 +10,6 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
-import streamlit.components.v1 as components
-
-components.html("""
-<button onclick="window.print()" style="
-    padding:10px 20px;
-    font-size:16px;
-    background-color:#1f3b5c;
-    color:white;
-   :5px;    border:none;
-    cursor:pointer;
-">
-🖨️ Imprimir / Guardar PDF
-</button>
-
-<script>
-document.querySelector("button").onclick = function() {
-    parent.window.print();
-}
-</script>
-""", height=100)
-
 
 st.markdown("""
 <style>
