@@ -415,7 +415,7 @@ with colT:
 
 
         st.dataframe(
-        df[["MD","DLS","Recomendación"]]
+        df[["md","DLS","Recomendación"]]
         .rename(columns={"Recomendación": "Var"}),
          height=600,
           use_container_width=True
