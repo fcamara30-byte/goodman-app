@@ -426,11 +426,10 @@ if len(df) > 1:
     st.write(f"**Varillas centralizadas:** {total_tramos}")
 
    
-df_centralizados = df[~df["Recomendación"].isin(["Bajo", "sin centralizadores"])]
 
-grupos = df_centralizados.groupby("Recomendación")
 
-total_tramos = len(df_centralizados)
+
+
 
 
     
