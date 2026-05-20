@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import math
 import pandas as pd
@@ -10,12 +8,14 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
+st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
 div[data-testid="stNumberInput"] {width: 140px;}
 </style>
 """, unsafe_allow_html=True)
+
 st.markdown("""
 <style>
 .metric-box {
