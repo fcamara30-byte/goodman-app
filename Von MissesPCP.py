@@ -78,7 +78,22 @@ with colL:
         
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
-        tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
+        
+tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
+
+liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
+
+# ✅ diccionario (esto NO es input, es dato)
+D_TBG = {
+    "4": 0.089,
+    "3 1/2": 0.076,
+    "2 7/8": 0.062
+}
+
+       
+
+
+
         liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
      
         # ✅ rugosidad absoluta (m)
