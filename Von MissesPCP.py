@@ -76,7 +76,7 @@ with colL:
         eficiencia = st.number_input("Eficiencia (-)",0.85)
 
     with c2:
-        viscosidad = st.number_input("Viscosidad (cP)",300,step=40)
+        viscosidad = st.number_input("Viscosidad (cP)",1,step=40)
         
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
