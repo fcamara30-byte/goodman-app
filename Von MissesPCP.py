@@ -414,21 +414,13 @@ with colT:
         st.markdown("### Centralización")
 
 
-# ✅ seleccionar columnas
-df_tabla = df[["Recomendación","md","DLS"]].copy()
-
-# ✅ usar Recomendación como índice (Var)
-df_tabla = df_tabla.set_index("Recomendación")
-
-# ✅ renombrar columnas
-df_tabla.columns = ["MD", "DLS"]
-
-# ✅ mostrar
 st.dataframe(
-    df_tabla,
+    df[["md","DLS","Recomendación"]]
+    .rename(columns={"Recomendación": "Var"}),
     height=450,
     use_container_width=True
 )
+
 
 
 
