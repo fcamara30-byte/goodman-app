@@ -161,6 +161,64 @@ T_fric = factor * profundidad * viscosidad
 torque_final = torque + T_fric
 
 
+
+# =========================
+# ✅ FUNCION PDF (ACA)
+# =========================
+def generar_pdf():
+
+    file_path = "reporte_pcp.pdf"
+    c = canvas.Canvas(file_path, pagesize=A4)
+
+    width, height = A4
+
+    # TITULO
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(2*cm, height - 2*cm, "REPORTE PCP")
+
+    # INPUTS
+    c.setFont("Helvetica", 8)
+    y = height - 3*cm
+
+    c.drawString(2*cm, y, f"Prof: {profundidad}")
+    y -= 0.4*cm
+    c.drawString(2*cm, y, f"RPM: {rpm}")
+    y -= 0.4*cm
+    c.drawString(2*cm, y, f"Prod: {prod}")
+    y -= 0.4*cm
+    c.drawString(2*cm, y, f"P Línea: {pres_linea}")
+    y -= 0.4*cm
+    c.drawString(2*cm, y, f"Nivel: {nivel}")
+    y -= 0.4*cm
+    c.drawString(2*cm, y, f"Sumerg: {sumergencia}")
+
+    # RESULTADOS
+    c.setFont("Helvetica", 8)
+    y2 = height - 3*cm
+
+    c.drawString(10*cm, y2, f"Torque: {torque_final:.1f}")
+    y2 -= 0.4*cm
+    c.drawString(10*cm, y2, f"Von Mises: {von:.2f}")
+    y2 -= 0.4*cm
+    c.drawString(10*cm, y2, f"Rod Load: {uso:.1f}")
+
+    # TABLA
+    y3 = y2 - 1*cm
+
+    if len(df) > 1:
+        for i in range(min(len(df), 10)):
+            row = df.iloc[i]
+            texto = f"{row['md']:.0f} | DLS {row['DLS']} | {row['Recomendación']}"
+            c.drawString(10*cm, y3, texto)
+            y3 -= 0.4*cm
+
+    c.save()
+
+    return file_path
+
+
+
+
 if modo=="Desviado":
 
     text=st.text_area("Perfil: MD Inc Az")
