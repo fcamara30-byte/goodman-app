@@ -102,11 +102,51 @@ YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":85,"DSK75":85
 # =========================
 # CALCULO BASE
 # =========================
+# =========================
+# HIDRÁULICA TUBING
+# =========================
+
+# caudal
+Q = prod / 86400  # m3/s
+
+# diámetro interno tubing
+D_TBG = {
+    "4\"": 0.089,
+    "3 1/2\"": 0.076,
+    "2 7/8\"": 0.062
+}
+
+D_tbg = D_TBG[tbg]
+
+# área
+A_tbg = math.pi * (D_tbg**2) / 4
+
+# velocidad
+v = Q / A_tbg
+
+# viscosidad
+mu = viscosidad / 1000
+
+# Reynolds
+Re = (1000 * v * D_tbg) / mu
+Re = max(Re, 1)
+
+# rugosidad
+e = RUGOSIDAD[liner]
+
+# fricción (Swamee-Jain)
+f = 0.25 / (math.log10((e/(3.7*D_tbg)) + (5.74/(Re**0.9)))**2)
+
+# pérdida de presión
+dp_fric = f * (profundidad / D_tbg) * (0.5 * 1000 * v**2)
+
+# convertir a kg/cm2
+dp_fric = dp_fric / 98066
 
 pres_nivel = (nivel * densidad) / 10000
 pres_entrada = (sumergencia * densidad) / 10000
 
-pres_total = pres_linea + pres_nivel - pres_entrada
+pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
 
 
 pot_h=prod*pres_total*0.0014
