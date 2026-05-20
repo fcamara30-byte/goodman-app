@@ -55,7 +55,7 @@ materiales = {
     "CS propietario":{"uts_a":44.64,"b":0.375},
     "HS propietario":{"uts_a":55.36,"b":0.375},
     "D New":{"uts_a":42.86,"b":0.375},
-    "DSK75":{"uts_a":42.86,"b":0.375},
+    "DSX75":{"uts_a":42.86,"b":0.375},
     "HA96":{"uts_a":50,"b":0.375}
 }
 
@@ -93,7 +93,7 @@ def FS_material(mat,f):
     elif mat=="CS propietario": return f*0.955
     elif mat=="HS propietario": return f*0.75
     elif mat=="D New": return f*0.90
-    elif mat=="DSK75": return f if f < 0.75 else 1
+    elif mat=="DSX75": return f if f < 0.75 else 1
     elif mat=="HA96": return f*0.8
 
 def goodman(x,uts,b,fs):
