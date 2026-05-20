@@ -456,7 +456,13 @@ df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
 df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
 
 # ✅ fuerza normal
-df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
+
+# ✅ modelo de contacto realista (reemplazo)
+
+factor_contacto = 0.2 + 0.05 * (df_calc["DLS"] / 3)
+
+df_calc["N"] = df_calc["W_acum"] * factor_contacto
+
 
 # ✅ torque incremental
 df_calc["dT"] = mu_rod * df_calc["N"] * radio
