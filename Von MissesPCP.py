@@ -10,21 +10,27 @@ from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
-st.markdown("---")
+import streamlit.components.v1 as components
 
-st.components.v1.html("""
+components.html("""
 <button onclick="window.print()" style="
     padding:10px 20px;
-    font-size:    background-color:#1f3b5c;    font-size:16px;
+    font-size:16px;
+    background-color:#1f3b5c;
     color:white;
-    border:none;
-    border-radius:5px;
+   :5px;    border:none;
     cursor:pointer;
 ">
 🖨️ Imprimir / Guardar PDF
 </button>
-""", height=80)
-st.set_page_config(layout="wide")
+
+<script>
+document.querySelector("button").onclick = function() {
+    parent.window.print();
+}
+</script>
+""", height=100)
+
 
 st.markdown("""
 <style>
