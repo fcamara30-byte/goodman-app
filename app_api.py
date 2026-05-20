@@ -59,7 +59,7 @@ c1,c2,c3,c4 = st.columns(4)
 
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
-D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5])
+D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
 N   = c4.slider("SPM",1,20,6)
 
 
