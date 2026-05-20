@@ -467,10 +467,11 @@ if modo=="Desviado":
                 rec.append("Black Mamba")
 
         df["Recomendación"]=rec
-mu_rod = MU_ROD[liner]
-radio = d / 2
+if len(df) > 0 and "md" in df.columns:
+ mu_rod = MU_ROD[liner]
+ radio = d / 2
 
-df_calc = df.copy()
+ df_calc = df.copy()
 
 df_calc["dMD"] = df_calc["md"].diff().fillna(0)
 df_calc["dW"] = peso * df_calc["dMD"]
