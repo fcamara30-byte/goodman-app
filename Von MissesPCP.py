@@ -252,7 +252,7 @@ if len(df) > 1:
     df_calc["dT"] = mu_rod * df_calc["N"] * radio
 
     # integrar
-    T_fric = df_calc["dT"].sum() / 1000
+     T_fric = df_calc["dT"].sum()
 
 else:
     # pozo vertical → casi sin contacto
@@ -488,7 +488,7 @@ if len(df) > 1 and "md" in df.columns and "DLS" in df.columns:
 
     df_calc["dT"] = mu_rod * df_calc["N"] * radio
 
-    T_fric = df_calc["dT"].sum() / 1000
+    T_fric = df_calc["dT"].sum()
 
     torque_final = torque + T_fric
 
