@@ -350,7 +350,7 @@ if modo=="Desviado":
 
             if dls_val <= 1:
                 colores.append("green")
-                rec.append("Bajo")
+                rec.append("sin centralizadores")
 
             elif dls_val <= 3:
                 colores.append("yellow")
