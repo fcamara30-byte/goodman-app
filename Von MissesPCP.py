@@ -436,46 +436,46 @@ if modo=="Desviado":
         df["Recomendación"]=rec
 if len(df) > 1:
 
-mu_rod = MU_ROD[liner]
-radio = d / 2
+  mu_rod = MU_ROD[liner]
+  radio = d / 2
 
-df_calc = df.copy()
+  df_calc = df.copy()
 
-# ✅ asegurar columnas
-df_calc["dMD"] = df_calc["md"].diff().fillna(0)
+  # ✅ asegurar columnas
+  df_calc["dMD"] = df_calc["md"].diff().fillna(0)
 
-# ✅ calcular peso por tramo
-df_calc["dW"] = peso * df_calc["dMD"]
+  # ✅ calcular peso por tramo
+  df_calc["dW"] = peso * df_calc["dMD"]
 
-# ✅ peso acumulado (desde fondo)
-df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
+  # ✅ peso acumulado (desde fondo)
+  df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
 
-# ✅ curvatura
-df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
+  # ✅ curvatura
+  df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
 
-# ✅ fuerza normal
+  # ✅ fuerza normal
 
-# ✅ modelo de contacto realista (reemplazo)
+  # ✅ modelo de contacto realista (reemplazo)
 
-factor_contacto = 0.2 + 0.05 * (df_calc["DLS"] / 3)
+  factor_contacto = 0.2 + 0.05 * (df_calc["DLS"] / 3)
 
-df_calc["N"] = df_calc["W_acum"] * factor_contacto
+  df_calc["N"] = df_calc["W_acum"] * factor_contacto
 
 
-# ✅ torque incremental
-df_calc["dT"] = mu_rod * df_calc["N"] * radio
+  # ✅ torque incremental
+  df_calc["dT"] = mu_rod * df_calc["N"] * radio
 
-# ✅ torque total
-T_fric = df_calc["dT"].sum() / 1000
+  # ✅ torque total
+  T_fric = df_calc["dT"].sum() / 1000
 
-torque_final = torque + T_fric
+  torque_final = torque + T_fric
 
-# ✅ AHORA sí tensiones correctas
+  # ✅ AHORA sí tensiones correctas
 
-tau = ((torque_final*1.35582*r)/J)/6894757
-von = math.sqrt(sigma**2 + 3*tau**2)
+  tau = ((torque_final*1.35582*r)/J)/6894757
+  von = math.sqrt(sigma**2 + 3*tau**2)
 
-uso = von / YS * 100
+  uso = von / YS * 100
 
 
 else:
