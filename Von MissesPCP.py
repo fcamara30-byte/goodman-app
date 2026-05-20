@@ -412,6 +412,34 @@ with colR:
             st.markdown("### Centralización")
             st.dataframe(
                 df[["md","DLS","Recomendación"]],
+                # =========================
+# ✅ RESUMEN CENTRALIZACIÓN (PANTALLA)
+# =========================
+if len(df) > 1:
+
+    st.markdown("### Resumen de Centralización")
+
+    total_tramos = len(df)
+    st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+    grupos = df.groupby("Recomendación")
+
+    for tipo, grupo in grupos:
+
+        cantidad = len(grupo)
+        md_min = grupo["md"].min()
+        md_max = grupo["md"].max()
+
+        col1, col2, col3 = st.columns([2,1,2])
+
+        with col1:
+            st.write(tipo)
+
+        with col2:
+            st.write(f"{cantidad} tramos")
+
+        with col3:
+            st.write(f"{md_min:.0f} → {md_max:.0f} m")
                 height=300,
                 use_container_width=True
             )
