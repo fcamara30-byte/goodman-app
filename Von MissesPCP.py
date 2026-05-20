@@ -411,10 +411,10 @@ with colR:
         if len(df) > 1:
             st.markdown("### Centralización")
 
-st.dataframe(
-    df[["md","DLS","Re=450,    df[["md","DLS","Recomendación"]],
+   st.dataframe(
+       df[["md","DLS","Re=450,df[["md","DLS","Recomendación"]],
     use_container_width=True
-)
+   )
 
 
 
