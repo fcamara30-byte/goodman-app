@@ -112,7 +112,7 @@ with colL:
 
      
         
-        solidos = st.number_input("Sólidos (%)",5.0)
+        solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
         rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
         material = st.selectbox("Material",
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"]
