@@ -356,6 +356,7 @@ with colR:
             ax.set_box_aspect([1,1,2])
 
             st.pyplot(fig)
+            fig.savefig("grafico.png", bbox_inches="tight")
 
     # tabla derecha
     with colT:
