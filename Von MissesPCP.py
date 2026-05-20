@@ -57,9 +57,9 @@ with colL:
     with c1:
         nombre_pozo = st.text_input("Nombre Pozo")
         profundidad = st.number_input("Profundidad (m)",600,step=100)
-        rpm = st.number_input("RPM (rev/min)",350)
+        rpm = st.number_input("RPM (rev/min)",0,step=20)
         prod = st.number_input("Producción (m³/d)",150.0)
-        pres_linea = st.number_input("Presión línea (kg/cm²)", value=14.0,    step=2.0
+        pres_linea = st.number_input("Presión línea (kg/cm²)", value=1.0,    step=2.0
 )
   
         
@@ -72,7 +72,7 @@ with colL:
                step=50.0
 )
 
-        densidad = st.number_input("Densidad (kg/m³)",840.0)
+        densidad = st.number_input("Densidad (kg/m³)",800.0,step=100)
         eficiencia = st.number_input("Eficiencia (-)",0.85)
 
     with c2:
