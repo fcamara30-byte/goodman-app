@@ -44,7 +44,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("PCP-QUICK-CALCULATION")
------------------------------
+
 components.html("""
 <div style="text-align:right;">
     <button onclick="parent.window.print()" style="
@@ -61,7 +61,7 @@ components.html("""
 </div>
 """, height=40)
 
------------------
+
 colL, colR = st.columns([1,3])
 
 # =========================
