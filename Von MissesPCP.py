@@ -103,8 +103,8 @@ with colL:
 }
            
         MU_ROD = {
-           "Con liner": 0.1,
-           "Sin liner": 0.4    
+           "Con liner": 0.08,
+           "Sin liner": 0.9    
 }
 
 
