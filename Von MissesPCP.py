@@ -162,9 +162,6 @@ torque_final = torque + T_fric
 
 
 
-# =========================
-# ✅ FUNCION PDF (ACA)
-# =========================
 def generar_pdf():
 
     file_path = "reporte_pcp.pdf"
@@ -172,51 +169,102 @@ def generar_pdf():
 
     width, height = A4
 
+    # =========================
+    # CREAR GRAFICO (DENTRO DEL PDF)
+    # =========================
+    if len(df) > 1:
+        fig = plt.figure(figsize=(4,6))
+        ax = fig.add_subplot(111, projection='3d')
+
+        for i in range(len(df)-1):
+            ax.plot(df["X"].iloc[i:i+2],
+                    df["Y"].iloc[i:i+2],
+                    df["Z"].iloc[i:i+2],
+                    color=colores[i], linewidth=2)
+
+        ax.set_box_aspect([1,1,2])
+        ax.tick_params(labelsize=6)
+
+        fig.savefig("grafico.png", bbox_inches="tight")
+        plt.close(fig)
+
+    # =========================
     # TITULO
-    c.setFont("Helvetica-Bold", 14)
+    # =========================
+    c.setFont("Helvetica-Bold", 16)
     c.drawString(2*cm, height - 2*cm, "REPORTE PCP")
 
+    # =========================
     # INPUTS
+    # =========================
     c.setFont("Helvetica", 8)
     y = height - 3*cm
 
-    c.drawString(2*cm, y, f"Prof: {profundidad}")
-    y -= 0.4*cm
-    c.drawString(2*cm, y, f"RPM: {rpm}")
-    y -= 0.4*cm
-    c.drawString(2*cm, y, f"Prod: {prod}")
-    y -= 0.4*cm
-    c.drawString(2*cm, y, f"P Línea: {pres_linea}")
-    y -= 0.4*cm
-    c.drawString(2*cm, y, f"Nivel: {nivel}")
-    y -= 0.4*cm
-    c.drawString(2*cm, y, f"Sumerg: {sumergencia}")
+    inputs = [
+        f"Prof: {profundidad}",
+        f"RPM: {rpm}",
+        f"Prod: {prod}",
+        f"P Línea: {pres_linea}",
+        f"Nivel: {nivel}",
+        f"Sumerg: {sumergencia}",
+        f"Visc: {viscosidad}",
+        f"Sólidos: {solidos}"
+    ]
 
+    for txt in inputs:
+        c.drawString(2*cm, y, txt)
+        y -= 0.4*cm
+
+    # =========================
     # RESULTADOS
-    c.setFont("Helvetica", 8)
+    # =========================
     y2 = height - 3*cm
 
-    c.drawString(10*cm, y2, f"Torque: {torque_final:.1f}")
-    y2 -= 0.4*cm
-    c.drawString(10*cm, y2, f"Von Mises: {von:.2f}")
-    y2 -= 0.4*cm
-    c.drawString(10*cm, y2, f"Rod Load: {uso:.1f}")
+    results = [
+        f"Torque: {torque_final:.1f}",
+        f"Von Mises: {von:.2f}",
+        f"Axial: {sigma:.2f}",
+        f"Torsión: {tau:.2f}",
+        f"Rod Load: {uso:.1f}"
+    ]
 
-    # TABLA
-    y3 = y2 - 1*cm
+    for txt in results:
+        c.drawString(11*cm, y2, txt)
+        y2 -= 0.4*cm
+
+    # =========================
+    # INSERTAR GRAFICO
+    # =========================
+    try:
+        c.drawImage("grafico.png", 9*cm, height-15*cm, width=6*cm)
+    except:
+        pass
+
+    # =========================
+    # TABLA COMPLETA
+    # =========================
+    y3 = height - 17*cm
+
+    c.setFont("Helvetica-Bold", 9)
+    c.drawString(9*cm, y3, "Centralización")
+
+    y3 -= 0.5*cm
+    c.setFont("Helvetica", 7)
 
     if len(df) > 1:
-        for i in range(min(len(df), 10)):
+        for i in range(len(df)):   # ✅ ahora muestra TODA la tabla
+
             row = df.iloc[i]
-            texto = f"{row['md']:.0f} | DLS {row['DLS']} | {row['Recomendación']}"
-            c.drawString(10*cm, y3, texto)
-            y3 -= 0.4*cm
+            txt = f"{row['md']:.0f} | {row['DLS']:.1f} | {row['Recomendación']}"
+            c.drawString(9*cm, y3, txt)
+            y3 -= 0.35*cm
+
+            if y3 < 2*cm:  # evita que se corte
+                break
 
     c.save()
 
     return file_path
-
-
 
 
 if modo=="Desviado":
