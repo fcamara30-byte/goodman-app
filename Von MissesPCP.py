@@ -467,7 +467,21 @@ if modo=="Desviado":
                 rec.append("Black Mamba")
 
         df["Recomendación"]=rec
+mu_rod = MU_ROD[liner]
+radio = d / 2
 
+df_calc = df.copy()
+
+df_calc["dMD"] = df_calc["md"].diff().fillna(0)
+df_calc["dW"] = peso * df_calc["dMD"]
+df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
+df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
+df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
+df_calc["dT"] = mu_rod * df_calc["N"] * radio
+
+T_fric = df_calc["dT"].sum() / 1000
+
+torque_final = torque + T_fric
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
