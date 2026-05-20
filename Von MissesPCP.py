@@ -101,6 +101,10 @@ with colL:
           "Sin liner": 0.00015,   # acero viejo / oxidado
            "Con liner": 0.00001    # polímero / muy liso
 }
+           
+        MU_ROD = {MU_RO30,
+        "Con liner": 0.1
+}
 
 
      
