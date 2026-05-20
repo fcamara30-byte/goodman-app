@@ -220,23 +220,15 @@ df=pd.DataFrame()
 torque_final=torque
 
 # =========================
-# ✅ FRICCIÓN REAL CON LINER (VARILLAS)
-# =========================
+# ✅ FRICCIÓN# =========================# ✅ FRICCIÓN REAL (manual)
+# factor típico basado en tablas (simplificado)
+factor = 0.00008 + (0.0000005 * prod)
 
-# coeficiente según liner
-mu_rod = MU_ROD[liner]
+T_fric = factor * profundidad * viscosidad
 
-# fuerza normal simplificada (peso de la sarta)
-N = peso * profundidad  # N aprox
-
-# radio de la varilla
-radio = d / 2
-
-# torque por fricción
-T_fric = mu_rod * N * radio / 1000
-
-# torque total
 torque_final = torque + T_fric
+
+
 
 
 def generar_pdf():
