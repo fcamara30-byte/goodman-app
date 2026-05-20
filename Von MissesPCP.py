@@ -1,3 +1,17 @@
+st.markdown("---")
+
+st.components.v1.html("""
+<button onclick="window.print()" style="
+    padding:10px 20px;
+    font-size:    background-color:#1f3b5c;    font-size:16px;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+">
+🖨️ Imprimir / Guardar PDF
+</button>
+""", height=80)
 
 import streamlit as st
 import math
