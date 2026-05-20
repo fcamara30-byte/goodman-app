@@ -223,35 +223,7 @@ torque_final=torque
 # =========================# ========================= FRICCIÓN REAL CON CURVATURA (MODELO VIGA)
 # =========================
 
-mu_rod = MU_ROD[liner]
 
-radio = d / 2
-
-T_fric = 0  # inicializar
-
-if len(df) > 1:
-
-    mu_rod = MU_ROD[liner]
-    radio = d / 2
-
-    df_calc = df.copy()
-
-    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
-    df_calc["dW"] = peso * df_calc["dMD"]
-    df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
-
-    df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
-    df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
-
-    df_calc["dT"] = mu_rod * df_calc["N"] * radio
-
-    T_fric = df_calc["dT"].sum() / 1000
-
-    tau = ((torque_final*1.35582*r)/J)/6894757
-    von = math.sqrt(sigma**2 + 3*tau**2)
-
-else:
-    torque_final = torque
 
 
 
@@ -464,31 +436,36 @@ if modo=="Desviado":
 # =========================
 # ✅ FRICCIÓN REAL (ROBUSTA)
 # =========================
+# ✅ TORQUE + TENSIONES (BLOQUE FINAL CORRECTO)
 
-if len(df) > 1 and "md" in df.columns and "DLS" in df.columns:
+mu_rod = MU_ROD[liner]
+radio = d / 2
 
-    mu_rod = MU_ROD[liner]
-    radio = d / 2
+df_calc = df.copy()
 
-    df_calc = df.copy()
+df_calc["dMD"] = df_calc["md"].diff().fillna(0"]df_calc["dMD"] = df_calc["md"].diff().fillna(0)
+df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
 
-    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
-    df_calc["dW"] = peso * df_calc["dMD"]
-    df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
+df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
+df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
 
-    df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
+df_calc["dT"] = mu_rod * df_calc["N"] * radio
 
-    df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
+T_fric = df_calc["dT"].sum() / 1000
 
-    df_calc["dT"] = mu_rod * df_calc["N"] * radio
+torque_final = torque + T_fric
 
-    T_fric = df_calc["dT"].sum()
+# ✅ AHORA sí tensiones correctas
 
-    tau = ((torque_final*1.35582*r)/J)/6894757
-    von = math.sqrt(sigma**2 + 3*tau**2)
+tau = ((torque_final*1.35582*r)/J)/6894757
+von = math.sqrt(sigma**2 + 3*tau**2)
 
-else:
-    torque_final = torque
+uso = von / YS * 100
+
+
+
+
+
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
