@@ -75,11 +75,7 @@ with colL:
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
 
-    solidos = st.number_input("Sólidos (%)",5.0)
-    rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
-    material = st.selectbox("Material",
-        ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSK75","HA96"]
-    )
+   
 
         solidos = st.number_input("Sólidos (%)",5.0)
         rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
