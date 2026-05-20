@@ -414,12 +414,12 @@ with colT:
         st.markdown("### Centralización")
 
 
-st.dataframe(
-    df[["md","DLS","Recomendación"]]
-    .rename(columns={"Recomendación": "Var"}),
-    height=450,
-    use_container_width=True
-)
+        st.dataframe(
+        df[["md","DLS","Recomendación"]]
+        .rename(columns={"Recomendación": "Var"}),
+         height=450,
+          use_container_width=True
+        )
 
 
 
