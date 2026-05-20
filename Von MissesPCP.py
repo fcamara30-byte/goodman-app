@@ -73,9 +73,7 @@ with colL:
         viscosidad = st.number_input("Viscosidad (cP)",300,step=40)
         
     # ✅ SUMERGENCIA (ACA)
-         sumergencia = st.number_input("Sumergencia (m)", value=50.0,
-        step=10.0
-    )
+        sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
 
     solidos = st.number_input("Sólidos (%)",5.0)
     rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
