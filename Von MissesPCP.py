@@ -55,6 +55,7 @@ with colL:
     c1,c2 = st.columns(2)
 
     with c1:
+        nombre_pozo = st.text_input("Nombre Pozo")
         profundidad = st.number_input("Profundidad (m)",600,step=100)
         rpm = st.number_input("RPM (rev/min)",350)
         prod = st.number_input("Producción (m³/d)",150.0)
