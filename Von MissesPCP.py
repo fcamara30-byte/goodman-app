@@ -413,11 +413,17 @@ with colR:
 
             st.dataframe(
               
-               df[["md","DLS","Recomendación"]],
-                height=550,
-                use_container_width=True
+              
+            df_tabla = df[["MD","DLS","Recomendación"]].copy()
 
-             )
+                # convertir índice en columna
+            df_tabla.insert(0, "Var", df["Recomendación"])
+
+            st.dataframe(
+            df_tabla[["Var","MD","DLS"]],
+            height=600,
+            use_container_width=True
+           )
 
 
 
