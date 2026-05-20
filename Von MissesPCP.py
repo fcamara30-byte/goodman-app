@@ -252,7 +252,7 @@ if len(df) > 1:
     df_calc["dT"] = mu_rod * df_calc["N"] * radio
 
     # integrar
-     T_fric = df_calc["dT"].sum()
+    T_fric = df_calc["dT"].sum()
 
 else:
     # pozo vertical → casi sin contacto
