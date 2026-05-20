@@ -412,9 +412,12 @@ with colR:
             st.markdown("### Centralización")
 
             st.dataframe(
-              df[["md","DLS","Re=450,df[["md","DLS","Recomendación"]],
-              use_container_width=True
-          )
+              
+               df[["md","DLS","Recomendación"]],
+                height=450,
+                use_container_width=True
+
+             )
 
 
 
