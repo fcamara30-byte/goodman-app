@@ -420,7 +420,7 @@ with colR:
 # =========================
 if len(df) > 1:
 
-    st.markdown("### Resumen de Centralización")
+  
 
     total_tramos = len(df)
     st.write(f"**Varillas centralizadas:** {total_tramos}")
@@ -436,7 +436,7 @@ total_tramos = len(df_centralizados)
     
 
 if len(df) > 1:
-
+    df.columns = df.columns.str.strip()
     st.markdown("### Resumen de Centralización")
 
     df_centralizados = df[df["Recomendación"] != "Bajo"]
