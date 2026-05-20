@@ -220,17 +220,43 @@ df=pd.DataFrame()
 torque_final=torque
 
 
-# =========================
-# ✅ FRICCIÓN REAL CON LINER (VARILLAS)
+# =========================# ========================= FRICCIÓN REAL CON CURVATURA (MODELO VIGA)
 # =========================
 
 mu_rod = MU_ROD[liner]
 
-N = peso * profundidad
-
 radio = d / 2
 
-T_fric = mu_rod * N * radio / 1000
+T_fric = 0  # inicializar
+
+if len(df) > 1:
+
+    df_calc = df.copy()
+
+    # paso en MD
+    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
+
+    # peso por tramo
+    df_calc["dW"] = peso * df_calc["dMD"]
+
+    # peso acumulado desde fondo hacia superficie
+    df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
+
+    # convertir DLS (°/100 ft) a curvatura (1/m)
+    df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
+
+    # fuerza normal total (incluye inclinación)
+    df_calc["N"] = df_calc["W_acum"] * df_calc["kappa"] * np.sin(np.radians(df_calc["inc"]))
+
+    # torque incremental
+    df_calc["dT"] = mu_rod * df_calc["N"] * radio
+
+    # integrar
+    T_fric = df_calc["dT"].sum() / 1000
+
+else:
+    # pozo vertical → casi sin contacto
+    T_fric = 0
 
 torque_final = torque + T_fric
 
