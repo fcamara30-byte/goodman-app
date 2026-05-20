@@ -80,9 +80,10 @@ with colL:
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
         tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
         
-    # rugosidad absoluta (m)# rugosidad = {
-       "Sin liner": 0.00015,   # acero viejo / oxidado
-        "Con liner": 0.00001    # polímero / muy liso
+     
+# rugosidad absoluta (m)# rugosidadRUGOSIDAD = {
+    "Sin liner": 0.00015,   # acero viejo / oxidado
+    "Con liner": 0.00001    # polímero / muy liso
 }
 
         liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
