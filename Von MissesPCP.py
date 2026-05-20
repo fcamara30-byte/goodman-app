@@ -234,7 +234,9 @@ if len(df) > 1:
     mu_rod = MU_ROD[liner]
     radio = d / 2
 
-       df_calc["dMD"] = df_calc["md"].diff().fillna(0)    df_calc = df.copy()
+    df_calc = df.copy()
+
+    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
     df_calc["dW"] = peso * df_calc["dMD"]
     df_calc["W_acum"] = df_calc["dW"][::-1].cumsum()[::-1]
 
