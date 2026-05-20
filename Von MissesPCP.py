@@ -247,7 +247,8 @@ if len(df) > 1:
 
     T_fric = df_calc["dT"].sum() / 1000
 
-    torque_final = torque + T_fric
+    tau = ((torque_final*1.35582*r)/J)/6894757
+    von = math.sqrt(sigma**2 + 3*tau**2)
 
 else:
     torque_final = torque
@@ -483,7 +484,8 @@ if len(df) > 1 and "md" in df.columns and "DLS" in df.columns:
 
     T_fric = df_calc["dT"].sum()
 
-    torque_final = torque + T_fric
+    tau = ((torque_final*1.35582*r)/J)/6894757
+    von = math.sqrt(sigma**2 + 3*tau**2)
 
 else:
     torque_final = torque
