@@ -418,21 +418,7 @@ with colR:
                 # =========================
 # ✅ RESUMEN CENTRALIZACIÓN (PANTALLA)
 # =========================
-if len(df) > 1:
-
-  
-
-    total_tramos = len(df)
-    st.write(f"**Varillas centralizadas:** {total_tramos}")
-
    
-
-
-
-
-
-
-    
 
 if len(df) > 1:
     df.columns = df.columns.str.strip()
