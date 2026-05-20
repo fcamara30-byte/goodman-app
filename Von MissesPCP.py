@@ -102,9 +102,9 @@ with colL:
            "Con liner": 0.00001    # polímero / muy liso
 }
            
-         MU_ROD = {
-         "Con liner": 0.1
-         "Sin Liner": 0.4    
+        MU_ROD = {
+          "Con liner": 0.1
+          "Sin Liner": 0.4    
 }
 
 
