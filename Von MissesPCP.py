@@ -429,6 +429,19 @@ if len(df) > 1:
 
     for tipo, grupo in grupos:
 
+if len(df) > 1:
+
+    st.markdown("### Resumen de Centralización")
+
+    df_centralizados = df[df["Recomendación"] != "Bajo"]
+
+    total_tramos = len(df_centralizados)
+    st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+    grupos = df_centralizados.groupby("Recomendación")
+
+    for tipo, grupo in grupos:
+
         cantidad = len(grupo)
         md_min = grupo["md"].min()
         md_max = grupo["md"].max()
