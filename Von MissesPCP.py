@@ -89,8 +89,12 @@ YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":85,"DSK75":85
 # =========================
 # CALCULO BASE
 # =========================
-pres_nivel=(nivel*densidad)/10000
-pres_total=pres_linea+pres_nivel
+
+pres_nivel = (nivel * densidad) / 10000
+pres_entrada = (sumergencia * densidad) / 10000
+
+pres_total = pres_linea + pres_nivel - pres_entrada
+
 
 pot_h=prod*pres_total*0.0014
 pot_c=pot_h/eficiencia
