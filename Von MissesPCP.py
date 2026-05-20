@@ -78,7 +78,7 @@ with colL:
         
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
-        tbg = st.selectbox("Tubing", ["2 3/8", "2 7/8", "3 1/2"])
+        tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
    
 
         solidos = st.number_input("Sólidos (%)",5.0)
