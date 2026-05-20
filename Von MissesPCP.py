@@ -430,7 +430,7 @@ df_centralizados = df[~df["Recomendación"].isin(["Bajo", "sin centralizadores"]
 
 grupos = df_centralizados.groupby("Recomendación")
 
-total_tramos = len(df_centralizad
+total_tramos = len(df_centralizados)
 
 
     
