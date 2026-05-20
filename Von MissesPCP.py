@@ -1,3 +1,15 @@
+
+
+import streamlit as st
+import math
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import cm
+
 st.markdown("---")
 
 st.components.v1.html("""
@@ -12,17 +24,6 @@ st.components.v1.html("""
 🖨️ Imprimir / Guardar PDF
 </button>
 """, height=80)
-
-import streamlit as st
-import math
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-from reportlab.lib.pagesizes import A4
-from reportlab.pdfgen import canvas
-from reportlab.lib.units import cm
-
 st.set_page_config(layout="wide")
 
 st.markdown("""
