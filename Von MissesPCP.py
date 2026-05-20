@@ -84,7 +84,7 @@ with colL:
         liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"])
 
         # ✅ diccionario (esto NO es input, es dato)
-         D_TBG = {
+        D_TBG = {
          "4": 0.089,
          "3 1/2": 0.076,
          "2 7/8": 0.062
