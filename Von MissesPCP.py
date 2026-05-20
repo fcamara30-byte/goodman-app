@@ -407,23 +407,24 @@ with colR:
             fig.savefig("grafico.png", bbox_inches="tight")
 
     # tabla derecha
-    with colT:
-        if len(df) > 1:
-            st.markdown("### Centralización")
+with colT:
 
-            st.dataframe(
-              
-              
-            df_tabla = df[["MD","DLS","Recomendación"]].copy()
+    if len(df) > 1:
 
-                # convertir índice en columna
-            df_tabla.insert(0, "Var", df["Recomendación"])
+        st.markdown("### Centralización")
 
-            st.dataframe(
-            df_tabla[["Var","MD","DLS"]],
-            height=600,
+        # ✅ Crear tabla auxiliar
+        df_tabla = df[["md","DLS","Recomendación"]].copy()
+
+        # ✅ Crear columna Var a la izquierda
+        df_tabla.insert(0, "Var", df_tabla["Recomendación"])
+
+        # ✅ Mostrar tabla
+        st.dataframe(
+            df_tabla[["Var","md","DLS"]],
+            height=450,
             use_container_width=True
-           )
+        )
 
 
 
