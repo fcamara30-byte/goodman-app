@@ -43,6 +43,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
+st.image("bomba.png", width=400)
 st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
 st.caption(f"Visitas totales: {visitas}")
 
