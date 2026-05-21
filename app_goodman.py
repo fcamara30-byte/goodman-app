@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-
+import uuid
 # ======================
 # CONTADOR DE VISITAS
 # ======================
@@ -50,7 +50,8 @@ with col1:
     
 import requests
 import datetime
- st.session_state.user_id = str(uuid.uuid4())import uuid
+ st.session_state.user_id = str(uuid.uuid4())
+
 
 url = "https://sheetdb.io/api/v1/5gnemmj62nssi"
 
