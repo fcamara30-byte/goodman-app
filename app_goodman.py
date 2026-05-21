@@ -48,7 +48,7 @@ col1, col2 = st.columns([4,1])
 with col1:
     st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
 import requests
-url = "https://sheetdb.io/api/v1/5gnemmj62nssi"import datetime
+import datetimeimport datetime "https://sheetdb.io/api/v1/5gnemmj62nssi"
 
 data = {
     "data": [{
