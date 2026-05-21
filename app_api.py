@@ -40,13 +40,9 @@ Visitas totales: <b>{visitas}</b>
 col_title, col_img = st.columns([5,1])
 
 with col_title:
-    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga")
+    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga 🌎")
 
-with col_img:
-    st.markdown(
-        "<div style='font-size:60px; text-align:center;'>⚙️</div>",
-        unsafe_allow_html=True
-    )
+
 
 
 
