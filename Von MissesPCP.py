@@ -7,6 +7,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os   # ✅ ESTE FALTABA
 
+# CONTADOR DE VISITAS# =========================
+# =========================
+def contador_visitas():
+    archivo = "visitas.txt"
+
+    if not os.path.exists(archivo):
+        with open(archivo, "w") as f:
+            f.write("0")
+
+    with open(archivo, "r+") as f:
+        try:
+            count = int(f.read())
+        except:
+            count = 0
+
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
