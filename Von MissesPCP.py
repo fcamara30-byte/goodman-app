@@ -1,9 +1,12 @@
+
 import streamlit as st
 import streamlit.components.v1 as components
 import math
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os   # ✅ ESTE FALTABA
+
 
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
