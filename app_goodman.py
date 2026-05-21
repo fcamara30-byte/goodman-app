@@ -47,13 +47,8 @@ col1, col2 = st.columns([4,1])
 
 with col1:
     st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-    
 import requests
-import datetime
- st.session_state.user_id = str(uuid.uuid4())
-
-
-url = "https://sheetdb.io/api/v1/5gnemmj62nssi"
+url = "https://sheetdb.io/api/v1/5gnemmj62nssi"import datetime
 
 data = {
     "data": [{
@@ -64,13 +59,15 @@ data = {
     }]
 }
 
-# Enviar SOLO una vez por sesión
 if "registrado" not in st.session_state:
     requests.post(url, json=data)
     st.session_state.registrado = True
+``
+import uuid
 
-# ID único por usuario
 if "user_id" not in st.session_state:
+    st.session_state.user_id = str(uuid.uuid4())
+
 
 
 
