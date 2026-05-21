@@ -9,6 +9,7 @@ import os   # ✅ ESTE FALTABA
 
 # CONTADOR DE VISITAS# =========================
 # =========================
+
 def contador_visitas():
     archivo = "visitas.txt"
 
@@ -21,6 +22,13 @@ def contador_visitas():
             count = int(f.read())
         except:
             count = 0
+
+        count += 1
+        f.seek(0)
+        f.write(str(count))
+        f.truncate()
+
+    return count
 
 
 from reportlab.lib.pagesizes import A4
@@ -63,6 +71,14 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("PCP-QUICK-CALCULATION")
+
+visitas = contador_visitas()
+
+st.markdown(f"""
+<div style='text-align:right; font-size:13px; color:gray; margin-top:-10px;'>
+Visitas: {visitas}
+</div>
+""", unsafe_allow_html=True)
 
 
 
