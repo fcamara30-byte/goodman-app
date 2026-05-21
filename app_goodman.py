@@ -46,7 +46,7 @@ st.markdown("""
 col1, col2 = st.columns([4,1])
 
 with col1:
-    st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo">Selector de varillas 🌎</div>', unsafe_allow_html=True)
 
 
 
