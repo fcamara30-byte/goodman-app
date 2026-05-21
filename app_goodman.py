@@ -42,8 +42,16 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-st.image("aib.png", width=400)
+
+col1, col2 = st.columns([4,1])
+
+with col1:
+    st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
+
+with col2:
+    st.markdown("<br>", unsafe_allow_html=True)  # baja un poco la imagen
+    st.image("aib.png", width=120)
+
 st.markdown('<div class="cursiva">Según Criterio de Goodman + Corrosión-Fatiga</div>', unsafe_allow_html=True)
 st.caption(f"Visitas totales: {visitas}")
 
