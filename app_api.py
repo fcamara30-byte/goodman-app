@@ -232,7 +232,7 @@ Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.87
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
 
 E=30_000_000
 Aeq=0.58
@@ -250,7 +250,7 @@ limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
-MPRL = MPRL_base * 0.95
+MPRL = MPRL_base * 1.1
 
 # ======================
 # DISPLAY
