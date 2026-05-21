@@ -70,7 +70,7 @@ def contador_visitas():
 
 visitas = contador_visitas()
 
-st.set_page_config(layout="wide")
+
 
 
 
