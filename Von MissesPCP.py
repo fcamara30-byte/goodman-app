@@ -70,7 +70,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("PCP-QUICK-CALCULATION")
+st.title("PCP-QUICK-CALCULATION 🌎")
 
 visitas = contador_visitas()
 
