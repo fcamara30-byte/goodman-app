@@ -51,7 +51,8 @@ st.title("PCP-QUICK-CALCULATION")
 # ======================
 # CONTADOR DE VISITAS
 # ======================
-def contador_visitas():def contador_visitas = "visitas.txt"
+def contador_visitas():
+    archivo = "visitas.txt"
 
     if not os.path.exists(archivo):
         with open(archivo, "w") as f:
