@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-import uuid
+
 # ======================
 # CONTADOR DE VISITAS
 # ======================
@@ -47,29 +47,6 @@ col1, col2 = st.columns([4,1])
 
 with col1:
     st.markdown('<div class="titulo">Selector de varillas 🛠️</div>', unsafe_allow_html=True)
-import requests
-import datetime
-  url= "https://sheetdb.io/api/v1/5gnemmj62nssi"
-
-data = {
-    "data": [{
-        "fecha": datetime.datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "user_id": st.session_state.user_id,
-        "dispositivo": "Streamlit",
-        "pais": "unknown"
-    }]
-}
-
-if "registrado" not in st.session_state:
-    requests.post(url, json=data)
-    st.session_state.registrado = True
-``
-import uuid
-
-if "user_id" not in st.session_state:
-    st.session_state.user_id = str(uuid.uuid4())
-
-
 
 
 
