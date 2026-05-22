@@ -7,6 +7,48 @@ import os
 st.set_page_config(layout="wide")
 
 # ======================
+# CONTADOR DE VISITAS
+# ======================
+archivo_contador = "visitas.txt"
+
+if os.path.exists(archivo_contador):
+    with open(archivo_contador, "r") as f:
+        try:
+            visitas = int(f.read())
+        except:
+            visitas = 0
+else:
+    visitas = 0
+
+visitas += 1
+
+with open(archivo_contador, "w") as f:
+    f.write(str(visitas))
+
+# ✅ MOSTRAR ARRIBA (FORMA SEGURA)
+st.markdown(f"""
+<div style="font-size:13px; color:gray;">
+Visitas totales: <b>{visitas}</b>
+</div>
+""", unsafe_allow_html=True)
+
+# ======================
+# TITULO
+# ======================
+
+
+col_title, col_img = st.columns([5,1])
+
+with col_title:
+    st.title("Cálculo de Solicitaciones SRP Corrosión-Fatiga 🌎")
+
+
+
+
+
+
+
+# ======================
 # INPUTS
 # ======================
 c1,c2,c3,c4 = st.columns(4)
@@ -14,25 +56,110 @@ c1,c2,c3,c4 = st.columns(4)
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
+N   = c4.slider("SPM",1,20,6)
 
-with c4:
-    N = st.slider("SPM", 1, 10, 6)
 
-c_slider, col_box = st.columns([2, 3])
+c_slider, _ = st.columns([2, 3])  # controla el ancho
 
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
 
+
+# ======================
+# MATERIALES
+# ======================
+materiales={
+    "DA78":{"uts_a":42.86,"b":0.375},
+    "HS97":{"uts_a":50,"b":0.375},
+    "CS propietario":{"uts_a":44.64,"b":0.375},
+    "HS propietario":{"uts_a":55.36,"b":0.375},
+    "DSX75":{"uts_a":42.86,"b":0.375},
+    "HA96":{"uts_a":50,"b":0.375},
+    "D New":{"uts_a":42.86,"b":0.375}
+}
+
+st.subheader("Material por tramo")
+
+
+col1, col2, col3, _ = st.columns([1,1,1,2])  # mismo criterio que antes
+
+with col1:
+    sel1 = st.selectbox('1"', materiales.keys())
+
+with col2:
+    sel78 = st.selectbox('7/8"', materiales.keys())
+
+with col3:
+    sel34 = st.selectbox('3/4"', materiales.keys())
+
+rod_sel = {
+    "1": sel1,
+    "7/8": sel78,
+    "3/4": sel34
+}
+
+
+
+# ======================
+# AMBIENTE
+# ======================
+CO2={"Nada":1,"Bajo (0-20) psi":0.98,"Medio (21-100) psi":0.9,"Alto >100 psi":0.8}
+H2S={"Nada":1,"Bajo (0-0.99) psi":0.93,"Medio (1-2) psi":0.8,"Alto >2 psi":0.75}
+BSR={"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
+
+
+col1, col2, col3, col4, _ = st.columns([1,1,1,1,2])  # ← mismo criterio compacto
+
+with col1:
+    co2 = st.selectbox("PPCO₂", CO2)
+
+with col2:
+    h2s = st.selectbox("PPH₂S", H2S)
+
+with col3:
+    bsr = st.selectbox("BSR", BSR)
+
+with col4:
+    cl = st.number_input("Cloruros (ppm)", 0, 250000, 0, step=1000)
+
+
+def f_cl(ppm):
+    return 1 if ppm<6000 else (-2e-16)*(ppm**3) + (7e-11)*(ppm**2) - (9e-6)*ppm + 1.0704
+
+f_base=CO2[co2]*H2S[h2s]*BSR[bsr]*f_cl(cl)
+
+def FS_material(mat,f):
+    if f==1: return 1
+    if mat=="DA78": return f*0.90
+    elif mat=="HS97": return f*0.92
+    elif mat=="CS propietario": return f*0.92
+    elif mat=="HS propietario": return f*0.75
+    elif mat=="D New": return f*0.90
+    elif mat=="DSX75": return f if f < 0.73 else 1
+    elif mat=="HA96": return f*0.85
+    return f*0.9
+
 # ======================
 # VARILLAS
 # ======================
+st.subheader("Cant. Varillas")
+
+c1,c2,c3=st.columns(3)
+
+# cálculo automático 33%-33%-33%
+total_varillas = int((L_m / 0.3048) / 25)  # convertir m → ft → cantidad sticks
+
+n_default = total_varillas // 3
+
+
+col1, col2, col3, _ = st.columns([1,1,1,2])  # ← achica inputs
+
+# cálculo automático 33%-33%-33%
 total_varillas = int((L_m / 0.3048) / 25)
 
 n1_def = total_varillas // 3
 n78_def = total_varillas // 3
-n34_def = total_varillas - n1_def - n78_def
-
-col1, col2, col3 = st.columns(3)
+n34_def = total_varillas - n1_def - n78_def  # ajusta cierre
 
 with col1:
     n1 = st.number_input('1"', 10, 300, n1_def)
@@ -43,114 +170,123 @@ with col2:
 with col3:
     n34 = st.number_input('3/4"', 10, 300, n34_def)
 
-L1,L78,L34 = n1*25,n78*25,n34*25
-L_total_ft = L1 + L78 + L34
+
+L1,L78,L34=n1*25,n78*25,n34*25
+total=L1+L78+L34
 
 # ======================
-# FUNCIONES
+# CONTROL LONGITUD
 # ======================
-E = 30_000_000
+st.subheader("Control de longitud")
 
-areas={"1":0.786,"7/8":0.601,"3/4":0.442}
-peso={"1":3.1,"7/8":2.5,"3/4":1.7}
+long_m = total * 0.3048
+dif = long_m - L_m
 
-def calc_kr(L1, L78, L34):
-    term = (L1/areas["1"]) + (L78/areas["7/8"]) + (L34/areas["3/4"])
-    return E / (term * 12)
+# ✅ primero crear dataframe
+df_ctrl = pd.DataFrame({
+    "Pozo (m)":[int(L_m)],
+    "Sarta (m)":[int(long_m)],
+    "Δ (m)":[int(dif)]
+})
 
-def calc_No(L_total_ft):
-    return (16300 * 1.1) / (4 * L_total_ft) * 60
+# ✅ después crear columnas
+col_tabla, _ = st.columns([3, 7])
 
-def interp_2d(x, y, x_vals, y_vals, z):
+# ✅ después mostrar
+with col_tabla:
+    st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
 
-    x = np.clip(x, x_vals[0], x_vals[-1])
-    y = np.clip(y, y_vals[0], y_vals[-1])
+# ✅ ALERTA
+if abs(dif) > 20:
+    st.markdown("""
+    <style>
+    @keyframes blink {
+        0% {opacity: 1;}
+        50% {opacity: 0;}
+        100% {opacity: 1;}
+    }
+    .alerta {
+        color: red;
+        font-weight: bold;
+        animation: blink 0.6s linear 4;
+    }
+    </style>
 
-    i = np.searchsorted(x_vals, x) - 1
-    j = np.searchsorted(y_vals, y) - 1
+    <div class="alerta">⚠ Chequear longitud de Sarta</div>
+    """, unsafe_allow_html=True)
 
-    i = np.clip(i, 0, len(x_vals)-2)
-    j = np.clip(j, 0, len(y_vals)-2)
-
-    x1,x2 = x_vals[i],x_vals[i+1]
-    y1,y2 = y_vals[j],y_vals[j+1]
-
-    Q11=z[i][j]
-    Q12=z[i][j+1]
-    Q21=z[i+1][j]
-    Q22=z[i+1][j+1]
-
-    return (
-        Q11*(x2-x)*(y2-y)+
-        Q21*(x-x1)*(y2-y)+
-        Q12*(x2-x)*(y-y1)+
-        Q22*(x-x1)*(y-y1)
-    )/((x2-x1)*(y2-y1))
-
-# ======================
-# CURVAS API CORREGIDAS
-# ======================
-
-Fo_vals = np.array([0.1,0.2,0.4,0.5])
-N_vals  = np.array([0.1,0.2,0.3,0.4,0.5,0.6])
-
-F1_table = np.array([
-    [0.25,0.32,0.40,0.50,0.65,0.85],
-    [0.25,0.33,0.42,0.50,0.66,0.90],
-    [0.45,0.52,0.60,0.70,0.85,1.05],
-    [0.555,0.63,0.69,0.80,0.90,1.10]
-])
-
-F2_table = np.array([
-    [0.03,0.09,0.17,0.26,0.34,0.40],
-    [0.04,0.10,0.18,0.26,0.35,0.42],
-    [0.05,0.12,0.20,0.27,0.36,0.44],
-    [0.06,0.13,0.22,0.30,0.38,0.47]
-])
 
 # ======================
 # MODELO
 # ======================
+areas={"1":0.786,"7/8":0.601,"3/4":0.442}
+peso={"1":3.1,"7/8":2.5,"3/4":1.7}
 
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
-Ap = np.pi*D**2/4
-Fo = 0.433 * G * L_total_ft * Ap
+L_total_ft = L1+L78+L34
 
-kr = calc_kr(L1,L78,L34) * 1.6   # ✅ AJUSTE CLAVE
+Ap=np.pi*D**2/4
+Fh=0.433*G*L_total_ft*Ap
 
-Skr = kr * S
+Fd = (S * N) / (2600 + S * N)
 
-Fo_Skr = Fo / Skr
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
 
-No = calc_No(L_total_ft)
-N_ratio = N / No
+E=30_000_000
+Aeq=0.58
 
-F1_Skr = interp_2d(Fo_Skr,N_ratio,Fo_vals,N_vals,F1_table)
-F2_Skr = interp_2d(Fo_Skr,N_ratio,Fo_vals,N_vals,F2_table)
+kr=(Aeq*E)/(L_total_ft*12)
 
-PPRL = Wr + F1_Skr * Skr
-MPRL = Wr - F2_Skr * Skr
+dx=0.52*S*(Fd**0.78)
+
+prop_L=(L_total_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
+
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
+
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
+
+MPRL_base=max(Wr-dF,0)
+MPRL = MPRL_base * 1.1
 
 # ======================
 # DISPLAY
 # ======================
-st.write("Fo/Skr:", round(Fo_Skr,3))
-st.write("N/No:", round(N_ratio,3))
+st.subheader("Cargas")
 
-c1,c2 = st.columns(2)
+
+
+c1, c2, _ = st.columns([1, 1, 5])  # más juntas
+
+def carga_estilo(titulo, valor):
+    st.markdown(f"""
+    <div style="text-align:center;">
+        <div style="font-size:14px;">
+            {titulo}
+        </div>
+        <div style="font-size:28px; font-weight:700; color:#003399;">
+            {valor}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with c1:
-    st.metric("PPRL (lb)", f"{int(PPRL):,}")
+    carga_estilo("PPRL (lb)", f"{int(PPRL):,}")
 
 with c2:
-    st.metric("MPRL (lb)", f"{int(MPRL):,}")
+    carga_estilo("MPRL (lb)", f"{int(MPRL):,}")
+
+
 
 # ======================
 # RESULTADOS
 # ======================
-pct={"1":L1/L_total_ft,"7/8":L78/L_total_ft,"3/4":L34/L_total_ft}
+st.subheader("Resultados por tramo")
+
+pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
 W1=pct["1"]*Wr_air
 W78=pct["7/8"]*Wr_air
@@ -158,42 +294,163 @@ W78=pct["7/8"]*Wr_air
 W_up={"1":0,"7/8":W1,"3/4":W1+W78}
 
 rows=[]
+colors=["red","green","orange"]
 
-for d in pct:
+for i,d in enumerate(pct):
+
     Pmax=PPRL-W_up[d]
     Pmin=max(MPRL-0.3*W_up[d],0)
 
     Smax=Pmax/areas[d]/1000
     Smin=Pmin/areas[d]/1000
 
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    utsa=materiales[mat]["uts_a"]
+    b=materiales[mat]["b"]
+
+    Sadm=utsa*fs+b*Smin
+    Gval=(Smax-Smin)/(Sadm-Smin)*100
+
     rows.append({
         "Tramo":d,
-        "Max Load":int(Pmax),
-        "Min Load":int(Pmin),
-        "Smax":round(Smax,1),
-        "Smin":round(Smin,1)
+        "Material":mat,
+        "FS":round(fs,2),
+        "Max Load (lb)":int(Pmax),
+        "Min Load (lb)":int(Pmin),
+        "Smax (ksi)":round(Smax,1),
+        "Smin (ksi)":round(Smin,1),
+        "Goodman (%)":int(Gval),
+        "Color":colors[i]
     })
 
-st.dataframe(pd.DataFrame(rows))
+
+df = pd.DataFrame(rows)
+
+
+
+def estilo_tabla(df):
+    return (
+        df.style
+        # ✅ fondo gris suave
+        .set_properties(**{
+            'background-color': '#F2F2F2',
+            'font-size': '15px'   # ← un poco más grande
+        })
+        # ✅ Material en azul fuerte
+        .map(lambda x: 'color:#003399; font-weight:bold;', subset=["Material"])
+        # ✅ formato numérico controlado
+
+.format({
+    "Max Load (lb)": "{:,.0f}",
+    "Min Load (lb)": "{:,.0f}",
+    "Smax (ksi)": "{:.1f}",
+    "Smin (ksi)": "{:.1f}",
+    "Goodman (%)": "{:.0f}"
+})
+
+        # ✅ padding compacto pero no exagerado
+        .set_table_styles([
+            {'selector': 'th', 'props': [('font-size', '14px')]},
+            {'selector': 'td', 'props': [('padding', '6px 10px')]}
+        ])
+    )
+
+
+col_res, _ = st.columns([8,2])  # ✅ achica ancho tabla
+
+with col_res:
+    st.dataframe(
+        estilo_tabla(df.drop(columns=["Color"])),
+        use_container_width=True
+    )
+
+
 
 # ======================
 # GOODMAN
 # ======================
-x=np.linspace(0,60,200)
+st.subheader("Diagrama de Goodman")
+
+x_max=min([
+    materiales[rod_sel[d]]["uts_a"] *
+    FS_material(rod_sel[d],f_base) / (1-materiales[rod_sel[d]]["b"])
+    for d in pct
+])
+
+x=np.linspace(0,x_max,200)
 
 fig,ax=plt.subplots()
 
+curvas=[]
 for d in pct:
-    y=40 + 0.3*x
+    mat=rod_sel[d]
+    fs=FS_material(mat,f_base)
+
+    y=materiales[mat]["uts_a"]*fs + materiales[mat]["b"]*x
+    curvas.append(y)
+
     ax.plot(x,y)
 
-for _,r in pd.DataFrame(rows).iterrows():
-    ax.scatter(r["Smin"], r["Smax"])
+# ✅ zona segura
+y_safe=np.minimum.reduce(curvas)
+ax.fill_between(x,x,y_safe,where=(y_safe>=x),alpha=0.2)
 
+# ✅ RECUPERAR PUNTOS Y LEYENDA
+labels=set()
+for _,r in df.iterrows():
+    etiqueta=f'{r["Tramo"]}" - {r["Material"]}'
+    if etiqueta not in labels:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"], label=etiqueta)
+        labels.add(etiqueta)
+    else:
+        ax.scatter(r["Smin (ksi)"], r["Smax (ksi)"])
+
+# ✅ línea 45°
 ax.plot(x,x)
-ax.set_xlabel("Smin")
-ax.set_ylabel("Smax")
-ax.set_title("Goodman")
 
-st.pyplot(fig)
+# ✅ límites
+ax.set_xlim(left=0)
+ax.set_ylim(bottom=0)
+
+# ✅ etiquetas
+ax.set_xlabel("Smin (ksi)")
+ax.set_ylabel("Smax (ksi)")
+
+# ✅ título (faltaba)
+ax.set_title("Solicitaciones penalizadas por Corrosión")
+
+# ✅ leyenda (faltaba)
+ax.legend(title="Tramo")
+
+# ✅ DETECCIÓN DE FALLA
+fuera = any(df["Goodman (%)"] > 100)
+
+# ✅ MENSAJE EN EL GRÁFICO
+if fuera:
+    ax.text(
+        0.5, 0.1,
+        "Seleccione otro tipo de varilla o utilice revestimiento\n+ Tratamiento químico",
+        transform=ax.transAxes,
+        fontsize=10,
+        color="red",
+        ha="center",
+        bbox=dict(facecolor='white', alpha=0.8, edgecolor='red')
+    )
+
+
+col_plot, col_blank = st.columns([4, 2])  # más chico y a la izquierda
+
+with col_plot:
+    st.pyplot(fig)
+
+
+
+
+
+
+st.markdown("---")
+st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y Experiencias de Campo..")
+st.caption("Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26")
 
