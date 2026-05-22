@@ -215,6 +215,45 @@ if abs(dif) > 20:
     <div class="alerta">⚠ Chequear longitud de Sarta</div>
     """, unsafe_allow_html=True)
 
+# ======================# =================IONES API RP 11L
+# ======================
+
+E = 30_000_000  # psi
+
+def calc_kr(L1, L78, L34):
+    A = {"1":0.786, "7/8":0.601, "3/4":0.442}
+    term = (L1/(A["1"])) + (L78/(A["7/8"])) + (L34/(A["3/4"]))
+    kr = E / (term * 12)  # lb/in
+    return kr
+
+
+def calc_No(L_total_ft):
+    a = 16300  # ft/s (API)
+    Fc = 1.1   # sarta taper típica
+    No = (a * Fc) / (4 * L_total_ft)
+    return No * 60  # SPM
+
+
+def F1_Skr_API(N_ratio, Fo_Skr):
+    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
+    N_ratio = max(0.01, min(N_ratio, 0.7))
+
+    base = Fo_Skr * (1.0 + 1.8*N_ratio + 1.2*N_ratio**2)
+    corr = 1 + 0.4 * N_ratio
+
+    return base * corr
+
+
+def F2_Skr_API(N_ratio, Fo_Skr):
+    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
+    N_ratio = max(0.01, min(N_ratio, 0.7))
+
+    base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
+    corr = 1 + 0.6 * N_ratio**1.5
+
+    return max(base * corr, 0)
+
+
 
 # ======================
 # MODELO
@@ -230,27 +269,25 @@ L_total_ft = L1+L78+L34
 Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
-Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
+# --- API MODEL ---
+kr = calc_kr(L1, L78, L34)
+Fo = Fh
 
-E=30_000_000
-Aeq=0.58
+Fo_Skr = Fo / (S * kr)
 
-kr=(Aeq*E)/(L_total_ft*12)
+No = calc_No(L_total_ft)
+N_ratio = N / No
 
-dx=0.52*S*(Fd**0.78)
+F1_Skr = F1_Skr_API(N_ratio, Fo_Skr)
+F2_Skr = F2_Skr_API(N_ratio, Fo_Skr)
 
-prop_L=(L_total_ft/6000)**0.22
-prop_F=(Fh/Wr)**0.08
+PPRL = Wr + (F1_Skr * S * kr)
+MPRL = Wr - (F2_Skr * S * kr)
+# --- DEBUG TEMPORAL ---# ---st.write("Fo/Skr:", round(Fo_Skr,3))
+st.write("N/No:", round(N_ratio,3))
+st.write("F2/Skr:", round(F2_Skr,3))
 
-dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
-
-limite=Wr*(0.45+0.20*Fd)
-dF=min(dF,limite)
-
-MPRL_base=max(Wr-dF,0)
-MPRL = MPRL_base * 1.1
 
 # ======================
 # DISPLAY
