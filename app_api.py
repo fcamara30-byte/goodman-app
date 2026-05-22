@@ -357,7 +357,7 @@ F2_table = np.array([
 
 # --- API MODEL LIMPIO ---
 
-kr = calc_kr(L1, L78, L34)
+kr = calc_kr(L1, L78, L34) * 1.6
 
 # ✅ SIN FACTORES RAROS
 Fo = Fh
@@ -372,7 +372,8 @@ N_ratio = N / No
 F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 
 # ✅ F1 coherente con API (NO sumas, NO inventos)
-F1_Skr = F2_Skr * 1.15
+F1_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F1_table)
+
 
 
 # ✅ cargas
@@ -935,7 +936,7 @@ Fh = 0.433 * G * L_total_ft * Ap
 # --- API MODEL ---
 # --- API MODEL LIMPIO ---
 
-kr = calc_kr(L1, L78, L34)
+kr = calc_kr(L1, L78, L34) * 1.6
 
 # ✅ SIN FACTORES RAROS
 Fo = Fh
@@ -950,7 +951,8 @@ N_ratio = N / No
 F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 
 # ✅ F1 coherente con API (NO sumas, NO inventos)
-F1_Skr = F2_Skr * 1.15
+F1_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F1_table)
+
 
 
 # ✅ cargas
@@ -1504,7 +1506,7 @@ Fh = 0.433 * G * L_total_ft * Ap
 # --- API MODEL ---
 # --- API MODEL LIMPIO ---
 
-kr = calc_kr(L1, L78, L34)
+kr = calc_kr(L1, L78, L34) * 1.6
 
 # ✅ SIN FACTORES RAROS
 Fo = Fh
@@ -2089,7 +2091,7 @@ Fh = 0.433 * G * L_total_ft * Ap
 # --- API MODEL ---
 # --- API MODEL LIMPIO ---
 
-kr = calc_kr(L1, L78, L34)
+kr = calc_kr(L1, L78, L34) * 1.6
 
 # ✅ SIN FACTORES RAROS
 Fo = Fh
@@ -2104,7 +2106,8 @@ N_ratio = N / No
 F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 
 # ✅ F1 coherente con API (NO sumas, NO inventos)
-F1_Skr = F2_Skr * 1.15
+F1_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F1_table)
+
 
 
 # ✅ cargas
