@@ -234,24 +234,35 @@ def calc_No(L_total_ft):
     return No * 60  # SPM
 
 
+
 def F1_Skr_API(N_ratio, Fo_Skr):
-    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
-    N_ratio = max(0.01, min(N_ratio, 0.7))
+    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
+    N_ratio = max(0.02, min(N_ratio, 0.7))
 
-    base = Fo_Skr * (1.0 + 1.8*N_ratio + 1.2*N_ratio**2)
-    corr = 1 + 0.4 * N_ratio
+    term1 = Fo_Skr * (1.1 + 1.2*N_ratio)
+    term2 = Fo_Skr * (2.2 * N_ratio**2)
 
-    return base * corr
+    return term1 + term2
+
 
 
 def F2_Skr_API(N_ratio, Fo_Skr):
-    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
-    N_ratio = max(0.01, min(N_ratio, 0.7))
+    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
+    N_ratio = max(0.02, min(N_ratio, 0.7))
 
-    base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
-    corr = 1 + 0.6 * N_ratio**1.5
+    # base tipo lineal + reducción inicial
+    term1 = Fo_Skr * (0.85 - 1.4*N_ratio)
 
-    return max(base * corr, 0)
+    # curvatura real API
+    term2 = Fo_Skr * (2.8 * N_ratio**2)
+
+    # efecto dinámico fuerte a alta velocidad
+    term3 = Fo_Skr * (1.5 * N_ratio**3)
+
+    F2 = term1 + term2 + term3
+
+    return max(F2, 0)
+
 
 
 
