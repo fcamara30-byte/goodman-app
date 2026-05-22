@@ -332,7 +332,7 @@ Fh = 0.433 * G * L_total_ft * Ap
 
 # --- API MODEL ---
 kr = calc_kr(L1, L78, L34)
-Fo = Fh*0.8
+Fo = Fh
 
 Fo_Skr = Fo / (S * kr)
 
@@ -347,7 +347,10 @@ N_ratio = N / No
 # F2 POR INTERPOLACIÓN API
 # ======================
 
-F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
+F2_base = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
+
+# ✅ corrección sobre carga mínima
+F2_Skr = F2_base * 1.25
 
 # F1 aproximado
 F1_Skr = F2_Skr * 1.3
