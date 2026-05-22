@@ -75,16 +75,33 @@ with col_spm:
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
+c_slider, col_box = st.columns([2, 3])c_slider, col_box = st.columns([2, px;
+    ">
+        <div style="font-size:14px;">
+            Producción
+        </div>
+        <div style="font-size:26px; font-weight:bold;">
+            {Q_m3:.1f}
+        </div>
+        <div style="font-size:13px;">
+            m³/día
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-with c_slider:with cera (in)", 0, 300, 168)
+with c_slider:
+    S = st.slider("Carrera (in)", 0, 300, 168)
 
 Q_bpd = 0.1166 * S * N * (D**2)
 Q_m3 = Q_bpd * 0.159 * 0.9
 
-    S = st.slider("Carrera (in)", 0, 300, 168)
-    with c_slider:
-    S =_bpd = 0.1166 * S * N * (D**2)    S = st.slider("Carrera (in)", 0, 300, 168)
-    Q_m3 = Q_bpd * 0.159 * 0.9
+with col_box:
+    st.markdown(f"""
+    <div style="
+        background-color:#cceeff;
+        border-radius:10px;
+        padding:12px;
+        text-align:center;
 
 
 
