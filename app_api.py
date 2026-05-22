@@ -60,7 +60,7 @@ G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 
 
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
-N   = c4.slider("SPM",1,20,6)
+N   = c4.slider("SPM",1,10,6)
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
