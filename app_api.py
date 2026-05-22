@@ -269,7 +269,7 @@ Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0,86
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.86
 
 E=30_000_000
 Aeq=0.58
