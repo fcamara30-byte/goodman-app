@@ -290,7 +290,7 @@ def F2_Skr_API(N_ratio, Fo_Skr):
     base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
     corr = 1 + 0.6 * N_ratio**1.5
 
-    return max(base * corr, 0
+    return max(base * corr, 0)
 
 
 
