@@ -246,7 +246,16 @@ def F1_Skr_API(N_ratio, Fo_Skr):
 
 
 
-def F2_Skr_API(N_ratio, Fo_Skr):def F2_Skr_API(N_ratio, Fo_S    # transición (curva suave)
+def F2_Skr_API(N_ratio, Fo_Skr):
+
+    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
+    N_ratio = max(0.01, min(N_ratio, 0.7))
+
+    # zona casi estática (API real)
+    if N_ratio < 0.15:
+        return Fo_Skr * (0.9 - 0.2 * N_ratio)
+
+    # zona intermedia
     term1 = Fo_Skr * (0.8 - 1.2*N_ratio)
     term2 = Fo_Skr * (2.0 * N_ratio**2)
 
@@ -254,12 +263,7 @@ def F2_Skr_API(N_ratio, Fo_Skr):def F2_Skr_API(N_ratio, Fo_S    # transición (c
     term3 = Fo_Skr * (0.8 * N_ratio**3)
 
     return max(term1 + term2 + term3, 0)
-    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
-    N_ratio = max(0.01, min(N_ratio, 0.7))
 
-    # zona casi estática (API real)
-    if N_ratio < 0.15:
-        return Fo_Skr * (0.9 - 0.2 * N_ratio)
 
 
 
