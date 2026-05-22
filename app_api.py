@@ -58,14 +58,7 @@ G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
 N   = c4.slider("SPM",1,20,6)
 # ======================
-# NIV# NIVEL DINÁMICO (CLAVE)
 
-L_fluido_m = st.number_input(
-    "Nivel dinámico (m)", 
-    0, int(L_m), int(L_m * 0.7)
-)
-
-L_fluido_ft = L_fluido_m / 0.3048
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
@@ -318,7 +311,7 @@ Wr = Wr_air*(1-0.128*G)
 L_total_ft = L1+L78+L34
 
 Ap=np.pi*D**2/4
-Fh = 0.433 * G * L_fluido_ft * Ap
+Fh = 0.433 * G * L_total_ft * Ap
 
 
 # --- API MODEL ---
