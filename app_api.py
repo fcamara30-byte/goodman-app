@@ -332,7 +332,7 @@ Fh = 0.433 * G * L_total_ft * Ap
 
 # --- API MODEL ---
 kr = calc_kr(L1, L78, L34)
-Fo = Fh*0.8
+Fo = Fh*0.55
 
 Fo_Skr = Fo / (S * kr)
 
