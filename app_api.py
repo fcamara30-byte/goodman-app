@@ -196,4 +196,4 @@ ax.set_ylabel("Smax")
 ax.set_title("Goodman")
 
 st.pyplot(fig)
-``
+
