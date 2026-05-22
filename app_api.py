@@ -56,7 +56,39 @@ c1,c2,c3,c4 = st.columns(4)
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
-N   = c4.slider("SPM",1,20,6)
+col_spm, col_box = c4.columns([2,1])
+
+with col_spm:
+    N = st.slider("SPM", 1, 6, 6)
+
+# ✅ asegurate que esto esté definido antes
+Q_bpd = 0.1166 * S * N * (D**2)
+Q_m3 = Q_bpd * 0.159 * 0.9
+
+with col_box:
+    st.markdown(f"""
+    <div style="
+        background-color:#cceeff;
+        border-radius:8px;
+        padding:8px;
+        text-align:center;
+        height:80px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    ">
+        <div style="font-size:12px;">
+            Producción
+        </div>
+        <div style="font-size:20px; font-weight:bold;">
+            {Q_m3:,.1f}
+        </div>
+        <div style="font-size:11px;">
+            m³/día
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+col_spm, col_box = st.columns([3,1])
 # ======================
 
 
