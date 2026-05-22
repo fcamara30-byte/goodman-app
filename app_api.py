@@ -372,7 +372,7 @@ F1_Skr = F2_Skr * 1.15
 
 # ✅ cargas
 PPRL = Wr + (F1_Skr * S * kr)
-MPRL = Wr - (F2_Skr * S * kr)
+MPRL = Wr - (F2_Skr *1.3* S * kr)
 
 
 # --- DEBUG TEMPORAL ---# ---st.write("Fo/Skr:", round(Fo_Skr,3))
