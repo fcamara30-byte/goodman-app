@@ -18,7 +18,7 @@ D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
 with c4:
     N = st.slider("SPM", 1, 10, 6)
 
-c_slider, col_box = st.columns([2,3])
+c_slider, col_box = st.columns([2, 3])
 
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
@@ -43,8 +43,8 @@ with col2:
 with col3:
     n34 = st.number_input('3/4"', 10, 300, n34_def)
 
-L1,L78,L34=n1*25,n78*25,n34*25
-L_total_ft = L1+L78+L34
+L1,L78,L34 = n1*25,n78*25,n34*25
+L_total_ft = L1 + L78 + L34
 
 # ======================
 # FUNCIONES
@@ -88,7 +88,7 @@ def interp_2d(x, y, x_vals, y_vals, z):
     )/((x2-x1)*(y2-y1))
 
 # ======================
-# CURVAS API (RECONSTRUIDAS)
+# CURVAS API CORREGIDAS
 # ======================
 
 Fo_vals = np.array([0.1,0.2,0.4,0.5])
@@ -115,10 +115,10 @@ F2_table = np.array([
 Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
-Ap = np.pi * D**2 / 4
+Ap = np.pi*D**2/4
 Fo = 0.433 * G * L_total_ft * Ap
 
-kr = calc_kr(L1,L78,L34) * 1.6   # ✅ CORRECCIÓN CRÍTICA
+kr = calc_kr(L1,L78,L34) * 1.6   # ✅ AJUSTE CLAVE
 
 Skr = kr * S
 
@@ -134,18 +134,66 @@ PPRL = Wr + F1_Skr * Skr
 MPRL = Wr - F2_Skr * Skr
 
 # ======================
-# OUTPUT
+# DISPLAY
 # ======================
-
 st.write("Fo/Skr:", round(Fo_Skr,3))
 st.write("N/No:", round(N_ratio,3))
-st.write("F1:", round(F1_Skr,3))
-st.write("F2:", round(F2_Skr,3))
 
-col1,col2 = st.columns(2)
+c1,c2 = st.columns(2)
 
-with col1:
-    st.metric("PPRL", int(PPRL))
+with c1:
+    st.metric("PPRL (lb)", f"{int(PPRL):,}")
 
-with col2:
-    st.metric("MPRL", int(MPRL))
+with c2:
+    st.metric("MPRL (lb)", f"{int(MPRL):,}")
+
+# ======================
+# RESULTADOS
+# ======================
+pct={"1":L1/L_total_ft,"7/8":L78/L_total_ft,"3/4":L34/L_total_ft}
+
+W1=pct["1"]*Wr_air
+W78=pct["7/8"]*Wr_air
+
+W_up={"1":0,"7/8":W1,"3/4":W1+W78}
+
+rows=[]
+
+for d in pct:
+    Pmax=PPRL-W_up[d]
+    Pmin=max(MPRL-0.3*W_up[d],0)
+
+    Smax=Pmax/areas[d]/1000
+    Smin=Pmin/areas[d]/1000
+
+    rows.append({
+        "Tramo":d,
+        "Max Load":int(Pmax),
+        "Min Load":int(Pmin),
+        "Smax":round(Smax,1),
+        "Smin":round(Smin,1)
+    })
+
+st.dataframe(pd.DataFrame(rows))
+
+# ======================
+# GOODMAN
+# ======================
+x=np.linspace(0,60,200)
+
+fig,ax=plt.subplots()
+
+for d in pct:
+    y=40 + 0.3*x
+    ax.plot(x,y)
+
+for _,r in pd.DataFrame(rows).iterrows():
+    ax.scatter(r["Smin"], r["Smax"])
+
+ax.plot(x,x)
+ax.set_xlabel("Smin")
+ax.set_ylabel("Smax")
+ax.set_title("Goodman")
+
+st.pyplot(fig)
+``
