@@ -58,7 +58,7 @@ G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 # ======================
 # PRODUCCIÓN BRUTA
 # ======================
-Q_bpd = 0.1166 * S * N * (D*2)
+Q_bpd = 0.1166 * S * N * (D**2)
 Q_m3 = Q_bpd * 0.159
 
 col_prod, _ = st.columns([1.2, 3])
