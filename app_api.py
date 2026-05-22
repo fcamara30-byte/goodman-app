@@ -318,6 +318,9 @@ with c2:
     carga_estilo("MPRL (lb)", f"{int(MPRL):,}")
 
 
+with c3:
+    carga_estilo("HP Vástago", f"{HP:.1f}")
+
 
 # ======================
 # RESULTADOS
