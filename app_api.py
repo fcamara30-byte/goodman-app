@@ -331,40 +331,30 @@ Fh = 0.433 * G * L_total_ft * Ap
 
 
 # --- API MODEL ---
+# --- API MODEL LIMPIO ---
+
 kr = calc_kr(L1, L78, L34)
-Fo = Fh*0.55
+
+# ✅ SIN FACTORES RAROS
+Fo = Fh
 
 Fo_Skr = Fo / (S * kr)
 
-# ✅ N fijo
-
-# API base
-
+# dinámica real
 No = calc_No(L_total_ft)
 N_ratio = N / No
 
-# ======================
-# F2 POR INTERPOLACIÓN API
-# ======================
-
-F2_base = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
-# F1 real separado de F2 (NO proporcional)# F0.04
-
+# ✅ F2 directamente de API
 F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 
-F1_Skr = F2_Skr + 0.04
-
-# F1 real (ligeramente mayor que F2, pero no proporcional)# F1 real (ligeramente mayor que F2, pero no_vals, N_vals, F2_table) + 0.0
-
+# ✅ F1 coherente con API (NO sumas, NO inventos)
+F1_Skr = F2_Skr * 1.15
 
 
-
-# ✅ efecto SPM (acá está la magia)
-
-
-# cargas
+# ✅ cargas
 PPRL = Wr + (F1_Skr * S * kr)
 MPRL = Wr - (F2_Skr * S * kr)
+
 
 # --- DEBUG TEMPORAL ---# ---st.write("Fo/Skr:", round(Fo_Skr,3))
 st.write("N/No:", round(N_ratio,3))
