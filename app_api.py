@@ -68,6 +68,35 @@ c_slider, _ = st.columns([2, 3])  # controla el ancho
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
 
+# ======================
+# PRODUCCIÓN BRUTA
+# ======================
+Q_bpd = 0.1166 * S * N * (D**2)
+Q_m3 = Q_bpd * 0.159
+
+col_prod, _ = st.columns([1.2, 3])
+
+with col_prod:
+    st.markdown(f"""
+    <div style="
+        background-color:#cceeff;
+        border-radius:8px;
+        padding:8px 10px;
+        height:56px;
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    ">
+        <div style="font-size:12px; color:#333;">
+            Producción (m³/día)
+        </div>
+        <div style="font-size:14px;">
+            {Q_m3:.1f}
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
 
 # ======================
 # MATERIALES
