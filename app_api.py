@@ -261,7 +261,7 @@ with col_tabla:
 
 # ✅ ALERTA
 if abs(dif) > 20:
-st.markdown("""
+ st.markdown("""
     <style>
     @keyframes blink {
         0% {opacity: 1;}
