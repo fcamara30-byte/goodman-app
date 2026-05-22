@@ -85,7 +85,7 @@ with col3:
         padding:6px 8px;
         height:52px;
         display:flex;
-        margin-top:-40px;
+        margin-top:-60px;
         flex-direction:column;
         justify-content:center;
         align-items:center;
