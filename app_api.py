@@ -75,8 +75,7 @@ with col_spm:
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
-c_slider, col_box = st.columns([2, 3])c_slider, col_box = st.columns([2, px;
-    ">
+c_slider, col_box = st.columns([2, 3])
         <div style="font-size:14px;">
             Producción
         </div>
