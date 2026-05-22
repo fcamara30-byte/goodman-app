@@ -322,23 +322,23 @@ Fo = Fh
 Fo_Skr = Fo / (S * kr)
 
 # ✅ N fijo
+
+# API base
 N_ratio = 0.1
 
 F1_Skr = F1_Skr_API(N_ratio, Fo_Skr)
 F2_Skr = F2_Skr_API(N_ratio, Fo_Skr)
 
+# ✅ efecto SPM (acá está la magia)
+vel_factor = 1 + 0.06 * (N - 6)
+
+F1_Skr = F1_Skr * vel_factor
+F2_Skr = F2_Skr * vel_factor
+
+# cargas
 PPRL = Wr + (F1_Skr * S * kr)
 MPRL = Wr - (F2_Skr * S * kr)
 
-
-# corrección por baja velocidad (clave)
-speed_corr = 1 + 1.8 * (N_ratio**0.7)
-
-F1_Skr = F1_base * speed_corr
-F2_Skr = F2_base * speed_corr
-
-PPRL = Wr + (F1_Skr * S * kr)
-MPRL = Wr - (F2_Skr * S * kr)
 # --- DEBUG TEMPORAL ---# ---st.write("Fo/Skr:", round(Fo_Skr,3))
 st.write("N/No:", round(N_ratio,3))
 st.write("F2/Skr:", round(F2_Skr,3))
