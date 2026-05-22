@@ -66,53 +66,29 @@ with col_spm:
     N = st.slider("SPM", 1, 6, 6)
 
 
-with col_box_under:
-    st.markdown(f"""
-    <div style="
-        background-color:#cceeff;
-        border-radius:10px;
-        padding:12px;
-        text-align:center;
-        height:100px;
-        width:200px;
 
 
 
-with col_box:
-    st.markdown(f"""
-    <div style="
-        background-color:#cceeff;
-        border-radius:8px;
-        padding:8px;
-        text-align:center;
-        height:80px;
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-    ">
-        <div style="font-size:12px;">
-            Producción
-        </div>
-        <div style="font-size:20px; font-weight:bold;">
-           {Q_m3 if 'Q_m3' in locals() else 0}
-        </div>
-        <div style="font-size:11px;">
-            m³/día
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-col_spm, col_box = st.columns([3,1])
-# ======================
+
+
 
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
 
-with c_slider:
-    Q_bpd = 0.1166 * S * N * (D**2)
-    Q_m3 = Q_bpd * 0.159 * 0.9
+with c_slider:with cera (in)", 0, 300, 168)
+
+Q_bpd = 0.1166 * S * N * (D**2)
+Q_m3 = Q_bpd * 0.159 * 0.9
+
     S = st.slider("Carrera (in)", 0, 300, 168)
-col_box_under, _ = st.columns([3,1])col_box_under, _ = st.columns style="font-size:14px;">
+    with c_slider:
+    S =_bpd = 0.1166 * S * N * (D**2)    S = st.slider("Carrera (in)", 0, 300, 168)
+    Q_m3 = Q_bpd * 0.159 * 0.9
+
+
+
+
             Producción
         </div>
         <div style="font-size:26px; font-weight:bold;">
