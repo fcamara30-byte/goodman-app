@@ -247,22 +247,14 @@ def F1_Skr_API(N_ratio, Fo_Skr):
 
 
 def F2_Skr_API(N_ratio, Fo_Skr):
+    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
+    N_ratio = max(0.01, min(N_ratio, 0.7))
 
-    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
-    N_ratio = max(0.0, min(N_ratio, 0.7))
+    base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
+    corr = 1 + 0.6 * N_ratio**1.5
 
-    # 🔵 régimen casi estático (CLAVE)
-    if N_ratio < 0.15:
-        return Fo_Skr * 0.95
+    return max(base * corr, 0)
 
-    # 🟡 transición suave
-    elif N_ratio < 0.35:
-        factor = 0.95 + (N_ratio - 0.15) * 1.5
-        return Fo_Skr * factor
-
-    # 🔴 régimen dinámico
-    else:
-        return Fo_Skr * (1.2 + 0.8 * N_ratio)
 
 
 
