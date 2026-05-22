@@ -288,6 +288,7 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 MPRL = MPRL_base *0.85
+HP = ((PPRL + MPRL) / 2 * S * N) / (1714 * 12)
 
 # ======================
 # DISPLAY
@@ -296,7 +297,7 @@ st.subheader("Cargas")
 
 
 
-c1, c2, _ = st.columns([1, 1, 5])  # más juntas
+c1, c2, c3 _ = st.columns([1, 1, 1, 4])  # más juntas
 
 def carga_estilo(titulo, valor):
     st.markdown(f"""
