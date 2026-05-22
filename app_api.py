@@ -115,7 +115,7 @@ materiales={
     "D New":{"uts_a":42.86,"b":0.375}
 }
 
-st.subheader("Material por tramo")
+st.subheader("Material por tramo 📜")
 
 
 col1, col2, col3, _ = st.columns([1,1,1,2])  # mismo criterio que antes
@@ -179,7 +179,7 @@ def FS_material(mat,f):
 # ======================
 # VARILLAS
 # ======================
-st.subheader("Cant. Varillas")
+st.subheader("Cant. Varillas 📱")
 
 c1,c2,c3=st.columns(3)
 
@@ -214,7 +214,7 @@ total=L1+L78+L34
 # ======================
 # CONTROL LONGITUD
 # ======================
-st.subheader("Control de longitud")
+st.subheader("Control de longitud 📐")
 
 long_m = total * 0.3048
 dif = long_m - L_m
@@ -325,7 +325,7 @@ with c3:
 # ======================
 # RESULTADOS
 # ======================
-st.subheader("Resultados por tramo")
+st.subheader("Resultados por tramo 📋")
 
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
@@ -412,7 +412,7 @@ with col_res:
 # ======================
 # GOODMAN
 # ======================
-st.subheader("Diagrama de Goodman")
+st.subheader("Diagrama de Goodman 📈")
 
 x_max=min([
     materiales[rod_sel[d]]["uts_a"] *
