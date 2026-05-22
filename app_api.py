@@ -293,7 +293,7 @@ HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 # ======================
 # DISPLAY
 # ======================
-st.subheader("Cargas")
+st.subheader("Cargas 🦾")
 
 
 
