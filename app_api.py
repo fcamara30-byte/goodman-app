@@ -70,7 +70,7 @@ with c_slider:
 c_prod, _ = st.columns([1, 3])
 
 Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.9
+Q_m3 = Q_bpd * 0.159 * 0.95
 
 with c_prod:
     st.markdown(f"""
