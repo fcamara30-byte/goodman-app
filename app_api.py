@@ -284,10 +284,11 @@ def F2_Skr_API(N_ratio, Fo_Skr):
     Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
     N_ratio = max(0.01, min(N_ratio, 0.7))
 
-    base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
-    corr = 1 + 0.6 * N_ratio**1.5
+    # base API curva suave
+    F2 = Fo_Skr * (0.9 - 0.6*N_ratio + 1.5*N_ratio**2)
 
-    return max(base * corr, 0)
+    return max(F2, 0)
+
 
 
 
