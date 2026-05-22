@@ -56,10 +56,25 @@ c1,c2,c3,c4 = st.columns(4)
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
-col_spm, col_box = c4.columns([2,1])
+
+col_spm, _ = c4.columns([1,1])
 
 with col_spm:
     N = st.slider("SPM", 1, 6, 6)
+
+with col_spm:
+    N = st.slider("SPM", 1, 6, 6)
+
+
+with col_box_under:
+    st.markdown(f"""
+    <div style="
+        background-color:#cceeff;
+        border-radius:10px;
+        padding:12px;
+        text-align:center;
+        height:100px;
+        width:200px;
 
 
 
@@ -94,31 +109,13 @@ col_spm, col_box = st.columns([3,1])
 c_slider, _ = st.columns([2, 3])  # controla el ancho
 
 with c_slider:
-    S = st.slider("Carrera (in)", 0, 300, 168)
     Q_bpd = 0.1166 * S * N * (D**2)
     Q_m3 = Q_bpd * 0.159 * 0.9
-
-    # ======================
-# PRODUCCIÓN (ARRIBA)
-# ======================
-
-c_prod, _ = st.columns([1, 3])
-
-Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.9
-
-with c_prod:
-    st.markdown(f"""
-    <div style="
-        border:2px solid black;
-        border-radius:10px;
-        padding:12px;
-        text-align:center;
-    ">
-        <div style="font-size:14px;">
+    S = st.slider("Carrera (in)", 0, 300, 168)
+col_box_under, _ = st.columns([3,1])col_box_under, _ = st.columns style="font-size:14px;">
             Producción
         </div>
-        <div style="font-size:28px; font-weight:bold;">
+        <div style="font-size:26px; font-weight:bold;">
             {Q_m3:,.1f}
         </div>
         <div style="font-size:13px;">
@@ -126,6 +123,24 @@ with c_prod:
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+with col_box_under:
+    st.markdown(f"""
+    <div style="
+        background-color:#cceeff;
+        border-radius:10px;
+        padding:12px;
+        text-align:center;
+        height:100px;
+        width:200px;
+    ">
+
+
+    # ======================
+# PRODUCCIÓN (ARRIBA)
+# ======================
+
+
 
 # ======================
 # PRODUCCIÓN (ARRIBA)
