@@ -339,7 +339,10 @@ Fo_Skr = Fo / (S * kr)
 # ✅ N fijo
 
 # API base
-N_ratio = 0.1
+
+No = calc_No(L_total_ft)
+N_ratio = N / No
+
 # ======================
 # F2 POR INTERPOLACIÓN API
 # ======================
