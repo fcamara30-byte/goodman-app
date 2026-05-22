@@ -288,7 +288,7 @@ dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
 MPRL = MPRL_base *0.85
-HP = (PPRL * S * N) / (46000)
+HP = (PPRL*0.86* * S * N) / (46000)
 
 # ======================
 # DISPLAY
