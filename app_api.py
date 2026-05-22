@@ -297,7 +297,7 @@ st.subheader("Cargas")
 
 
 
-c1, c2, c3 _ = st.columns([1, 1, 1, 4])  # más juntas
+c1, c2, c3, _ = st.columns([1, 1, 1, 4])
 
 def carga_estilo(titulo, valor):
     st.markdown(f"""
