@@ -63,6 +63,7 @@ c_slider, _ = st.columns([2, 3])  # controla el ancho
 
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
+
     # ======================
 # PRODUCCIÓN (ARRIBA)
 # ======================
