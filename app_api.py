@@ -59,11 +59,10 @@ D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
 
 col_spm, _ = c4.columns([1,1])
 
-with col_spm:
+with c4:
     N = st.slider("SPM", 1, 6, 6)
 
-with col_spm:
-    N = st.slider("SPM", 1, 6, 6)
+
 
 
 
@@ -104,16 +103,7 @@ with col_box:
     </div>
     """, unsafe_allow_html=True)
 
-with col_box_under:
-    st.markdown(f"""
-    <div style="
-        background-color:#cceeff;
-        border-radius:10px;
-        padding:12px;
-        text-align:center;
-        height:100px;
-        width:200px;
-    ">
+
 
 
     # ======================
