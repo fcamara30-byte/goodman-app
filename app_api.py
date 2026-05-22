@@ -72,26 +72,28 @@ with c_slider:
 # PRODUCCIÓN BRUTA
 # ======================
 Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159
+Q_m3 = Q_bpd * 0.159 * 0.85  # 
 
-# 👇 columna angosta y desplazada a la derecha
-col_izq, col_prod, col_der = st.columns([3, 1.2, 2])
+# 👇 lo ubica debajo de "Bomba"
+col1, col2, col3, col4 = st.columns(4)
 
-with col_prod:
+with col3:
     st.markdown(f"""
     <div style="
         background-color:#cceeff;
         border-radius:8px;
-        padding:6px 10px;
-        height:48px;
+        padding:6px 8px;
+        height:52px;
         display:flex;
         flex-direction:column;
         justify-content:center;
+        align-items:center;
+        text-align:center;
     ">
         <div style="font-size:12px; color:#333;">
             Producción (m³/día)
         </div>
-        <div style="font-size:15px; font-weight:bold;">
+        <div style="font-size:16px; font-weight:bold;">
             {Q_m3:.1f}
         </div>
     </div>
