@@ -260,7 +260,7 @@ with col_tabla:
     st.dataframe(df_ctrl, use_container_width=True, hide_index=True)
 
 # ✅ ALERTA
-if abs(dif) > 20
+if abs(dif) > 20:
 st.markdown("""
     <style>
     @keyframes blink {
