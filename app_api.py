@@ -352,8 +352,7 @@ F2_base = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 # ✅ corrección sobre carga mínima
 F2_Skr = F2_base * 1.25
 
-# F1 aproximado
-F1_Skr = F2_Skr * 1.3
+# F1 real (ligeramente mayor que F2, pero no proporcional)# F1 real (ligeramente mayor que F2, pero no_vals, N_vals, F2_table) + 0.0
 
 
 
