@@ -320,8 +320,14 @@ Fo_Skr = Fo / (S * kr)
 No = calc_No(L_total_ft)
 N_ratio = N / No
 
-F1_Skr = F1_Skr_API(N_ratio, Fo_Skr)
-F2_Skr = F2_Skr_API(N_ratio, Fo_Skr)
+F1_base = F1_Skr_API(N_ratio, Fo_Skr)
+F2_base = F2_Skr_API(N_ratio, Fo_Skr)
+
+# corrección por baja velocidad (clave)
+speed_corr = 1 + 1.8 * (N_ratio**0.7)
+
+F1_Skr = F1_base * speed_corr
+F2_Skr = F2_base * speed_corr
 
 PPRL = Wr + (F1_Skr * S * kr)
 MPRL = Wr - (F2_Skr * S * kr)
