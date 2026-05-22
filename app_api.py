@@ -61,9 +61,7 @@ col_spm, col_box = c4.columns([2,1])
 with col_spm:
     N = st.slider("SPM", 1, 6, 6)
 
-# ✅ asegurate que esto esté definido antes
-Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.9
+
 
 with col_box:
     st.markdown(f"""
@@ -97,6 +95,8 @@ c_slider, _ = st.columns([2, 3])  # controla el ancho
 
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
+    Q_bpd = 0.1166 * S * N * (D**2)
+    Q_m3 = Q_bpd * 0.159 * 0.9
 
     # ======================
 # PRODUCCIÓN (ARRIBA)
