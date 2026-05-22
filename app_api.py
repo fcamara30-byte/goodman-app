@@ -79,7 +79,7 @@ with col_box:
             Producción
         </div>
         <div style="font-size:20px; font-weight:bold;">
-            {Q_m3}
+           {Q_m3 if 'Q_m3' in locals() else 0}
         </div>
         <div style="font-size:11px;">
             m³/día
