@@ -264,41 +264,56 @@ def calc_kr(L1, L78, L34):
 
 
 def calc_No(L_total_ft):
-    a = 16300  # ft/s (API)
-    Fc = 1.1   # sarta taper típica
+    a = 16300
+    Fc = 1.1
     No = (a * Fc) / (4 * L_total_ft)
-    return No * 60  # SPM
+    return No * 60
+
+
+def interp_2d(x, y, x_vals, y_vals, z_table):
+
+    x = np.clip(x, x_vals[0], x_vals[-1])
+    y = np.clip(y, y_vals[0], y_vals[-1])
+
+    i = np.searchsorted(x_vals, x) - 1
+    j = np.searchsorted(y_vals, y) - 1
+
+    i = np.clip(i, 0, len(x_vals)-2)
+    j = np.clip(j, 0, len(y_vals)-2)
+
+    x1, x2 = x_vals[i], x_vals[i+1]
+    y1, y2 = y_vals[j], y_vals[j+1]
+
+    Q11 = z_table[i][j]
+    Q12 = z_table[i][j+1]
+    Q21 = z_table[i+1][j]
+    Q22 = z_table[i+1][j+1]
+
+    return (
+        Q11 * (x2 - x) * (y2 - y) +
+        Q21 * (x - x1) * (y2 - y) +
+        Q12 * (x2 - x) * (y - y1) +
+        Q22 * (x - x1) * (y - y1)
+    ) / ((x2 - x1) * (y2 - y1))
 
 
 
-def F1_Skr_API(N_ratio, Fo_Skr):
-    Fo_Skr = max(0.02, min(Fo_Skr, 0.7))
-    N_ratio = max(0.02, min(N_ratio, 0.7))
 
-    term1 = Fo_Skr * (1.1 + 1.2*N_ratio)
-    term2 = Fo_Skr * (2.2 * N_ratio**2)
+# ======================
+# DATOS CURVA API
+# ======================
 
-    return term1 + term2
+Fo_vals = np.array([0.02, 0.05, 0.1, 0.2, 0.3, 0.5])
+N_vals  = np.array([0.05, 0.1, 0.2, 0.3, 0.5])
 
-
-
-
-def F2_Skr_API(N_ratio, Fo_Skr):
-    Fo_Skr = max(0.01, min(Fo_Skr, 0.7))
-    N_ratio = max(0.01, min(N_ratio, 0.7))
-
-    base = Fo_Skr * (0.75 - 1.1*N_ratio + 2.2*N_ratio**2)
-    corr = 1 + 0.6 * N_ratio**1.5
-
-    return max(base * corr, 0)
-
-
-
-
-
-
-
-
+F2_table = np.array([
+    [0.02, 0.025, 0.035, 0.05, 0.08],
+    [0.05, 0.055, 0.065, 0.085, 0.12],
+    [0.10, 0.10, 0.11, 0.13, 0.18],
+    [0.20, 0.19, 0.20, 0.22, 0.30],
+    [0.30, 0.28, 0.30, 0.35, 0.45],
+    [0.50, 0.45, 0.50, 0.60, 0.75],
+])
 
 # ======================
 # MODELO
@@ -325,15 +340,20 @@ Fo_Skr = Fo / (S * kr)
 
 # API base
 N_ratio = 0.1
+# ======================
+# F2 POR INTERPOLACIÓN API
+# ======================
 
-F1_Skr = F1_Skr_API(N_ratio, Fo_Skr)
-F2_Skr = F2_Skr_API(N_ratio, Fo_Skr)
+F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
+
+# F1 aproximado
+F1_Skr = F2_Skr * 1.3
+
+
+
 
 # ✅ efecto SPM (acá está la magia)
-vel_factor = 1 + 0.06 * (N - 6)
 
-F1_Skr = F1_Skr * vel_factor
-F2_Skr = F2_Skr * vel_factor
 
 # cargas
 PPRL = Wr + (F1_Skr * S * kr)
