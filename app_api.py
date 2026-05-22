@@ -350,8 +350,9 @@ N_ratio = N / No
 F2_base = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
 # F1 real separado de F2 (NO proporcional)# F0.04
 
-# ✅ corrección sobre carga mínima
-F2_Skr = F2_base * 1.25
+F2_Skr = interp_2d(Fo_Skr, N_ratio, Fo_vals, N_vals, F2_table)
+
+F1_Skr = F2_Skr + 0.04
 
 # F1 real (ligeramente mayor que F2, pero no proporcional)# F1 real (ligeramente mayor que F2, pero no_vals, N_vals, F2_table) + 0.0
 
