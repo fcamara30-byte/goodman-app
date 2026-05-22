@@ -271,7 +271,7 @@ if abs(dif) > 20:
     .alerta {
         color: red;
         font-weight: bold;
-        animation: blink 0.6s linear 4;
+       animation: blink 0.6s linear 4 normal;
     }
     </style>
 
