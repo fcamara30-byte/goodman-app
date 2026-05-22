@@ -1497,7 +1497,7 @@ def interp_2d(x, y, x_vals, y_vals, z_table):
 # DATOS CURVA API
 # ======================
 
-Fo_vals = np.array([0.05,0.1,0.2,0.3,0.4,0.5])Fo_vals05,0.1,0.2,0.3,0.4,0.5])
+Fo_vals = np.array([0.05,0.1,0.2,0.3,0.4,0.5])
 
 F1_table = np.array([
 [0.07,0.10,0.13,0.16,0.19,0.22],
