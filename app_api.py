@@ -76,18 +76,7 @@ with col_spm:
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
 c_slider, col_box = st.columns([2, 3])
-        <div style="font-size:14px;">
-            Producción
-        </div>
-        <div style="font-size:26px; font-weight:bold;">
-            {Q_m3:.1f}
-        </div>
-        <div style="font-size:13px;">
-            m³/día
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+     
 with c_slider:
     S = st.slider("Carrera (in)", 0, 300, 168)
 
@@ -101,14 +90,13 @@ with col_box:
         border-radius:10px;
         padding:12px;
         text-align:center;
-
-
-
-
+        height:100px;
+    ">
+        <div style="font-size:14px;">
             Producción
         </div>
         <div style="font-size:26px; font-weight:bold;">
-            {Q_m3:,.1f}
+            {Q_m3:.1f}
         </div>
         <div style="font-size:13px;">
             m³/día
