@@ -617,7 +617,7 @@ with colT:
                 # =========================
 # ✅ RESUMEN CENTRALIZACIÓN (PANTALLA)
 # =========================
-   if len(df) > 1 and "Recomendación" in df.columns:
+if len(df) > 1 and "Recomendación" in df.columns:
 
     df.columns = df.columns.str.strip()
 
@@ -628,7 +628,7 @@ with colT:
     total_tramos = len(df_centralizados)
     st.write(f"**Varillas centralizadas:** {total_tramos}")
 
-    grupos = df_centralizados.groupby("Recomendación")   # ← ESTA línea
+    grupos = df_centralizados.groupby("Recomendación")
 
     for tipo, grupo in grupos:
         cantidad = len(grupo)
