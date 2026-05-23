@@ -409,17 +409,16 @@ def generar_pdf():
     return file_path
 
 
-if modo=="Desviado":
+col_text, _ = st.columns([1,3])
 
-    col_text, _ = st.columns([1,3])
+with col_text:
+    text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
 
-    with col_text:
-         text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
+if modo=="Desviado" and text:
 
-    if text:
+    data=[]
+    for row in text.strip().split("\n"):
 
-        data=[]
-        for row in text.strip().split("\n"):
 
             vals=row.replace(",",".").split()
 
