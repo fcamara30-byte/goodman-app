@@ -310,7 +310,7 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-        fig = plt.figure(figsize=(4,6))
+        fig = plt.figure(figsize=(5,6))
         ax = fig.add_subplot(111, projection='3d')
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
