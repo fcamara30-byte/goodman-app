@@ -116,7 +116,7 @@ with colL:
 
     with c1:
         nombre_pozo = st.text_input("Nombre Pozo")
-        profundidad = st.number_input("Profundidad (m)",600,step=100)
+        profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
         rpm = st.number_input("RPM (rev/min)",60,step=10)
         prod = st.number_input("Producción (m³/d)",5.0)
         pres_linea = st.number_input("Presión línea (kg/cm²)", value=1.0,    step=2.0
