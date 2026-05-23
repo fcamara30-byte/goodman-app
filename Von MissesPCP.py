@@ -497,7 +497,7 @@ if modo=="Desviado":
 
             elif dls_val <= 6:
                 colores.append("orange")
-                rec.append("3 centralizadores >")
+                rec.append("3 centralizadores ")
 
             else:
                 colores.append("red")
