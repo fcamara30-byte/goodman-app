@@ -736,7 +736,8 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26', unsafe_allow_html=True)
 
-import streamlit as stimport stream as np
+import streamlit as st
+import numpy as np
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
