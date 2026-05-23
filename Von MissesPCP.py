@@ -734,5 +734,5 @@ with c5:
 color_class = "metric-red" if uso > 100 else ""
 
 
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
