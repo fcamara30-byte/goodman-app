@@ -653,7 +653,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
     grupos = df_centralizados.groupby("Recomendación")
 
 
-for tipo, grupo in grupos:
+    for tipo, grupo in grupos:
 
     cantidad = len(grupo)
     md_min = grupo["md"].min()
