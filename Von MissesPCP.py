@@ -636,17 +636,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
         md_min = grupo["md"].min()
         md_max = grupo["md"].max()
 
-        col1, col2, col3 = st.columns([2,1,1])
-
-        with col1:
-            st.write(tipo)
-
-        with col2:
-            st.write(f"{cantidad} tramos")
-
-        with col3:
-            st.write(f"{md_min:.0f} → {md_max:.0f} m")
-
+st.write(f"{tipo}   |   {cantidad} tramos   |   {md_min:.0f} → {md_max:.0f} m")
 
                
             
