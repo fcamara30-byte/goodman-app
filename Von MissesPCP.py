@@ -596,7 +596,7 @@ with colR:
             
            
             st.markdown("""
-            <div style="margin-left:50px">
+            <div style="margin-left:70px">
               🟢 **< 2°/100ft** → Sin centralizadores<br>  
               🟡 **2 – 3°/100ft** → 2 centralizadores<br>  
               🟠 **3 – 6°/100ft** → 3 centralizadores<br>  
