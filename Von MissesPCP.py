@@ -686,7 +686,7 @@ color_class = "metric-red" if uso > 100 else ""
 with c4:
     st.markdown(f"""
     <div class="metric-box">
-        <div class="metric-title">Rod Load (%)</div>
+        <div class="metric-title">Efect. Road Load (%)</div>
         <div class="metric-value {color_class}">{uso:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
