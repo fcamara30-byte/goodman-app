@@ -569,7 +569,7 @@ else:
 # =========================
 
 with colR:
-    colG, colS, colT = st.columns([2.4,0.9,1.7])
+    colG, colS, colT = st.columns([3,0.9,1.3])
 
     # sliders (derecha)
     with colS:
