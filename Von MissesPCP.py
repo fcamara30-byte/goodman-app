@@ -590,7 +590,7 @@ with colR:
 
             ax.view_init(elev=elev, azim=azim)
             ax.tick_params(labelsize=6)
-            ax.set_box_aspect([1,1,2])
+            ax.set_box_aspect([1,1,4])
 
             fig.savefig("grafico.png", bbox_inches="tight")
             st.pyplot(fig)
