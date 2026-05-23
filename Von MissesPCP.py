@@ -734,9 +734,10 @@ with c5:
 color_class = "metric-red" if uso > 100 else ""
 
 
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil
+
 # ===============================
-# ✅ ANIMACIÓN FINAL VARILLA + DLS
+# ✅ ANIMACIÓN FINAL (ESTABLE)
 # ===============================
 
 import plotly.graph_objects as go
@@ -745,7 +746,7 @@ import numpy as np
 if len(df) > 1:
 
     # =========================
-    # ESCALA CORRECTA 3D
+    # ESCALA NORMALIZADA
     # =========================
     X = df["X"].values
     Y = df["Y"].values
@@ -760,19 +761,21 @@ if len(df) > 1:
     Zn = Z / abs(np.ptp(Z)) * 300
 
     # =========================
-    # SEMÁFORO DLS (EN POZO)
+    # COLOR POR DLS (SEMAFORO)
     # =========================
-    colors_dls = []
-    for d in df["DLS"]:
+    dls = df["DLS"].values
+
+    colores_pozo = []
+    for d in dls:
         if d <= 2:
-            colors_dls.append("green")
+            colores_pozo.append("green")
         elif d <= 4:
-            colors_dls.append("yellow")
+            colores_pozo.append("yellow")
         else:
-            colors_dls.append("red")
+            colores_pozo.append("red")
 
     # =========================
-    # SISTEMA LOCAL PARA ROTAR
+    # BASE LOCAL (PARA GIRO REAL)
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
@@ -782,17 +785,15 @@ if len(df) > 1:
 
     tx = dx / norm
     ty = dy / norm
-    tz = dz / norm
 
     nx = -ty
     ny = tx
-    nz = np.zeros_like(nx)
 
-    # radio visible pero controlado
+    # radio visible y controlado
     radio = 6
 
     # =========================
-    # FRAMES (~40 segundos)
+    # FRAMES
     # =========================
     frames = []
     n_frames = 200
@@ -806,8 +807,8 @@ if len(df) > 1:
         Yoff = Yn + radio * (ny * np.sin(theta))
         Zoff = Zn
 
-        # ✅ CONTACTO (EN ZONAS CRÍTICAS)
-        contacto = (np.abs(np.sin(theta)) > 0.97)
+        # ✅ CONTACTO CORRECTO (VECTOR, NO ESCALAR)
+        contacto = (np.abs(np.sin(theta)) > 0.97) & (dls > 3)
 
         contacto_idx = np.where(contacto)[0]
 
@@ -815,16 +816,16 @@ if len(df) > 1:
             go.Frame(
                 data=[
 
-                    # 🔵 POZO CON DLS (CLAVE VISUAL)
+                    # 🟤 POZO (DLS)
                     go.Scatter3d(
                         x=Xn,
                         y=Yn,
                         z=Zn,
                         mode='lines',
-                        line=dict(width=7, color=colors_dls)
+                        line=dict(width=7, color=colores_pozo)
                     ),
 
-                    # 🟢 VARILLA GIRANDO
+                    # 🟢 VARILLA
                     go.Scatter3d(
                         x=Xoff,
                         y=Yoff,
@@ -833,7 +834,7 @@ if len(df) > 1:
                         line=dict(color='green', width=5)
                     ),
 
-                    # 🔴 CONTACTO DINÁMICO
+                    # 🔴 CONTACTO
                     go.Scatter3d(
                         x=Xoff[contacto_idx],
                         y=Yoff[contacto_idx],
@@ -848,7 +849,7 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     # =========================
-    # LAYOUT (CLAVE 3D + CONTROL)
+    # LAYOUT FINAL (3D REAL)
     # =========================
     fig.update_layout(
 
@@ -856,33 +857,33 @@ if len(df) > 1:
 
         scene=dict(
             aspectmode='manual',
-            aspectratio=dict(x=1, y=1, z=2.5),
+            aspectratio=dict(x=1, y=1, z=2),
 
             camera=dict(
-                eye=dict(x=1.6, y=1.6, z=1.3)
+                eye=dict(x=1.7, y=1.5, z=1.2)
             )
         ),
 
         updatemenus=[{
             "type": "buttons",
-            "direction": "left",
             "buttons": [
-                dict(
-                    label="▶ Play",
-                    method="animate",
-                    args=[None, {
+                {
+                    "label": "▶ Play",
+                    "method": "animate",
+                    "args": [None, {
                         "frame": {"duration": 200, "redraw": True},
                         "fromcurrent": True
                     }]
-                ),
-                dict(
-                    label="⏸ Stop",
-                    method="animate",
-                    args=[[None], {"mode": "immediate"}]
-                )
+                },
+                {
+                    "label": "⏸ Stop",
+                    "method": "animate",
+                    "args": [[None], {"mode": "immediate"}]
+                }
             ]
         }]
     )
 
-    st.markdown("### Simulación Rotación Varilla dentro del Pozo")
+    st.markdown("### Rotación real de varilla dentro del pozo")
     st.plotly_chart(fig, use_container_width=True)
+            
