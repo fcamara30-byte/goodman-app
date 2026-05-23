@@ -597,9 +597,9 @@ with colR:
            
             st.markdown("""
             <div style="margin-left:50px">
-              🟢 **< 2°/100ft** → Sin centralizadores  
-              🟡 **2 – 3°/100ft** → 2 centralizadores  
-              🟠 **3 – 6°/100ft** → 3 centralizadores  
+              🟢 **< 2°/100ft** → Sin centralizadores<br>  
+              🟡 **2 – 3°/100ft** → 2 centralizadores<br>  
+              🟠 **3 – 6°/100ft** → 3 centralizadores<br>  
               🔴 **> 6°/100ft** → +3 o Black Mamba  
                
             </div>
