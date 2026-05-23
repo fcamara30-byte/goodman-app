@@ -174,6 +174,7 @@ with colL:
         
         solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
         rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
+        fric_bomba = st.number_input("Fricción Bomba (lb·ft)", value=20.0, step=5.0)
         material = st.selectbox("Material",
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSX75","HA96"]
         )
@@ -236,7 +237,7 @@ pot_c=pot_h/eficiencia
 
 torque=(5252*pot_c)/rpm
 torque*= (1+viscosidad/1000)*(1+solidos/100)
-torque += 45  # fricción bomba
+torque += fric_bomba  # ✅ fricción bomba
 
 d=RODS[rod]["d"]*0.0254
 A=math.pi*d**2/4
