@@ -899,4 +899,152 @@ if len(df) > 1:
 
     st.markdown("### Rotación real de varilla dentro del pozo")
     st.plotly_chart(fig, use_container_width=True)
-            
+    import plotly.graph_objects as go
+import numpy as np
+
+if len(df) > 1:
+
+    # =========================
+    # CONTROLES DE VISTA
+    # =========================
+    col_v1, col_v2 = st.columns(2)
+
+    with col_v1:
+        elev = st.slider("Elevación", 0, 90, 25)
+
+    with col_v2:
+        azim = st.slider("Azimuth", 0, 360, 45)
+
+    # =========================
+    # ESCALA
+    # =========================
+    X = df["X"].values
+    Y = df["Y"].values
+    Z = df["Z"].values
+    DLS = df["DLS"].values
+
+    scale_xy = max(np.ptp(X), np.ptp(Y))
+    if scale_xy == 0:
+        scale_xy = 1
+
+    Xn = X / scale_xy * 100
+    Yn = Y / scale_xy * 100
+    Zn = Z / abs(np.ptp(Z)) * 300
+
+    # =========================
+    # SEMÁFORO DLS
+    # =========================
+    colores = []
+    for d in DLS:
+        if d <= 2:
+            colores.append("green")
+        elif d <= 4:
+            colores.append("yellow")
+        else:
+            colores.append("red")
+
+    # =========================
+    # BASE PARA ROTACIÓN REAL
+    # =========================
+    dx = np.gradient(Xn)
+    dy = np.gradient(Yn)
+    dz = np.gradient(Zn)
+
+    norm = np.sqrt(dx**2 + dy**2 + dz**2) + 1e-6
+
+    tx = dx / norm
+    ty = dy / norm
+
+    nx = -ty
+    ny = tx
+
+    radio = 8  # 👈 más visible
+
+    # =========================
+    # ZONAS CRÍTICAS (FIJAS)
+    # =========================
+    crit_mask = DLS > 4
+    Xcrit = Xn[crit_mask]
+    Ycrit = Yn[crit_mask]
+    Zcrit = Zn[crit_mask]
+
+    # =========================
+    # ANIMACIÓN
+    # =========================
+    frames = []
+    n_frames = 200
+
+    for k in range(n_frames):
+
+        theta = k * 0.25  # 👈 más rápido → se ve girar
+
+        Xoff = Xn + radio * (nx * np.cos(theta))
+        Yoff = Yn + radio * (ny * np.sin(theta))
+        Zoff = Zn
+
+        frames.append(
+            go.Frame(
+                data=[
+
+                    # 🟤 POZO
+                    go.Scatter3d(
+                        x=Xn,
+                        y=Yn,
+                        z=Zn,
+                        mode='lines',
+                        line=dict(width=6, color=colores)
+                    ),
+
+                    # 🟢 VARILLA GIRANDO
+                    go.Scatter3d(
+                        x=Xoff,
+                        y=Yoff,
+                        z=Zoff,
+                        mode='lines',
+                        line=dict(color='green', width=5)
+                    ),
+
+                    # 🔴 PUNTOS CRÍTICOS (FIJOS)
+                    go.Scatter3d(
+                        x=Xcrit,
+                        y=Ycrit,
+                        z=Zcrit,
+                        mode='markers',
+                        marker=dict(size=6, color='red'),
+                        name="Puntos críticos"
+                    )
+                ]
+            )
+        )
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
+
+        height=650,
+
+        scene=dict(
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=2),
+
+            camera=dict(
+                eye=dict(
+                    x=1.5*np.cos(np.radians(azim)),
+                    y=1.5*np.sin(np.radians(azim)),
+                    z=np.tan(np.radians(elev)/2)
+                )
+            )
+        ),
+
+        updatemenus=[{
+            "buttons": [
+                dict(label="▶ Play", method="animate",
+                     args=[None, {"frame": {"duration": 80, "redraw": True}}]),
+                dict(label="⏸ Stop", method="animate",
+                     args=[[None], {"mode": "immediate"}])
+            ]
+        }]
+    )
+
+    st.markdown("### Simulación interacción varilla–pozo")
+    st.plotly_chart(fig, use_container_width=True)        
