@@ -873,4 +873,4 @@ try:
 
 except:
     st.warning("Plotly no disponible")
-``
+
