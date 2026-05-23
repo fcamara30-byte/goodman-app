@@ -399,7 +399,7 @@ def generar_pdf():
 
 if modo=="Desviado":
 
-    text=st.text_area("Perfil: MD Inc Az")
+    text=st.text_area("copiar y pegar acá el Perfil: MD-Inc-Az")
 
     if text:
 
