@@ -404,7 +404,10 @@ def generar_pdf():
 
 if modo=="Desviado":
 
-    text=st.text_area("copiar y pegar acá el Perfil: MD-Inc-Az")
+    col_text, _ = st.columns([1,3])
+
+with col_text:
+    text = st.text_area("Perfil: MD Inc Az", height=200)
 
     if text:
 
