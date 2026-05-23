@@ -733,7 +733,98 @@ with c5:
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
+import plotly.graph_objects as go
+import numpy as np
 
+# ✅ SOLO corre si hay datos
+if len(df) > 1:
+
+    frames = []
+    radio = 0.5   # tamaño del giro
+
+    # generar frames de animación
+    for frame in range(0, 50):
+
+        theta = frame * 0.2
+
+        # varilla girando alrededor de la trayectoria
+        Xoff = df["X"] + radio * np.cos(theta)
+        Yoff = df["Y"] + radio * np.sin(theta)
+        Z = df["Z"]
+
+        frames.append(
+            go.Frame(
+                data=[
+                    # tubo (trayectoria)
+                    go.Scatter3d(
+                        x=df["X"],
+                        y=df["Y"],
+                        z=df["Z"],
+                        mode='lines',
+                        line=dict(color='gray', width=4),
+                        opacity=0.2
+                    ),
+
+                    # varilla girando
+                    go.Scatter3d(
+                        x=Xoff,
+                        y=Yoff,
+                        z=Z,
+                        mode='lines',
+                        line=dict(color='green', width=6)
+                    ),
+
+                    # punto de contacto (extremo)
+                    go.Scatter3d(
+                        x=[Xoff.iloc[-1]],
+                        y=[Yoff.iloc[-1]],
+                        z=[Z.iloc[-1]],
+                        mode='markers',
+                        marker=dict(size=6, color='red')
+                    )
+                ],
+                name=str(frame)
+            )
+        )
+
+    # figura inicial
+    fig_anim = go.Figure(
+        data=frames[0].data,
+        frames=frames
+    )
+
+    # controles play/stop
+    fig_anim.update_layout(
+
+        scene=dict(
+            xaxis=dict(title='X'),
+            yaxis=dict(title='Y'),
+            zaxis=dict(title='Z'),
+            aspectmode='data'
+        ),
+
+        updatemenus=[{
+            "type": "buttons",
+            "buttons": [
+                {
+                    "label": "▶ Play",
+                    "method": "animate",
+                    "args": [None, {
+                        "frame": {"duration": 50, "redraw": True},
+                        "fromcurrent": True
+                    }]
+                },
+                {
+                    "label": "⏸ Stop",
+                    "method": "animate",
+                    "args": [[None]]
+                }
+            ]
+        }]
+    )
+
+    st.markdown("### Animación varilla rotando")
+    st.plotly_chart(fig_anim, use_container_width=True)
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
