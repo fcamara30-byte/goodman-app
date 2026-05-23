@@ -735,145 +735,154 @@ color_class = "metric-red" if uso > 100 else ""
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
-try:
-    import plotly.graph_objects as go
+# ===============================
+# ✅ ANIMACIÓN FINAL VARILLA + DLS
+# ===============================
 
-    if len(df) > 1:
+import plotly.graph_objects as go
+import numpy as np
 
-        # =========================
-        # NORMALIZAR ESCALA (CLAVE)
-        # =========================
-        X = df["X"]
-        Y = df["Y"]
-        Z = df["Z"]
+if len(df) > 1:
 
-        scale_xy = max(X.max()-X.min(), Y.max()-Y.min())
-        Xn = X / scale_xy * 100
-        Yn = Y / scale_xy * 100
+    # =========================
+    # ESCALA CORRECTA 3D
+    # =========================
+    X = df["X"].values
+    Y = df["Y"].values
+    Z = df["Z"].values
 
-        # comprimimos Z un poco para ver 3D
-        Zn = Z / (abs(Z.max()-Z.min())) * 300
+    scale_xy = max(np.ptp(X), np.ptp(Y))
+    if scale_xy == 0:
+        scale_xy = 1
 
-        # =========================
-        # COLOR POR DLS
-        # =========================
-        colores = []
-        for d in df["DLS"]:
-            if d < 2:
-                colores.append("green")
-            elif d < 4:
-                colores.append("yellow")
-            else:
-                colores.append("red")
+    Xn = X / scale_xy * 100
+    Yn = Y / scale_xy * 100
+    Zn = Z / abs(np.ptp(Z)) * 300
 
-        # =========================
-        # SISTEMA LOCAL (CORRECTO)
-        # =========================
-        dx = np.gradient(Xn)
-        dy = np.gradient(Yn)
-        dz = np.gradient(Zn)
+    # =========================
+    # SEMÁFORO DLS (EN POZO)
+    # =========================
+    colors_dls = []
+    for d in df["DLS"]:
+        if d <= 2:
+            colors_dls.append("green")
+        elif d <= 4:
+            colors_dls.append("yellow")
+        else:
+            colors_dls.append("red")
 
-        norm = np.sqrt(dx**2 + dy**2 + dz**2) + 1e-6
+    # =========================
+    # SISTEMA LOCAL PARA ROTAR
+    # =========================
+    dx = np.gradient(Xn)
+    dy = np.gradient(Yn)
+    dz = np.gradient(Zn)
 
-        tx, ty, tz = dx/norm, dy/norm, dz/norm
+    norm = np.sqrt(dx**2 + dy**2 + dz**2) + 1e-6
 
-        # vector normal real
-        nx = -ty
-        ny = tx
-        nz = np.zeros_like(nx)
+    tx = dx / norm
+    ty = dy / norm
+    tz = dz / norm
 
-        radio = 8   # ✅ tamaño correcto
+    nx = -ty
+    ny = tx
+    nz = np.zeros_like(nx)
 
-        frames = []
-        n_frames = 200  # ~40s
+    # radio visible pero controlado
+    radio = 6
 
-        for k in range(n_frames):
+    # =========================
+    # FRAMES (~40 segundos)
+    # =========================
+    frames = []
+    n_frames = 200
 
-            theta = k * 0.15
+    for k in range(n_frames):
 
-            # ✅ giro REAL
-            Xoff = Xn + radio * (nx * np.cos(theta))
-            Yoff = Yn + radio * (ny * np.sin(theta))
-            Zoff = Zn
+        theta = k * 0.2
 
-            # ✅ contacto SOLO cuando alcanza borde
-            contacto_mask = np.abs(np.sin(theta)) > 0.95
+        # ✅ ROTACIÓN REAL
+        Xoff = Xn + radio * (nx * np.cos(theta))
+        Yoff = Yn + radio * (ny * np.sin(theta))
+        Zoff = Zn
 
-            contacto_x = Xoff[contacto_mask]
-            contacto_y = Yoff[contacto_mask]
-            contacto_z = Zoff[contacto_mask]
+        # ✅ CONTACTO (EN ZONAS CRÍTICAS)
+        contacto = (np.abs(np.sin(theta)) > 0.97)
 
-            frames.append(
-                go.Frame(
-                    data=[
+        contacto_idx = np.where(contacto)[0]
 
-                        # ✅ POZO (CLAVE VISUAL)
-                        go.Scatter3d(
-                            x=Xn, y=Yn, z=Zn,
-                            mode='lines',
-                            line=dict(
-                                width=6,
-                                color=colores
-                            )
-                        ),
+        frames.append(
+            go.Frame(
+                data=[
 
-                        # ✅ VARILLA
-                        go.Scatter3d(
-                            x=Xoff,
-                            y=Yoff,
-                            z=Zoff,
-                            mode='lines',
-                            line=dict(color='green', width=5)
-                        ),
-
-                        # ✅ CONTACTO
-                        go.Scatter3d(
-                            x=contacto_x,
-                            y=contacto_y,
-                            z=contacto_z,
-                            mode='markers',
-                            marker=dict(size=6, color='red')
-                        )
-                    ]
-                )
-            )
-
-        fig = go.Figure(data=frames[0].data, frames=frames)
-
-        fig.update_layout(
-
-            height=600,
-
-            scene=dict(
-                aspectmode='manual',
-                aspectratio=dict(x=1, y=1, z=2),
-
-                camera=dict(
-                    eye=dict(x=1.8, y=1.6, z=1.3)
-                )
-            ),
-
-            updatemenus=[{
-                "type": "buttons",
-                "buttons": [
-                    dict(
-                        label="▶ Play",
-                        method="animate",
-                        args=[None, {
-                            "frame": {"duration": 200, "redraw": True}
-                        }]
+                    # 🔵 POZO CON DLS (CLAVE VISUAL)
+                    go.Scatter3d(
+                        x=Xn,
+                        y=Yn,
+                        z=Zn,
+                        mode='lines',
+                        line=dict(width=7, color=colors_dls)
                     ),
-                    dict(
-                        label="⏸ Stop",
-                        method="animate",
-                        args=[[None], {"mode": "immediate"}]
+
+                    # 🟢 VARILLA GIRANDO
+                    go.Scatter3d(
+                        x=Xoff,
+                        y=Yoff,
+                        z=Zoff,
+                        mode='lines',
+                        line=dict(color='green', width=5)
+                    ),
+
+                    # 🔴 CONTACTO DINÁMICO
+                    go.Scatter3d(
+                        x=Xoff[contacto_idx],
+                        y=Yoff[contacto_idx],
+                        z=Zoff[contacto_idx],
+                        mode='markers',
+                        marker=dict(size=7, color='red')
                     )
                 ]
-            }]
+            )
         )
 
-        st.markdown("### Rotación real de varilla en trayectoria")
-        st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure(data=frames[0].data, frames=frames)
 
-except:
-    st.warning("Plotly no disponible")
+    # =========================
+    # LAYOUT (CLAVE 3D + CONTROL)
+    # =========================
+    fig.update_layout(
+
+        height=650,
+
+        scene=dict(
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=2.5),
+
+            camera=dict(
+                eye=dict(x=1.6, y=1.6, z=1.3)
+            )
+        ),
+
+        updatemenus=[{
+            "type": "buttons",
+            "direction": "left",
+            "buttons": [
+                dict(
+                    label="▶ Play",
+                    method="animate",
+                    args=[None, {
+                        "frame": {"duration": 200, "redraw": True},
+                        "fromcurrent": True
+                    }]
+                ),
+                dict(
+                    label="⏸ Stop",
+                    method="animate",
+                    args=[[None], {"mode": "immediate"}]
+                )
+            ]
+        }]
+    )
+
+    st.markdown("### Simulación Rotación Varilla dentro del Pozo")
+    st.plotly_chart(fig, use_container_width=True)
