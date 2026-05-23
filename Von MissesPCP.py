@@ -741,9 +741,8 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
-
 # ===============================
-# ✅ ANIMACIÓN REAL CORREGIDA
+# ✅ ANIMACIÓN FINAL PRO (20 SEG)
 # ===============================
 
 import plotly.graph_objects as go
@@ -761,89 +760,83 @@ if len(df) > 1:
     # =========================
     # ESCALA
     # =========================
-    scale = max(np.ptp(X), np.ptp(Y))
-    if scale == 0:
-        scale = 1
+    scale = max(np.ptp(X), np.ptp(Y)) or 1
 
     Xn = X / scale * 80
     Yn = Y / scale * 80
     Zn = Z / abs(np.ptp(Z)) * 300
 
     # =========================
-    # BASE LOCAL (CLAVE ROTACIÓN REAL)
+    # BASE GEOMÉTRICA
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
     T = np.vstack([dx,dy,dz]).T
-    T = T/(np.linalg.norm(T,axis=1)[:,None] + 1e-6)
+    T = T / (np.linalg.norm(T, axis=1)[:,None] + 1e-6)
 
-    # normal
     N = np.zeros_like(T)
     N[:,0] = -T[:,1]
     N[:,1] = T[:,0]
 
-    # binormal real
     B = np.cross(T, N)
 
-    # 👉 radio más grande → ahora SE VE rotación
-    radio = 10
+    # =========================
+    # PARÁMETROS FÍSICOS
+    # =========================
+    radio_tubo = 12
+    radio_varilla = 6
 
-    # =========================
-    # CRÍTICOS (DLS)
-    # =========================
     crit_mask = DLS > 4
 
     # =========================
-    # FRAMES
+    # FRAMES (20 segundos)
     # =========================
     frames = []
-
-    n_frames = 250  # ✅ animación larga
+    n_frames = 240   # 👈 duración
 
     for k in range(n_frames):
 
-        theta = k * 0.15  # ✅ velocidad rotación
+        theta = k * 0.15
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ ROTACIÓN REAL (helicoidal)
-        Xoff = Xn + radio*(N[:,0]*cos_t + B[:,0]*sin_t)
-        Yoff = Yn + radio*(N[:,1]*cos_t + B[:,1]*sin_t)
-        Zoff = Zn + radio*(N[:,2]*cos_t + B[:,2]*sin_t)
+        # ✅ VARILLA HELICOIDAL REAL
+        Xoff = Xn + radio_varilla * (N[:,0]*cos_t + B[:,0]*sin_t)
+        Yoff = Yn + radio_varilla * (N[:,1]*cos_t + B[:,1]*sin_t)
+        Zoff = Zn + radio_varilla * (N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # =========================
-        # CONTACTO REAL
-        # =========================
-        contacto = (cos_t > 0.95) & crit_mask
+        # ✅ CONTACTO REAL DISTRIBUIDO
+        contacto = (cos_t > 0.92) & crit_mask
 
         frames.append(go.Frame(data=[
 
-            # 🟤 POZO (fino)
+            # 🔵 TUBO (transparente)
             go.Scatter3d(
-                x=Xn, y=Yn, z=Zn,
+                x=Xn,
+                y=Yn,
+                z=Zn,
                 mode='lines',
-                line=dict(color='gray', width=4),
-                showlegend=False
+                line=dict(color='lightgray', width=12),
+                opacity=0.2
             ),
 
             # 🟢 VARILLA
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
-                line=dict(color='green', width=6),
-                showlegend=False
+                line=dict(color='green', width=6)
             ),
 
-            # 🔴 CONTACTO FUERTE
+            # 🔴 CONTACTO GLOBAL
             go.Scatter3d(
                 x=Xoff[contacto],
                 y=Yoff[contacto],
                 z=Zoff[contacto],
                 mode='markers',
-                marker=dict(size=8, color='red'),
+                marker=dict(size=7, color='red'),
                 name="Puntos críticos"
             )
 
@@ -852,36 +845,39 @@ if len(df) > 1:
     # =========================
     # FIGURA
     # =========================
-    fig_anim = go.Figure(data=frames[0].data)
+    fig_anim = go.Figure(data=frames[0].data, frames=frames)
 
-    fig_anim.frames = frames
-
-    # ✅ UN SOLO CONTROL
     fig_anim.update_layout(
 
-        height=700,
+        height=750,
 
         scene=dict(
             aspectmode='manual',
-            aspectratio=dict(x=1, y=1, z=2.5),
-            camera=dict(eye=dict(x=1.8, y=1.5, z=1.3))
+            aspectratio=dict(x=1, y=1, z=3),
+
+            camera=dict(
+                eye=dict(x=2, y=1.8, z=1.5)  # 👈 no corta gráfico
+            )
         ),
 
         updatemenus=[{
             "type": "buttons",
             "buttons": [
+
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,
-                           {"frame": {"duration": 80, "redraw": True},
-                            "fromcurrent": True}]),
+                     args=[None, {
+                         "frame": {"duration": 80, "redraw": True},
+                         "transition": {"duration": 0},
+                         "fromcurrent": True
+                     }]),
 
                 dict(label="⏸ Stop",
                      method="animate",
                      args=[[None], {"mode": "immediate"}])
+
             ]
         }]
     )
 
     st.plotly_chart(fig_anim, use_container_width=True)
-
