@@ -597,7 +597,7 @@ with colT:
          # =========================
         # EXPORTAR A EXCEL (.XLSX REAL)
         # =========================
-        from io import BytesIO
+      
 
         df_export = df[["md","DLS","Recomendación"]].copy()
 
