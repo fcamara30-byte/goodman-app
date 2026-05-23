@@ -594,14 +594,16 @@ with colR:
             fig.savefig("grafico.png", bbox_inches="tight")
             st.pyplot(fig)
             
-            st.markdown("### Semáforo DLS")
-
+           
             st.markdown("""
+            <div style="margin-left:50px">
               🟢 **< 2°/100ft** → Sin centralizadores  
               🟡 **2 – 3°/100ft** → 2 centralizadores  
               🟠 **3 – 6°/100ft** → 3 centralizadores  
               🔴 **> 6°/100ft** → +3 o Black Mamba  
-                """)
+               
+            </div>
+            """, unsafe_allow_html=True)
 
             fig.savefig("grafico.png", bbox_inches="tight")
 
