@@ -735,8 +735,9 @@ color_class = "metric-red" if uso > 100 else ""
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
 # ===============================
-# 🔵 DEMO INDEPENDIENTE ANIMACIÓN
+# 🔵 ANIMACIÓN INDEPENDIENTE SEGURA
 # ===============================
 
 import numpy as np
@@ -744,7 +745,9 @@ import numpy as np
 try:
     import plotly.graph_objects as go
 
-    # trayectoria helicoidal simple (independiente)
+    st.markdown("### Demo animación varilla (independiente)")
+
+    # trayectoria simple (no usa tu df)
     t = np.linspace(0, 20, 100)
     X = np.sin(t)
     Y = np.cos(t)
@@ -753,9 +756,9 @@ try:
     frames = []
     radio = 0.3
 
-    for frame in range(30):
+    for i in range(25):
 
-        theta = frame * 0.3
+        theta = i * 0.3
 
         Xoff = X + radio * np.cos(theta)
         Yoff = Y + radio * np.sin(theta)
@@ -763,7 +766,6 @@ try:
         frames.append(
             go.Frame(
                 data=[
-                    # tubo
                     go.Scatter3d(
                         x=X, y=Y, z=Z,
                         mode='lines',
@@ -771,16 +773,16 @@ try:
                         opacity=0.3
                     ),
 
-                    # varilla
                     go.Scatter3d(
                         x=Xoff, y=Yoff, z=Z,
                         mode='lines',
                         line=dict(color='green', width=6)
                     ),
 
-                    # contacto
                     go.Scatter3d(
-                        x=[Xoff[-1]], y=[Yoff[-1]], z=[Z[-1]],
+                        x=[Xoff[-1]],
+                        y=[Yoff[-1]],
+                        z=[Z[-1]],
                         mode='markers',
                         marker=dict(size=6, color='red')
                     )
@@ -788,27 +790,23 @@ try:
             )
         )
 
-    fig_anim = go.Figure(
-        data=frames[0].data,
-        frames=frames
-    )
+    fig = go.Figure(data=frames[0].data, frames=frames)
 
-    fig_anim.update_layout(
+    fig.update_layout(
         scene=dict(aspectmode='data'),
         updatemenus=[{
             "type": "buttons",
             "buttons": [
-                dict(label="▶ Play", method="animate",
-                     args=[None, {"frame": {"duration": 80}}]),
-                dict(label="⏸ Stop", method="animate",
-                     args=[[None]])
+                {"label": "▶ Play", "method": "animate",
+                 "args": [None, {"frame": {"duration": 80}}]},
+                {"label": "⏸ Stop", "method": "animate",
+                 "args": [[None]]}
             ]
         }]
     )
 
-    st.markdown("### Demo animación varilla (independiente)")
-    st.plotly_chart(fig_anim, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 
 except:
-    st.warning("Plotly no instalado → no se muestra animación")
+    st.warning("Plotly no instalado → animación no disponible")
 
