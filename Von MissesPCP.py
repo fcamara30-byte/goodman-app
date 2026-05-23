@@ -618,34 +618,33 @@ with colT:
 # ✅ RESUMEN CENTRALIZACIÓN (PANTALLA)
 # =========================
    
-
 if len(df) > 1:
     df.columns = df.columns.str.strip()
-    st.markdown("### Resumen de Centralización")
+st.markdown("### Resumen de Centralización")
 
-    df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+df_centralizados = df[~df["Recomendación"].str.lower().str.con...
 
-    total_tramos = len(df_centralizados)
-    st.write(f"**Varillas centralizadas:** {total_tramos}")
+total_tramos = len(df_centralizados)
+st.write(f"**Varillas centralizadas:** {total_tramos}")
 
-    grupos = df_centralizados.groupby("Recomendación")
+grupos = df_centralizados.groupby("Recomendación")
 
-    for tipo, grupo in grupos:
+for tipo, grupo in grupos:
+    cantidad = len(grupo)
+    md_min = grupo["md"].min()
+    md_max = grupo["md"].max()
 
-        cantidad = len(grupo)
-        md_min = grupo["md"].min()
-        md_max = grupo["md"].max()
+    col1, col2, col3 = st.columns([2,1,2])
 
-        col1, col2, col3 = st.columns([2,1,2])
+    with col1:
+        st.write(tipo)
 
-        with col1:
-            st.write(tipo)
+    with col2:
+        st.write(f"{cantidad} tramos")
 
-        with col2:
-            st.write(f"{cantidad} tramos")
+    with col3:
+        st.write(f"{md_min:.0f} → {md_max:.0f} m")
 
-        with col3:
-            st.write(f"{md_min:.0f} → {md_max:.0f} m")
                
             
 
