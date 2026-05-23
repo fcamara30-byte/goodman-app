@@ -236,7 +236,7 @@ pot_c=pot_h/eficiencia
 
 torque=(5252*pot_c)/rpm
 torque*= (1+viscosidad/1000)*(1+solidos/100)
-torque += 35  # fricción bomba
+torque += 45  # fricción bomba
 
 d=RODS[rod]["d"]*0.0254
 A=math.pi*d**2/4
