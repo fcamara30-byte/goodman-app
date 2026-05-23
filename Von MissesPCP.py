@@ -622,7 +622,7 @@ if len(df) > 1:
     df.columns = df.columns.str.strip()
 st.markdown("### Resumen de Centralización")
 
-df_centralizados = df[~df["Recomendación"].str.lower().str.con...
+df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
 
 total_tramos = len(df_centralizados)
 st.write(f"**Varillas centralizadas:** {total_tramos}")
