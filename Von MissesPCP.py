@@ -598,34 +598,6 @@ with colT:
         use_container_width=True
        )
 
-         # =========================
-        # EXPORTAR A EXCEL (.XLSX REAL)
-        # =========================
-      
-
-         df_export = df[["md","DLS","Recomendación"]].copy()
-
-         # ✅ limpiar números (CLAVE)
-         df_export["md"] = df_export["md"].round(2)
-         df_export["DLS"] = df_export["DLS"].round(2)
-
-         # ✅ renombrar columnas
-         df_export.columns = ["MD (m)", "DLS (°/100ft)", "Recomendación"]
-
-         # ✅ crear archivo Excel en memoria
-         buffer = BytesIO()
-
-        with pd.ExcelWriter(buffer, engine="openpyxl") as writer:
-            df_export.to_excel(writer, index=False, sheet_name="Centralizacion")
-
-        # ✅ botón descarga
-        st.download_button(
-            label="📥 Descargar Excel Centralización",
-            data=buffer.getvalue(),
-            file_name=f"{nombre_pozo}_centralizacion.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
-
 
 
             
