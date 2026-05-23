@@ -734,8 +734,21 @@ with c5:
 color_class = "metric-red" if uso > 100 else ""
 
 
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil)
 
+# ===============================
+# ✅ PARCHE COMPATIBILIDAD (NO TOCAR CÓDIGO VIEJO)
+# ===============================
+try:
+    contacto = np.array(contacto)
+except:
+    try:
+        contacto = np.array([contacto] * len(df))
+    except:
+        contacto = np.zeros(len(df))
+
+
+            
 # ===============================
 # ✅ ANIMACIÓN FINAL (ESTABLE)
 # ===============================
