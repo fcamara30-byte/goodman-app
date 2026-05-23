@@ -416,30 +416,36 @@ with col_text:
 
 if modo=="Desviado" and text:
 
-    data=[]
+    data = []
+
     for row in text.strip().split("\n"):
 
+        vals = row.replace(",", ".").split()
 
-            vals=row.replace(",",".").split()
+        try:
+            if len(vals) == 3:
+                data.append([float(vals[0]), float(vals[1]), float(vals[2])])
 
-            try:
-                if len(vals)==3:
-                    data.append([float(vals[0]),float(vals[1]),float(vals[2])])
+            elif len(vals) == 2:
 
-                elif len(vals)==2:
-                    val=vals[0]
-                    if len(val)>3:
-                        md=float(val[:-2])
-                        inc=float(val[-2:])
-                    else:
-                        md=float(val)
-                        inc=float(vals[1])
-                    az=float(vals[1])
-                    data.append([md,inc,az])
-            except:
-                pass
+                val = vals[0]
 
-        df=pd.DataFrame(data,columns=["md","inc","az"])
+                if len(val) > 3:
+                    md = float(val[:-2])
+                    inc = float(val[-2:])
+                else:
+                    md = float(val)
+                    inc = float(vals[1])
+
+                az = float(vals[1])
+                data.append([md, inc, az])
+
+        except:
+            pass
+
+    if len(data) > 0:
+        df = pd.DataFrame(data, columns=["md","inc","az"])
+
 
     if len(df)>1:
 
