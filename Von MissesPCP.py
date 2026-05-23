@@ -477,7 +477,7 @@ if modo=="Desviado":
 
         for dls_val in df["DLS"]:
 
-            if dls_val <= 1:
+            if dls_val <= 1.9:
                 colores.append("green")
                 rec.append("sin centralizadores")
 
@@ -491,7 +491,7 @@ if modo=="Desviado":
 
             else:
                 colores.append("red")
-                rec.append("Black Mamba")
+                rec.append("+ de 3 cent o Black Mamba")
 
         df["Recomendación"]=rec
 if len(df) > 1:
