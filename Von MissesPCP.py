@@ -636,7 +636,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
         md_min = grupo["md"].min()
         md_max = grupo["md"].max()
 
-        col1, col2, col3 = st.columns([2,1,2])
+        col1, col2, col3 = st.columns([2,1,1])
 
         with col1:
             st.write(tipo)
