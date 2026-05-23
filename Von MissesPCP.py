@@ -178,7 +178,7 @@ with colL:
         )
 
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
-YIELD={"DA 78":85,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":85,"DSK75":85,"HA96":115}
+YIELD={"DA 78":100,"HS97":115,"Alpha CS":110,"Alpha HS":135,"D New":95,"DSK75":110,"HA96":115}
 
 # =========================
 # CALCULO BASE
