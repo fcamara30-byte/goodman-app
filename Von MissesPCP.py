@@ -736,27 +736,42 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26', unsafe_allow_html=True)
 
-import streamlit as st
-import numpy as np
+import streamlit as stimport stream as np
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
+import os
 
+# ===============================
+# ✅ PARCHE GLOBAL (NO TOCAR CÓDIGO VIEJO)
+# ===============================
+_old_selectbox = st.selectbox
+
+def selectbox_patched(label, options, *args, **kwargs):
+    if "key" not in kwargs:
+        kwargs["key"] = f"{label}_{np.random.rand()}"
+    return _old_selectbox(label, options, *args, **kwargs)
+
+st.selectbox = selectbox_patched
+
+# ===============================
+# CONFIG
+# ===============================
 st.set_page_config(layout="wide")
 
 st.title("PCP - Simulación Varilla")
 
-# =========================
+# ===============================
 # INPUTS
-# =========================
+# ===============================
 modo = st.selectbox("Modo de pozo", ["Vertical", "Desviado"])
 
 df = pd.DataFrame()
 
-# =========================
-# PERFIL DESVIADO
-# =========================
+# ===============================
+# PERFIL
+# ===============================
 if modo == "Desviado":
 
     text = st.text_area("Perfil MD INC AZ", height=200)
@@ -772,9 +787,9 @@ if modo == "Desviado":
 
         df = pd.DataFrame(data, columns=["md", "inc", "az"])
 
-# =========================
+# ===============================
 # CALCULO TRAYECTORIA
-# =========================
+# ===============================
 if len(df) > 1:
 
     inc = np.radians(df["inc"])
@@ -791,9 +806,9 @@ if len(df) > 1:
 
     df["X"], df["Y"], df["Z"] = X, Y, Z
 
-    # =========================
+    # ===============================
     # DLS
-    # =========================
+    # ===============================
     dls = [0]
     for i in range(1, len(df)):
         dmd = df["md"][i] - df["md"][i-1]
@@ -802,9 +817,9 @@ if len(df) > 1:
 
     df["DLS"] = dls
 
-    # =========================
-    # MATPLOTLIB (tu gráfico original)
-    # =========================
+    # ===============================
+    # GRAFICO BASE (MATPLOTLIB)
+    # ===============================
     fig = plt.figure(figsize=(4,6))
     ax = fig.add_subplot(111, projection='3d')
 
@@ -817,12 +832,12 @@ if len(df) > 1:
                 color=colores[i])
 
     ax.set_box_aspect([1,1,2])
+
     st.pyplot(fig)
 
-    # =========================
-    # 🔥 ANIMACIÓN FINAL
-    # =========================
-
+    # ===============================
+    # 🔥 ANIMACIÓN REAL
+    # ===============================
     st.markdown("### Rotación real varilla")
 
     X = df["X"].values
@@ -830,15 +845,19 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    scale = max(np.ptp(X), np.ptp(Y)) or 1
+    scale = max(np.ptp(X), np.ptp(Y))
+    if scale == 0:
+        scale = 1
+
     Xn = X/scale*100
     Yn = Y/scale*100
     Zn = Z/abs(np.ptp(Z))*300
 
-    # colores pozo
     colors = ["green" if d<=2 else "yellow" if d<=4 else "red" for d in DLS]
 
-    # base local
+    # ===============================
+    # BASE LOCAL (ROTACIÓN REAL)
+    # ===============================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
@@ -858,9 +877,9 @@ if len(df) > 1:
 
     frames = []
 
-    for k in range(120):
+    for k in range(160):
 
-        theta = k * 0.3
+        theta = k * 0.25
 
         Xoff = Xn + radio*(N[:,0]*np.cos(theta) + B[:,0]*np.sin(theta))
         Yoff = Yn + radio*(N[:,1]*np.cos(theta) + B[:,1]*np.sin(theta))
@@ -871,15 +890,15 @@ if len(df) > 1:
         frames.append(go.Frame(data=[
 
             go.Scatter3d(
-                x=Xn,y=Yn,z=Zn,
+                x=Xn, y=Yn, z=Zn,
                 mode='lines',
-                line=dict(color=colors,width=6)
+                line=dict(color=colors, width=6)
             ),
 
             go.Scatter3d(
-                x=Xoff,y=Yoff,z=Zoff,
+                x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
-                line=dict(color='green',width=5)
+                line=dict(color='green', width=5)
             ),
 
             go.Scatter3d(
@@ -887,26 +906,25 @@ if len(df) > 1:
                 y=Yoff[impacto],
                 z=Zoff[impacto],
                 mode='markers',
-                marker=dict(size=8,color='red'),
-                name='Puntos críticos'
+                marker=dict(size=8, color='red'),
+                name="Puntos críticos"
             )
-
         ]))
 
     fig_anim = go.Figure(frames=frames, data=frames[0].data)
 
     fig_anim.update_layout(
-        height=600,
+        height=650,
         scene=dict(
             aspectratio=dict(x=1,y=1,z=2),
-            camera=dict(eye=dict(x=1.6,y=1.4,z=1.2))
+            camera=dict(eye=dict(x=1.7,y=1.4,z=1.2))
         ),
         updatemenus=[{
             "buttons":[
-                dict(label="▶ Play",method="animate",
-                     args=[None,{"frame":{"duration":80,"redraw":True}}]),
-                dict(label="⏸ Stop",method="animate",
-                     args=[[None],{"mode":"immediate"}])
+                dict(label="▶ Play", method="animate",
+                     args=[None, {"frame":{"duration":80,"redraw":True}}]),
+                dict(label="⏸ Stop", method="animate",
+                     args=[[None], {"mode":"immediate"}])
             ]
         }]
     )
