@@ -601,10 +601,7 @@ with colT:
 
 
             
-        .rename(columns={"Recomendación": "Var"}),
-         height=600,
-          use_container_width=True
-        
+
 
 
 
