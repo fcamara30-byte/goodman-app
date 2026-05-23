@@ -312,6 +312,11 @@ def generar_pdf():
     if len(df) > 1:
         fig = plt.figure(figsize=(4,6))
         ax = fig.add_subplot(111, projection='3d')
+        
+        for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
+        for t in axis.get_ticklabels():
+        t.set_fontsize(5)
+
         ax.tick_params(labelsize=2)
         for i in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
