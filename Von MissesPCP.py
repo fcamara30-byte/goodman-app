@@ -315,7 +315,7 @@ def generar_pdf():
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
             for t in axis.get_ticklabels():
-                t.set_fontsize(5)
+                t.set_fontsize(3)
 
         ax.tick_params(labelsize=2)
         for i in range(len(df)-1):
