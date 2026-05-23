@@ -736,21 +736,17 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
-# ===============================
-# ✅ ANIMACIÓN VARILLA GIRANDO
-# ===============================
-
 try:
     import plotly.graph_objects as go
 
     if len(df) > 1:
 
         frames = []
-        radio_anim = 0.5  # radio de giro
+        radio_anim = 20   # 🔥 MUCHO MÁS GRANDE → ahora se ve
 
-        for frame in range(30):
+        for frame in range(40):
 
-            theta = frame * 0.3
+            theta = frame * 0.2
 
             Xoff = df["X"] + radio_anim * np.cos(theta)
             Yoff = df["Y"] + radio_anim * np.sin(theta)
@@ -759,7 +755,6 @@ try:
             frames.append(
                 go.Frame(
                     data=[
-                        # trayectoria (tubo)
                         go.Scatter3d(
                             x=df["X"],
                             y=df["Y"],
@@ -769,7 +764,6 @@ try:
                             opacity=0.3
                         ),
 
-                        # varilla
                         go.Scatter3d(
                             x=Xoff,
                             y=Yoff,
@@ -778,16 +772,14 @@ try:
                             line=dict(color='green', width=6)
                         ),
 
-                        # punto contacto
                         go.Scatter3d(
                             x=[Xoff.iloc[-1]],
                             y=[Yoff.iloc[-1]],
                             z=[Z.iloc[-1]],
                             mode='markers',
-                            marker=dict(size=6, color='red')
+                            marker=dict(size=8, color='red')
                         )
-                    ],
-                    name=str(frame)
+                    ]
                 )
             )
 
@@ -798,13 +790,18 @@ try:
 
         fig_anim.update_layout(
             scene=dict(aspectmode='data'),
+
             updatemenus=[{
                 "type": "buttons",
                 "buttons": [
-                    dict(label="▶ Play", method="animate",
-                         args=[None, {"frame": {"duration": 80}}]),
-                    dict(label="⏸ Stop", method="animate",
-                         args=[[None]])
+                    {
+                        "label": "▶ Play",
+                        "method": "animate",
+                        "args": [None, {
+                            "frame": {"duration": 100, "redraw": True},
+                            "fromcurrent": True
+                        }]
+                    }
                 ]
             }]
         )
@@ -813,4 +810,5 @@ try:
         st.plotly_chart(fig_anim, use_container_width=True)
 
 except:
-    st.warning("⚠️ Plotly no instalado → animación desactivada")
+    st.warning("Plotly no instalado")
+
