@@ -505,6 +505,7 @@ if modo=="Desviado":
                 rec.append("Más de 3 cent o Black Mamba")
 
         df["Recomendación"]=rec
+        df["md"] = df["md"].round(0).astype(int)
 if len(df) > 1:
 
   mu_rod = MU_ROD[liner]
