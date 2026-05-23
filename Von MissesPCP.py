@@ -500,7 +500,7 @@ if modo=="Desviado":
 
             else:
                 colores.append("red")
-                rec.append("más de 3 cent o Black Mamba ------>")
+                rec.append("Más de 3 cent o Black Mamba ------>")
 
         df["Recomendación"]=rec
 if len(df) > 1:
