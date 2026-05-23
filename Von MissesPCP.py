@@ -276,7 +276,12 @@ fs=YS/von
 # TRAYECTORIA
 # =========================
 st.markdown("---")
-modo=st.selectbox("Modo de pozo",["Vertical","Desviado"])
+
+col_modo, _ = st.columns([1,3])
+
+with col_modo:
+    modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"])
+
 
 df=pd.DataFrame()
 torque_final=torque
