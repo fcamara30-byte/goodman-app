@@ -407,7 +407,7 @@ if modo=="Desviado":
     col_text, _ = st.columns([1,3])
 
     with col_text:
-         text = st.text_area("Perfil: MD Inc Az", height=200)
+         text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
 
     if text:
 
