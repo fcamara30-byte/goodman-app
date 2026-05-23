@@ -741,29 +741,55 @@ try:
 
     if len(df) > 1:
 
+        # =========================
+        # ESCALA AUTOMÁTICA
+        # =========================
+        escala = max(
+            df["X"].max() - df["X"].min(),
+            df["Y"].max() - df["Y"].min()
+        )
+
+        radio_base = escala * 0.03   # proporcional al pozo
+
+        # =========================
+        # NORMALIZAR DLS (0 a 1)
+        # =========================
+        dls_norm = df["DLS"] / df["DLS"].max()
+        dls_norm = dls_norm.fillna(0)
+
         frames = []
-        radio_anim = 20   # 🔥 MUCHO MÁS GRANDE → ahora se ve
 
-        for frame in range(40):
+        n_frames = 120  # 🔥 animación más larga
 
-            theta = frame * 0.2
+        for frame in range(n_frames):
 
-            Xoff = df["X"] + radio_anim * np.cos(theta)
-            Yoff = df["Y"] + radio_anim * np.sin(theta)
+            theta = frame * 0.1
+
+            # varilla gira
+            Xoff = df["X"] + radio_base * np.cos(theta)
+            Yoff = df["Y"] + radio_base * np.sin(theta)
             Z = df["Z"]
+
+            # intensidad de contacto
+            colors = [
+                f"rgba({int(255*d)},0,0,{0.2 + d*0.8})"
+                for d in dls_norm
+            ]
 
             frames.append(
                 go.Frame(
                     data=[
+                        # 🟤 TUBO (transparente)
                         go.Scatter3d(
                             x=df["X"],
                             y=df["Y"],
                             z=df["Z"],
                             mode='lines',
-                            line=dict(color='gray', width=4),
-                            opacity=0.3
+                            line=dict(color='gray', width=3),
+                            opacity=0.15
                         ),
 
+                        # 🟢 VARILLA
                         go.Scatter3d(
                             x=Xoff,
                             y=Yoff,
@@ -772,12 +798,16 @@ try:
                             line=dict(color='green', width=6)
                         ),
 
+                        # 🔴 CONTACTO POR DLS
                         go.Scatter3d(
-                            x=[Xoff.iloc[-1]],
-                            y=[Yoff.iloc[-1]],
-                            z=[Z.iloc[-1]],
+                            x=Xoff,
+                            y=Yoff,
+                            z=Z,
                             mode='markers',
-                            marker=dict(size=8, color='red')
+                            marker=dict(
+                                size=4 + 6*dls_norm,   # más grande → más DLS
+                                color=colors
+                            )
                         )
                     ]
                 )
@@ -789,26 +819,34 @@ try:
         )
 
         fig_anim.update_layout(
-            scene=dict(aspectmode='data'),
+
+            height=800,   # 🔥 más grande
+
+            scene=dict(
+                aspectmode='data',
+                camera=dict(
+                    eye=dict(x=1.5, y=1.5, z=1)
+                )
+            ),
 
             updatemenus=[{
                 "type": "buttons",
+                "showactive": False,
                 "buttons": [
-                    {
-                        "label": "▶ Play",
-                        "method": "animate",
-                        "args": [None, {
-                            "frame": {"duration": 100, "redraw": True},
+                    dict(
+                        label="▶ Play",
+                        method="animate",
+                        args=[None, {
+                            "frame": {"duration": 40, "redraw": True},
                             "fromcurrent": True
                         }]
-                    }
+                    )
                 ]
             }]
         )
 
-        st.markdown("### Animación varilla rotando")
+        st.markdown("### Animación interacción varilla–tubing")
         st.plotly_chart(fig_anim, use_container_width=True)
 
 except:
-    st.warning("Plotly no instalado")
-
+    st.warning("Plotly no disponible")
