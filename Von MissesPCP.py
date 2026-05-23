@@ -733,21 +733,26 @@ with c5:
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
+# ===============================
+# ✅ ANIMACIÓN VARILLA GIRANDO
+# ===============================
+
+# ⚠️ asegurate de tener plotly instalado
+# pip install plotly
+
 import plotly.graph_objects as go
 import numpy as np
 
-# ✅ SOLO corre si hay datos
 if len(df) > 1:
 
     frames = []
-    radio = 0.5   # tamaño del giro
+    radio = 0.5  # tamaño del giro
 
-    # generar frames de animación
-    for frame in range(0, 50):
+    for frame in range(0, 40):
 
-        theta = frame * 0.2
+        theta = frame * 0.3
 
-        # varilla girando alrededor de la trayectoria
+        # varilla rotando alrededor de trayectoria
         Xoff = df["X"] + radio * np.cos(theta)
         Yoff = df["Y"] + radio * np.sin(theta)
         Z = df["Z"]
@@ -762,7 +767,7 @@ if len(df) > 1:
                         z=df["Z"],
                         mode='lines',
                         line=dict(color='gray', width=4),
-                        opacity=0.2
+                        opacity=0.3
                     ),
 
                     # varilla girando
@@ -787,22 +792,18 @@ if len(df) > 1:
             )
         )
 
-    # figura inicial
     fig_anim = go.Figure(
         data=frames[0].data,
         frames=frames
     )
 
-    # controles play/stop
     fig_anim.update_layout(
-
         scene=dict(
             xaxis=dict(title='X'),
             yaxis=dict(title='Y'),
             zaxis=dict(title='Z'),
             aspectmode='data'
         ),
-
         updatemenus=[{
             "type": "buttons",
             "buttons": [
@@ -810,7 +811,7 @@ if len(df) > 1:
                     "label": "▶ Play",
                     "method": "animate",
                     "args": [None, {
-                        "frame": {"duration": 50, "redraw": True},
+                        "frame": {"duration": 80, "redraw": True},
                         "fromcurrent": True
                     }]
                 },
