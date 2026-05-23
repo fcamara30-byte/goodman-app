@@ -638,7 +638,7 @@ for tipo, grupo in grupos:
     md_min = grupo["md"].min()
     md_max = grupo["md"].max()
 
-    st.write(f"{tipo}   |   {cantidad} tramos   |   {md_min:.0f} → {md_max:.0f} m"
+    st.write(f"{tipo}   |   {cantidad} tramos   |   {md_min:.0f} → {md_max:.0f} m")
 
 
                
