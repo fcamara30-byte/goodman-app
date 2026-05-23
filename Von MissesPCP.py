@@ -884,4 +884,4 @@ if len(df) > 1:
     )
 
     st.plotly_chart(fig_anim, use_container_width=True)
-``
+
