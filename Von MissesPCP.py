@@ -569,19 +569,14 @@ else:
 # =========================
 
 with colR:
+    colG, colS, colT = st.columns([3.8,1.6,3])
 
-    # ✅ gráfico SOLO (ocupa todo el ancho)
-    st.pyplot(fig)
-
-    # ✅ abajo sliders + tabla
-    colS, colT = st.columns([1,3])
-
+    # sliders
     with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
-
-    # grafico (izquierda)
+    # gráfico
     with colG:
         if len(df) > 1:
             fig = plt.figure(figsize=(4,6))
@@ -595,11 +590,12 @@ with colR:
 
             ax.view_init(elev=elev, azim=azim)
             ax.tick_params(labelsize=6)
-            ax.set_box_aspect([1,1,4])
+            ax.set_box_aspect([1,1,2])   # 👈 VOLVEMOS A ESTE
 
-            fig.savefig("grafico.png", bbox_inches="tight")
             st.pyplot(fig)
-            
+
+
+
            
             st.markdown("""
             <div style="margin-left:90px">
