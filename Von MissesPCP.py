@@ -719,6 +719,6 @@ if st.button("📄 Generar Reporte PDF"):
             file_name="reporte_pcp.pdf",
             mime="application/pdf"
         )
-
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 
