@@ -741,13 +741,32 @@ try:
     if len(df) > 1:
 
         # =========================
-        # ESCALA
+        # ESCALA REAL DEL POZO
         # =========================
         xrange = df["X"].max() - df["X"].min()
         yrange = df["Y"].max() - df["Y"].min()
         zrange = abs(df["Z"].max() - df["Z"].min())
 
-        base_radius = max(xrange, yrange) * 0.05
+        # radio visible pero controlado
+        radio = max(xrange, yrange) * 0.15
+
+        # =========================
+        # DIRECCIÓN LOCAL
+        # =========================
+        dx = np.gradient(df["X"])
+        dy = np.gradient(df["Y"])
+        dz = np.gradient(df["Z"])
+
+        # vector tangente
+        norm = np.sqrt(dx**2 + dy**2 + dz**2) + 1e-6
+        tx = dx / norm
+        ty = dy / norm
+        tz = dz / norm
+
+        # normal horizontal (perpendicular)
+        nx = -ty
+        ny = tx
+        nz = np.zeros_like(nx)
 
         # =========================
         # DLS NORMALIZADO
@@ -755,77 +774,63 @@ try:
         dls_norm = df["DLS"] / df["DLS"].max()
         dls_norm = dls_norm.fillna(0)
 
-        # =========================
-        # DIRECCIÓN LOCAL
-        # =========================
-        dx = np.gradient(df["X"])
-        dy = np.gradient(df["Y"])
-
-        norm = np.sqrt(dx**2 + dy**2) + 1e-6
-        nx = -dy / norm
-        ny = dx / norm
-
         frames = []
 
-        n_frames = 180   # 🔥 ~30 segundos
+        n_frames = 200   # 🔥 ~40 segundos
+
         for frame in range(n_frames):
 
-            theta = frame * 0.2
+            theta = frame * 0.15
 
             # =========================
-            # MOVIMIENTO ROTACIONAL
+            # GIRO REAL
             # =========================
-            # cuanto mayor DLS → más desplazada la varilla
-            desplazamiento = base_radius * (0.3 + dls_norm)
-
-            Xoff = df["X"] + desplazamiento * nx * np.cos(theta)
-            Yoff = df["Y"] + desplazamiento * ny * np.sin(theta)
+            Xoff = df["X"] + radio * (nx * np.cos(theta))
+            Yoff = df["Y"] + radio * (ny * np.sin(theta))
             Z = df["Z"]
 
             # =========================
-            # CONTACTO
+            # CONTACTO (FÍSICO)
             # =========================
-            contacto = dls_norm * (np.abs(np.sin(theta)) > (1 - dls_norm))
+            contacto = np.abs(np.sin(theta)) * dls_norm
 
-            colors = [
-                "rgba(255,0,0,1)" if c > 0.5 else "rgba(255,0,0,0)"
-                for c in contacto
-            ]
+            colores = []
+            for d, c in zip(dls_norm, contacto):
 
-            sizes = 4 + 10 * dls_norm
+                if d < 0.3:
+                    colores.append("rgba(0,255,0,0.1)")   # verde
+                elif d < 0.6:
+                    colores.append("rgba(255,200,0,0.7)") # amarillo
+                else:
+                    colores.append("rgba(255,0,0,1)")     # rojo
+
+            tamaños = 3 + 8 * contacto
 
             frames.append(
                 go.Frame(
                     data=[
-                        # 🟣 TUBO (línea base)
+                        # 🟤 TUBO (trayectoria limpia)
                         go.Scatter3d(
-                            x=df["X"],
-                            y=df["Y"],
-                            z=df["Z"],
+                            x=df["X"], y=df["Y"], z=df["Z"],
                             mode='lines',
-                            line=dict(color='gray', width=8),
-                            opacity=0.15
+                            line=dict(color='gray', width=6),
+                            opacity=0.2
                         ),
 
-                        # 🟢 VARILLA
+                        # 🟢 VARILLA GIRANDO
                         go.Scatter3d(
-                            x=Xoff,
-                            y=Yoff,
-                            z=Z,
+                            x=Xoff, y=Yoff, z=Z,
                             mode='lines',
-                            line=dict(color='green', width=6)
+                            line=dict(color='green', width=5)
                         ),
 
-                        # 🔴 CONTACTO (solo donde toca)
+                        # 🔴 CONTACTO DINÁMICO
                         go.Scatter3d(
                             x=Xoff,
                             y=Yoff,
                             z=Z,
                             mode='markers',
-                            marker=dict(
-                                size=sizes,
-                                color=colors
-                            )
+                            marker=dict(size=tamaños, color=colores)
                         )
                     ]
                 )
@@ -834,7 +839,8 @@ try:
         fig = go.Figure(data=frames[0].data, frames=frames)
 
         fig.update_layout(
-            height=900,
+
+            height=700,  # ✅ menos gigante → mejor percepción 3D
 
             scene=dict(
                 aspectratio=dict(
@@ -842,24 +848,29 @@ try:
                     y=1,
                     z=zrange / max(xrange, yrange)
                 ),
-                camera=dict(eye=dict(x=1.5, y=1.5, z=1.3))
+
+                camera=dict(
+                    eye=dict(x=2.2, y=1.8, z=1.2)  # ✅ vista diagonal real
+                )
             ),
 
             updatemenus=[{
+                "type": "buttons",
                 "buttons": [
                     dict(
                         label="▶ Play",
                         method="animate",
                         args=[None, {
-                            "frame": {"duration": 150, "redraw": True}
+                            "frame": {"duration": 200, "redraw": True}
                         }]
                     )
                 ]
             }]
         )
 
-        st.markdown("### Interacción real varilla–tubing (dogleg)")
+        st.markdown("### Interacción varilla–tubing (Dogleg real)")
         st.plotly_chart(fig, use_container_width=True)
 
 except:
     st.warning("Plotly no disponible")
+``
