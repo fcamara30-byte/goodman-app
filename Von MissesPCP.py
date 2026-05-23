@@ -741,3 +741,118 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
+
+
+# ===============================
+# ✅ ANIMACIÓN FINAL (NO TOCA NADA)
+# ===============================
+
+import plotly.graph_objects as go
+import numpy as np
+
+if len(df) > 1:
+
+    st.markdown("### Simulación rotación varilla")
+
+    X = df["X"].values
+    Y = df["Y"].values
+    Z = df["Z"].values
+    DLS = df["DLS"].values
+
+    # ✅ escala controlada
+    scale = max(np.ptp(X), np.ptp(Y))
+    if scale == 0:
+        scale = 1
+
+    Xn = X / scale * 100
+    Yn = Y / scale * 100
+    Zn = Z / abs(np.ptp(Z)) * 300
+
+    # ✅ colores del pozo (igual que tu gráfico)
+    colors = ["green" if d <= 2 else "yellow" if d <= 4 else "red" for d in DLS]
+
+    # ✅ base local → rotación REAL
+    dx = np.gradient(Xn)
+    dy = np.gradient(Yn)
+    dz = np.gradient(Zn)
+
+    T = np.vstack([dx, dy, dz]).T
+    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
+
+    N = np.zeros_like(T)
+    N[:,0] = -T[:,1]
+    N[:,1] = T[:,0]
+
+    B = np.cross(T, N)
+
+    radio = 4   # 👈 ajustado para no generar "doble varilla"
+
+    crit_mask = DLS > 4
+
+    frames = []
+
+    for k in range(120):
+
+        theta = k * 0.25
+
+        # ✅ ROTACIÓN CORRECTA
+        Xoff = Xn + radio * (N[:,0]*np.cos(theta) + B[:,0]*np.sin(theta))
+        Yoff = Yn + radio * (N[:,1]*np.cos(theta) + B[:,1]*np.sin(theta))
+        Zoff = Zn + radio * (N[:,2]*np.cos(theta) + B[:,2]*np.sin(theta))
+
+        # ✅ PUNTOS DE CONTACTO (solo críticos)
+        impacto = (np.cos(theta) > 0.97) & crit_mask
+
+        frames.append(go.Frame(data=[
+
+            # pozo
+            go.Scatter3d(
+                x=Xn, y=Yn, z=Zn,
+                mode='lines',
+                line=dict(color=colors, width=5),
+                showlegend=False
+            ),
+
+            # varilla
+            go.Scatter3d(
+                x=Xoff, y=Yoff, z=Zoff,
+                mode='lines',
+                line=dict(color='green', width=5),
+                showlegend=False
+            ),
+
+            # contacto
+            go.Scatter3d(
+                x=Xoff[impacto],
+                y=Yoff[impacto],
+                z=Zoff[impacto],
+                mode='markers',
+                marker=dict(size=7, color='red'),
+                name="Puntos críticos"
+            )
+
+        ]))
+
+    fig_anim = go.Figure(data=frames[0].data, frames=frames)
+
+    fig_anim.update_layout(
+
+        height=650,
+
+        scene=dict(
+            aspectratio=dict(x=1, y=1, z=2),
+            camera=dict(eye=dict(x=1.6, y=1.4, z=1.2))
+        ),
+
+        updatemenus=[{
+            "buttons":[
+                dict(label="▶ Play", method="animate",
+                     args=[None, {"frame": {"duration":70, "redraw":True}}]),
+                dict(label="⏸ Stop", method="animate",
+                     args=[[None], {"mode":"immediate"}])
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig_anim, use_container_width=True)
+
