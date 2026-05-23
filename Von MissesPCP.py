@@ -706,19 +706,7 @@ with c5:
 color_class = "metric-red" if uso > 100 else ""
 
 
-st.markdown("---")
 
-if st.button("📄 Generar Reporte PDF"):
-
-    pdf_path = generar_pdf()
-
-    with open(pdf_path, "rb") as f:
-        st.download_button(
-            "Descargar PDF",
-            f,
-            file_name="reporte_pcp.pdf",
-            mime="application/pdf"
-        )
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 
