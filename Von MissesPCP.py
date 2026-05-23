@@ -386,7 +386,7 @@ def generar_pdf():
     y3 -= 0.5*cm
     c.setFont("Helvetica", 7)
 
-    if len(df) > 1:
+    if len(df) > 1 and "Recomendación" in df.columns:
         for i in range(len(df)):   # ✅ ahora muestra TODA la tabla
 
             row = df.iloc[i]
