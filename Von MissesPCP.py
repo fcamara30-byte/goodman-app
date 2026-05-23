@@ -592,8 +592,12 @@ with colT:
         st.markdown("### Centralización")
 
 
-        st.dataframe(
-        df[["md","DLS","Recomendación"]]
+st.dataframe(
+    df[["md","DLS","Recomendación"]],
+    height=600,
+    use_container_width=True
+)
+
          # =========================
         # EXPORTAR A EXCEL (.XLSX REAL)
         # =========================
