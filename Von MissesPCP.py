@@ -601,7 +601,7 @@ with colR:
                 🟡 **2 – 3°/100ft** → 2 centralizadores  
                 🟠 **3 – 6°/100ft** → 3 centralizadores  
                 🔴 **> 6°/100ft** → +3 o Black Mamba  
-                  """)
+                """)
 
             fig.savefig("grafico.png", bbox_inches="tight")
 
