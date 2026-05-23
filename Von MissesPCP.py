@@ -282,7 +282,7 @@ st.markdown("---")
 col_modo, _ = st.columns([1,3])
 
 with col_modo:
-    modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"])
+   modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"], key="modo_pozo")
 
 
 df=pd.DataFrame()
