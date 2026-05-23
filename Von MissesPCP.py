@@ -569,12 +569,17 @@ else:
 # =========================
 
 with colR:
-    colG, colS, colT = st.columns([3.8,1.6,3])
 
-    # sliders (derecha)
+    # ✅ gráfico SOLO (ocupa todo el ancho)
+    st.pyplot(fig)
+
+    # ✅ abajo sliders + tabla
+    colS, colT = st.columns([1,3])
+
     with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
+
 
     # grafico (izquierda)
     with colG:
