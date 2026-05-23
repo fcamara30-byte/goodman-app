@@ -741,73 +741,73 @@ try:
     if len(df) > 1:
 
         # =========================
-        # ESCALA CORRECTA DEL POZO
+        # ESCALA
         # =========================
         xrange = df["X"].max() - df["X"].min()
         yrange = df["Y"].max() - df["Y"].min()
         zrange = abs(df["Z"].max() - df["Z"].min())
 
-        # escala proporcional
-        aspect = dict(
-            x=max(xrange,1),
-            y=max(yrange,1),
-            z=zrange
-        )
+        base_radius = max(xrange, yrange) * 0.05
 
         # =========================
-        # NORMALIZAR DLS
+        # DLS NORMALIZADO
         # =========================
         dls_norm = df["DLS"] / df["DLS"].max()
         dls_norm = dls_norm.fillna(0)
 
-        # radio dinámico relativo al pozo
-        radio = max(xrange, yrange) * 0.2
+        # =========================
+        # DIRECCIÓN LOCAL
+        # =========================
+        dx = np.gradient(df["X"])
+        dy = np.gradient(df["Y"])
+
+        norm = np.sqrt(dx**2 + dy**2) + 1e-6
+        nx = -dy / norm
+        ny = dx / norm
 
         frames = []
 
-        for frame in range(120):
+        n_frames = 180   # 🔥 ~30 segundos
+        for frame in range(n_frames):
 
             theta = frame * 0.2
 
             # =========================
-            # ROTACIÓN LOCAL (más real)
+            # MOVIMIENTO ROTACIONAL
             # =========================
-            dx = np.gradient(df["X"])
-            dy = np.gradient(df["Y"])
+            # cuanto mayor DLS → más desplazada la varilla
+            desplazamiento = base_radius * (0.3 + dls_norm)
 
-            norm = np.sqrt(dx**2 + dy**2) + 1e-6
-
-            nx = -dy / norm
-            ny = dx / norm
-
-            Xoff = df["X"] + radio * nx * np.cos(theta)
-            Yoff = df["Y"] + radio * ny * np.sin(theta)
+            Xoff = df["X"] + desplazamiento * nx * np.cos(theta)
+            Yoff = df["Y"] + desplazamiento * ny * np.sin(theta)
             Z = df["Z"]
 
             # =========================
-            # COLOR CONTACTO (DOGLEG)
+            # CONTACTO
             # =========================
+            contacto = dls_norm * (np.abs(np.sin(theta)) > (1 - dls_norm))
+
             colors = [
-                f"rgba({int(255*d)},0,0,{0.2 + d*0.8})"
-                for d in dls_norm
+                "rgba(255,0,0,1)" if c > 0.5 else "rgba(255,0,0,0)"
+                for c in contacto
             ]
 
-            sizes = 2 + 10 * dls_norm
+            sizes = 4 + 10 * dls_norm
 
             frames.append(
                 go.Frame(
                     data=[
-                        # TUBO
+                        # 🟣 TUBO (línea base)
                         go.Scatter3d(
                             x=df["X"],
                             y=df["Y"],
                             z=df["Z"],
                             mode='lines',
-                            line=dict(color='gray', width=4),
+                            line=dict(color='gray', width=8),
                             opacity=0.15
                         ),
 
-                        # VARILLA GIRANDO
+                        # 🟢 VARILLA
                         go.Scatter3d(
                             x=Xoff,
                             y=Yoff,
@@ -816,7 +816,7 @@ try:
                             line=dict(color='green', width=6)
                         ),
 
-                        # CONTACTO REAL
+                        # 🔴 CONTACTO (solo donde toca)
                         go.Scatter3d(
                             x=Xoff,
                             y=Yoff,
@@ -840,11 +840,9 @@ try:
                 aspectratio=dict(
                     x=1,
                     y=1,
-                    z=aspect["z"]/max(aspect["x"], aspect["y"])
+                    z=zrange / max(xrange, yrange)
                 ),
-                camera=dict(
-                    eye=dict(x=1.5, y=1.5, z=1.2)
-                )
+                camera=dict(eye=dict(x=1.5, y=1.5, z=1.3))
             ),
 
             updatemenus=[{
@@ -853,14 +851,14 @@ try:
                         label="▶ Play",
                         method="animate",
                         args=[None, {
-                            "frame": {"duration": 40, "redraw": True}
+                            "frame": {"duration": 150, "redraw": True}
                         }]
                     )
                 ]
             }]
         )
 
-        st.markdown("### Interacción varilla–tubing (DLS)")
+        st.markdown("### Interacción real varilla–tubing (dogleg)")
         st.plotly_chart(fig, use_container_width=True)
 
 except:
