@@ -319,7 +319,7 @@ def generar_pdf():
                     df["Z"].iloc[i:i+2],
                     color=colores[i], linewidth=2)
 
-        ax.set_box_aspect([1,1,1])
+        ax.set_box_aspect([1,1,2])
         ax.tick_params(labelsize=6)
 
         fig.savefig("grafico.png", bbox_inches="tight")
