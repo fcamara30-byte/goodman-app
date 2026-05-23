@@ -736,84 +736,79 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 # ===============================
-# 🔴 ANIMACION VARILLA (PLOTLY)
+# 🔵 DEMO INDEPENDIENTE ANIMACIÓN
 # ===============================
+
+import numpy as np
 
 try:
     import plotly.graph_objects as go
-    import numpy as np
 
-    if len(df) > 1 and "X" in df.columns:
+    # trayectoria helicoidal simple (independiente)
+    t = np.linspace(0, 20, 100)
+    X = np.sin(t)
+    Y = np.cos(t)
+    Z = -t
 
-        frames = []
-        radio = 0.5
+    frames = []
+    radio = 0.3
 
-        for frame in range(0, 30):
+    for frame in range(30):
 
-            theta = frame * 0.3
+        theta = frame * 0.3
 
-            Xoff = df["X"] + radio * np.cos(theta)
-            Yoff = df["Y"] + radio * np.sin(theta)
-            Z = df["Z"]
+        Xoff = X + radio * np.cos(theta)
+        Yoff = Y + radio * np.sin(theta)
 
-            frames.append(
-                go.Frame(
-                    data=[
-                        go.Scatter3d(
-                            x=df["X"],
-                            y=df["Y"],
-                            z=df["Z"],
-                            mode='lines',
-                            line=dict(color='gray', width=4),
-                            opacity=0.3
-                        ),
+        frames.append(
+            go.Frame(
+                data=[
+                    # tubo
+                    go.Scatter3d(
+                        x=X, y=Y, z=Z,
+                        mode='lines',
+                        line=dict(color='gray', width=4),
+                        opacity=0.3
+                    ),
 
-                        go.Scatter3d(
-                            x=Xoff,
-                            y=Yoff,
-                            z=Z,
-                            mode='lines',
-                            line=dict(color='green', width=5)
-                        ),
+                    # varilla
+                    go.Scatter3d(
+                        x=Xoff, y=Yoff, z=Z,
+                        mode='lines',
+                        line=dict(color='green', width=6)
+                    ),
 
-                        go.Scatter3d(
-                            x=[Xoff.iloc[-1]],
-                            y=[Yoff.iloc[-1]],
-                            z=[Z.iloc[-1]],
-                            mode='markers',
-                            marker=dict(size=6, color='red')
-                        )
-                    ],
-                    name=str(frame)
-                )
-            )
-
-        fig_anim = go.Figure(
-            data=frames[0].data,
-            frames=frames
-        )
-
-        fig_anim.update_layout(
-            scene=dict(
-                xaxis_title='X',
-                yaxis_title='Y',
-                zaxis_title='Z',
-                aspectmode='data'
-            ),
-            updatemenus=[{
-                "type": "buttons",
-                "buttons": [
-                    dict(label="▶ Play", method="animate",
-                         args=[None, {"frame": {"duration": 80}}]),
-                    dict(label="⏸ Stop", method="animate",
-                         args=[[None]])
+                    # contacto
+                    go.Scatter3d(
+                        x=[Xoff[-1]], y=[Yoff[-1]], z=[Z[-1]],
+                        mode='markers',
+                        marker=dict(size=6, color='red')
+                    )
                 ]
-            }]
+            )
         )
 
-        st.markdown("### Animación varilla")
-        st.plotly_chart(fig_anim, use_container_width=True)
+    fig_anim = go.Figure(
+        data=frames[0].data,
+        frames=frames
+    )
+
+    fig_anim.update_layout(
+        scene=dict(aspectmode='data'),
+        updatemenus=[{
+            "type": "buttons",
+            "buttons": [
+                dict(label="▶ Play", method="animate",
+                     args=[None, {"frame": {"duration": 80}}]),
+                dict(label="⏸ Stop", method="animate",
+                     args=[[None]])
+            ]
+        }]
+    )
+
+    st.markdown("### Demo animación varilla (independiente)")
+    st.plotly_chart(fig_anim, use_container_width=True)
 
 except:
-    st.warning("⚠️ Plotly no instalado → animación desactivada")
+    st.warning("Plotly no instalado → no se muestra animación")
 
