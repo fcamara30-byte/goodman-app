@@ -775,7 +775,7 @@ if len(df) > 1:
     Yc = Y - np.mean(Y)
 
     # 👇 esto es lo correcto para survey
-    Zc = -(Z - Z.min())
+    Zc = Z
 
     # ===============================
     # BASE LOCAL
@@ -884,19 +884,24 @@ if len(df) > 1:
 
     fig.update_layout(
 
-    height=850,
+    height=500,
 
     scene=dict(
 
         aspectmode='manual',
         aspectratio=dict(x=1, y=1, z=3),
 
-        camera=dict(
-            eye=dict(x=-2.8, y=1.8, z=2.8)
-        ),
 
-        zaxis=dict(title="Profundidad")
-    ),
+camera=dict(
+    eye=dict(x=-2.2, y=1.6, z=2.2)
+)
+
+
+zaxis=dict(
+    title="Profundidad",
+    autorange="reversed"
+)
+
 
     margin=dict(l=0, r=0, t=0, b=0),
 
