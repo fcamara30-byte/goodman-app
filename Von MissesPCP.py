@@ -456,7 +456,7 @@ def generar_pdf():
                 t.set_fontsize(3)
 
         ax.tick_params(labelsize=2)
-        for i in range(len(df)-1):
+         in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
                     df["Y"].iloc[i:i+2],
                     df["Z"].iloc[i:i+2],
@@ -532,7 +532,7 @@ def generar_pdf():
     c.setFont("Helvetica", 7)
 
     if len(df) > 1 and "Recomendación" in df.columns:
-        for i in range(len(df)):   # ✅ ahora muestra TODA la tabla
+         in range(len(df)):   # ✅ ahora muestra TODA la tabla
 
             row = df.iloc[i]
             txt = f"{row['md']:.0f} | {row['DLS']:.1f} | {row['Recomendación']}"
@@ -625,7 +625,7 @@ X = [0]*len(df)
 Y = [0]*len(df)
 Z = [0]*len(df)
 
-
+if modo == "Desviado" and len(df) > 1:
 for i in range(1, len(inc)):
     dz = df["md"][i] - df["md"][i-1]
 
