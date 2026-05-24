@@ -640,7 +640,10 @@ for i in range(1, len(inc)):
 # ✅ AFUERA DEL LOOP
 df["X"] = X
 df["Y"] = Y
-df["Z"] = -df["md"]
+
+if len(df) > 0:
+    df["Z"] = df.get("md", 0)
+
 
 
 
