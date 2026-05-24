@@ -741,9 +741,8 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
-
 # ===============================
-# ✅ ANIMACIÓN FINAL (ESTABLE + ROTACIÓN REAL + TUBING CLARO)
+# ✅ ANIMACIÓN FINAL (FIJA Y FUNCIONA)
 # ===============================
 
 import plotly.graph_objects as go
@@ -751,6 +750,7 @@ import numpy as np
 
 if len(df) > 1:
 
+    # ✅ SIN ESPACIO EXTRA
     st.markdown("### Interacción varilla–tubing")
 
     X = df["X"].values
@@ -758,25 +758,25 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ centrado
+    # ✅ centrado bien
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
     Zc = Z - np.mean(Z)
 
     # =========================
-    # base local
+    # BASE LOCAL
     # =========================
     dx = np.gradient(Xc)
     dy = np.gradient(Yc)
     dz = np.gradient(Zc)
 
-    T = np.vstack([dx,dy,dz]).T
-    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
+    T = np.vstack([dx, dy, dz]).T
+    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
 
     N = np.zeros_like(T)
     N[0] = np.array([1,0,0])
 
-    for i in range(1,len(T)):
+    for i in range(1, len(T)):
         v = N[i-1]
         t = T[i]
         v = v - np.dot(v,t)*t
@@ -784,65 +784,69 @@ if len(df) > 1:
             v = np.cross(t, np.array([0,1,0]))
         N[i] = v/(np.linalg.norm(v)+1e-6)
 
-    B = np.cross(T,N)
+    B = np.cross(T, N)
 
     # =========================
-    # parámetros
+    # PARAMETROS CLAROS
     # =========================
-    radio_tubo = 4.5
-    radio_varilla = 3.0   # separación clara → se ve rotación
+    radio_tubo = 5.0
+    radio_varilla = 3.5   # ✅ MÁS CHICO → SE VE GIRAR
 
     crit = DLS > 3
 
     # =========================
-    # tubing
+    # TUBING BIEN VISIBLE
     # =========================
     tube = []
-    for ang in np.linspace(0,2*np.pi,16):
-        Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
-        Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
-        Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
+    angs = np.linspace(0, 2*np.pi, 24)
+
+    for a in angs:
+        Xt = Xc + radio_tubo*(N[:,0]*np.cos(a)+B[:,0]*np.sin(a))
+        Yt = Yc + radio_tubo*(N[:,1]*np.cos(a)+B[:,1]*np.sin(a))
+        Zt = Zc + radio_tubo*(N[:,2]*np.cos(a)+B[:,2]*np.sin(a))
 
         tube.append(go.Scatter3d(
             x=Xt, y=Yt, z=Zt,
             mode='lines',
-            line=dict(color='gray', width=3),
-            opacity=0.6,
+            line=dict(color='rgba(120,120,120,0.8)', width=4),
             showlegend=False
         ))
 
     # =========================
-    # animación
+    # ANIMACION REAL
     # =========================
-    frames=[]
-    n_frames=420  # ~30s
+    frames = []
+    n_frames = 420
 
     for k in range(n_frames):
 
-        theta = k * 0.22
+        theta = k * 0.35   # ✅ MÁS FUERTE → VISIBLE
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
+        # ✅ TODA LA VARILLA ROTA
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        frames.append(go.Frame(data=tube + [
+        frames.append(go.Frame(data = tube + [
 
+            # ✅ VARILLA
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='green', width=6),
+                line=dict(color='green', width=7),
                 showlegend=False
             ),
 
+            # ✅ CONTACTO (FIJO)
             go.Scatter3d(
                 x=Xr[crit],
                 y=Yr[crit],
                 z=Zr[crit],
                 mode='markers',
-                marker=dict(size=6, color='red', opacity=0.7),
+                marker=dict(size=7, color='red', opacity=0.8),
                 name="Contacto"
             )
 
@@ -851,18 +855,25 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
+
         height=900,
+
         scene=dict(
             aspectmode='data',
-            camera=dict(eye=dict(x=-3, y=2, z=1.6)),
+            camera=dict(
+                eye=dict(x=-3.5, y=2.2, z=1.8)
+            )
         ),
-        margin=dict(l=0, r=0, t=20, b=20),
+
+        margin=dict(l=0, r=0, t=5, b=10),  # ✅ SIN ESPACIOS ARRIBA
+
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
                      args=[None, {"frame":{"duration":70}}]),
+
                 dict(label="⏸ Stop",
                      method="animate",
                      args=[[None], {"mode":"immediate"}])
