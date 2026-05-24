@@ -627,11 +627,8 @@ with c5:
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
 
-
-
-
-    # ✅ FILA NORMAL (NO TOCAR NADA)
-    colG, colS, colR2 = st.columns([3.8,1.6,3])
+with colR:
+  colG, colS, colT = st.columns([3.8,1.6,3])
 
     # sliders
 with colS:
@@ -672,36 +669,9 @@ with colG:
             fig.savefig("grafico.png", bbox_inches="tight")
 
     # tabla derecha
+with colT:
 
-with colR2:
-
-    # ✅ espacio para bajar el resumen (clave)
-    st.markdown("###")
-    st.markdown("###")
-
-    if len(df) > 1 and "Recomendación" in df.columns:
-
-        st.markdown("### Resumen de Centralización")
-
-        df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
-
-        total_tramos = len(df_centralizados)
-        st.write(f"**Varillas centralizadas:** {total_tramos}")
-
-        grupos = df_centralizados.groupby("Recomendación")
-
-        for tipo, grupo in grupos:
-            cantidad = len(grupo)
-            md_min = grupo["md"].min()
-            md_max = grupo["md"].max()
-
-            st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
-
-
-
-
-
-
+    if len(df) > 1:
 
         st.markdown("### Centralización")
 
@@ -727,7 +697,24 @@ if len(df) > 1 and "Recomendación" in df.columns:
 
     df.columns = df.columns.str.strip()
 
-   
+    st.markdown("### Resumen de Centralización")
+
+    df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+
+    total_tramos = len(df_centralizados)
+    st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+    grupos = df_centralizados.groupby("Recomendación")
+
+
+    for tipo, grupo in grupos:
+
+      cantidad = len(grupo)
+      md_min = grupo["md"].min()
+      md_max = grupo["md"].max()
+
+      st.write(f"{tipo}   |   {cantidad} tramos   |   {md_min:.0f} → {md_max:.0f} m")
+
 
                
             
@@ -773,7 +760,7 @@ if len(df) > 1:
 
     # ✅ TITULO TOTALMENTE PEGADO
     st.markdown("<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>", unsafe_allow_html=True)
-   
+    st.write("len df:", len(df))
     # ===============================
     # DATA
     # ===============================
@@ -905,7 +892,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=780,
+        height=850,
         uirevision="keep",
 
         scene=dict(
@@ -924,7 +911,7 @@ if len(df) > 1:
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.41,
+            "y":0.2,
             "buttons":[
                 dict(label="▶",
                      method="animate",
@@ -941,24 +928,12 @@ if len(df) > 1:
         }]
     )
 
-    
-st.markdown("""
-<style>
-.block-container {
-    padding-top: 0rem;
-}
+    st.plotly_chart(fig, use_container_width=True)
+
+# ===============================
 
 
 
-div[data-testid="stPlotlyChart"] {
-    margin-top: -40px;   /* ✅ ajuste correcto */
-}
-
-
-
-</style>
-""", unsafe_allow_html=True)
-
-st.plotly_chart(fig, use_container_width=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
 
