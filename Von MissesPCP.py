@@ -884,35 +884,37 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        # ✅ CLAVE: REDUCIR ALTURA → elimina hueco
-        height=750,
+    height=850,
 
-        scene=dict(
-            aspectmode='data',
-            camera=dict(eye=dict(x=-5,y=3,z=2)),
+    scene=dict(
 
-            # ✅ survey correcto
-            zaxis=dict(title="Profundidad")
+        aspectmode='manual',
+        aspectratio=dict(x=1, y=1, z=3),
+
+        camera=dict(
+            eye=dict(x=-2.8, y=1.8, z=2.8)
         ),
 
-        # ✅ SIN MÁRGENES → NO HAY ESPACIO FANTASMA
-        margin=dict(l=0,r=0,t=0,b=0),
+        zaxis=dict(title="Profundidad")
+    ),
 
-        # ✅ CONTROLES PEGADOS
-        updatemenus=[{
-            "type":"buttons",
-            "x":0.35,
-            "y":0.12,
-            "buttons":[
-                dict(label="▶",
-                     method="animate",
-                     args=[None,{"frame":{"duration":80}}]),
-                dict(label="⏸",
-                     method="animate",
-                     args=[[None],{"mode":"immediate"}])
-            ]
-        }]
-    )
+    margin=dict(l=0, r=0, t=0, b=0),
+
+    updatemenus=[{
+        "type":"buttons",
+        "x":0.35,
+        "y":0.10,
+        "buttons":[
+            dict(label="▶",
+                 method="animate",
+                 args=[None,{"frame":{"duration":80}}]),
+            dict(label="⏸",
+                 method="animate",
+                 args=[[None],{"mode":"immediate"}])
+        ]
+    }]
+)
+
 
     st.plotly_chart(fig, use_container_width=True)
 
