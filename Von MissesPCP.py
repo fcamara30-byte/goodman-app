@@ -877,3 +877,20 @@ if len(df) > 1:
             aspectmode='data',
             camera=dict(
                 eye=dict(x=1.8, y=1.6, z=1.4)  # ✅ vista óptima (tipo gráfico original)
+            )
+        ),
+
+        updatemenus=[{
+            "type":"buttons",
+            "buttons":[
+                dict(label="▶ Play",
+                     method="animate",
+                     args=[None,{"frame":{"duration":80}}]),
+                dict(label="⏸ Stop",
+                     method="animate",
+                     args=[[None],{"mode":"immediate"}])
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
