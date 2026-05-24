@@ -898,9 +898,12 @@ if len(df) > 1:
             ),
 
 
+
 zaxis=dict(
-    title="Profundidad"
+    title="Profundidad",
+    range=[min(Zc)*1.05, max(Zc)*1.05]
 )
+
 
         ),
 
