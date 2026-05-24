@@ -115,6 +115,27 @@ with colL:
 
     c1,c2 = st.columns(2)
 
+
+    # ✅ aseguro que BOMBAS existe acá
+if "BOMBAS" not in globals():
+    BOMBAS = {
+        "NTZ 278 ST 4": 4.0,
+        "NTZ 278 ST 7": 7.0,
+        "NTZ 278 ST 10": 10.0,
+        "NTZ 278 ST 14": 14.0,
+
+        "NTZ 350 ST 16.4": 16.4,
+        "NTZ 350 ST 20": 20.0,
+        "NTZ 350 ST 25": 25.0,
+        "NTZ 350 ST 33": 33.0,
+        "NTZ 350 ST 40": 40.0,
+
+        "NTZ 400 ST 33": 33.0,
+        "NTZ 400 ST 40": 40.0,
+        "NTZ 400 ST 50": 50.0,
+        "NTZ 400 ST 62": 62.0,
+        "NTZ 400 ST 78": 78.0,
+    }
     with c1:
         nombre_pozo = st.text_input("Nombre Pozo")
         profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
