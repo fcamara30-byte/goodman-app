@@ -887,7 +887,6 @@ fig.update_layout(
     height=600,
 
     scene=dict(
-
         aspectmode='manual',
         aspectratio=dict(x=1, y=1, z=3),
 
@@ -899,7 +898,6 @@ fig.update_layout(
             title="Profundidad",
             autorange="reversed"
         )
-
     ),
 
     margin=dict(l=0, r=0, t=0, b=0),
@@ -911,34 +909,14 @@ fig.update_layout(
         "buttons":[
             dict(label="▶",
                  method="animate",
-                 args=[None, {"frame":{"duration":80}}]),
-
-            dict(label="⏸",
-                 method="animate",
-                 args=[[None], {"mode":"immediate"}])
-        ]
-    }]
-
-)
-
-
-
-
-    margin=dict(l=0, r=0, t=0, b=0),
-
-    updatemenus=[{
-        "type":"buttons",
-        "x":0.35,
-        "y":0.10,
-        "buttons":[
-            dict(label="▶",
-                 method="animate",
                  args=[None,{"frame":{"duration":80}}]),
+
             dict(label="⏸",
                  method="animate",
                  args=[[None],{"mode":"immediate"}])
         ]
     }]
+
 )
 
 
