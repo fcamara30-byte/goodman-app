@@ -887,7 +887,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=400,
+        height=600,
 
         scene=dict(
             aspectmode='manual',
