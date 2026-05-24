@@ -630,7 +630,7 @@ Y = [0]*len(df)
 Z = [0]*len(df)
 
 
-for i in range(1, len(inc) if len(inc) > 0 else 1):
+for i in range(1, len(inc or [0])):
     dz = df["md"][i] - df["md"][i-1]
 
     X[i] = X[i-1] + np.sin(inc[i]) * np.cos(az[i]) * dz
