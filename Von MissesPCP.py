@@ -665,7 +665,7 @@ for _, row in df.iterrows():
 
 df["Recomendación"] = rec
 
-                df["md"] = df["md"].round(0).astype(int)
+df["md"] = df["md"].round(0).astype(int)
 if len(df) > 1:
 
   mu_rod = MU_ROD[liner]
