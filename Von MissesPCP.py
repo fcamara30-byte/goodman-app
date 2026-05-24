@@ -892,7 +892,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=850,
+        height=600,
         uirevision="keep",
 
         scene=dict(
@@ -936,7 +936,7 @@ st.markdown("""
 }
 
 
-div[data-testid="stPlotlyChart"] {div[data-testid="stPlot margin-top: -40px;  /* ✅ ajuste suave */
+div[data-testid="stPlotlyChart"] {div[data-testid="stPlot margin-top: -30px;  /* ✅ ajuste suave */
 }
 
 
