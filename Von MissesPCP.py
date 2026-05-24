@@ -1067,7 +1067,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=650,
+        height=750,
         uirevision="keep",
 
         scene=dict(
@@ -1079,9 +1079,14 @@ if len(df) > 1:
        center=dict(x=0, y=0, z=-0.3)
  ),
 
+    zaxis=dict(
+        title="Profundidad",
+        autorange="reversed"
+    )
+)
 
-            zaxis=dict(title="Profundidad")
-        ),
+
+
 
         margin=dict(l=0, r=0, t=0, b=0),
 
