@@ -877,15 +877,13 @@ if len(df) > 1:
 
         ]))
 
-    # ===============================
-    # FIGURA
-    # ===============================
+
 # ===============================
     # FIGURA
     # ===============================
-fig = go.Figure(data=frames[0].data, frames=frames)
+   fig = go.Figure(data=frames[0].data, frames=frames)
 
-fig.update_layout(
+   fig.update_layout(
 
         height=850,
 
