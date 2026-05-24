@@ -628,7 +628,7 @@ with c5:
 # =========================
 
 with colR:
-with colR:
+
 
     st.markdown("### Resumen de Centralización")
 
