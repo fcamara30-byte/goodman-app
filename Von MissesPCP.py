@@ -1073,10 +1073,12 @@ if len(df) > 1:
         scene=dict(
             aspectmode='data',
 
-            camera=dict(
-                eye=dict(x=0.3, y=1.6, z=1.5),
-                projection=dict(type="perspective")
-            ),
+
+camera=dict(
+    eye=dict(x=2.5, y=2.0, z=0.7),
+    center=dict(x=0, y=0, z=-0.3)
+)
+
 
             zaxis=dict(title="Profundidad")
         ),
