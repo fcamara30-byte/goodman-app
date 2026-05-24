@@ -1134,6 +1134,15 @@ st.download_button(
 
 
 if len(df) > 1:
+    
+    st.markdown("""
+    <style>
+    div[data-testid="stPlotlyChart"] {
+        margin-top: -100px;
+    }
+    </style>
+    """, unsafe_allow_html=True
+
     st.plotly_chart(fig, use_container_width=True)
 else:
     st.info("Modo vertical: sin trayectoria 3D")
