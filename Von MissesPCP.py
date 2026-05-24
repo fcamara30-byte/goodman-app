@@ -1053,7 +1053,7 @@ if len(df) > 1:
 
             camera=dict(
                 eye=dict(x=0.5, y=1.7, z=1.2),
-                projection=dict(type="perspective")
+                projection=dict(type="orthographic")
             ),
 
             zaxis=dict(title="Profundidad")
