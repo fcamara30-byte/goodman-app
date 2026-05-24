@@ -1029,7 +1029,7 @@ if len(df) > 1:
         scene=dict(aspectmode='data'),
     )
 
-    st.plotly_chart(fig, use_container_width=True)
+   
 
     fig.update_layout(
 
