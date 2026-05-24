@@ -900,7 +900,7 @@ if len(df) > 1:
             aspectmode='data',
 
             camera=dict(
-                eye=dict(x=3, y=0.2, z=1.8),
+                eye=dict(x=1.2, y=1.2, z=3.2),
                 projection=dict(type="perspective")
             ),
 
