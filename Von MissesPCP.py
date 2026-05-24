@@ -939,6 +939,19 @@ div[data-testid="stPlotlyChart"] {
 }
 </style>
 """, unsafe_allow_html=True)
+    
+import imageio
+frames_img = []
+
+for i, frame in enumerate(fig.frames):
+    fig.update(frames=[frame])
+    img_path = f"frame_{i}.png"
+    fig.write_image(img_path)
+    frames_img.append(imageio.imread(img_path))
+
+    imageio.mimsave("animacion.gif", frames_img, fps=10)
+
+# ✅ 👉 DESPUÉS DE ESTO DEJÁS ESTO COMO ESTÁ
 
     st.plotly_chart(fig, use_container_width=True)
 
