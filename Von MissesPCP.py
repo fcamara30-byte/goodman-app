@@ -227,6 +227,8 @@ if "BOMBAS" not in globals():
         prod = st.number_input("Producción (m³/d)",5.0)
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
         Q100 = BOMBAS[bomba_sel]
+
+
         # ✅ cálculo de RPM automático
 
         # ✅ cálculo de RPM sugerida
@@ -236,6 +238,11 @@ if "BOMBAS" not in globals():
 
         # ✅ input manual (EL REAL QUE USA EL MODELO)
         rpm = st.number_input("RPM oper", value=int(rpm_sugerida), step=10)
+        
+        # ✅ CAUDAL REAL (bien ubicado)
+        Q_cap = Q100 * (rpm / 100)
+        Q_real = min(prod, Q_cap)
+
 
 
 
@@ -384,10 +391,13 @@ pres_entrada = (sumergencia * densidad) / 10000
 pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
 
 
-pot_h=prod*pres_total*0.0014
+pot_h = Q_real * pres_total * 0.0014
 pot_c=pot_h/eficiencia
 
-torque=(5252*pot_c)/rpm
+
+rpm_eff = max(rpm, 5)
+torque = (5252 * pot_c) / rpm_eff
+
 torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
 torque += fric_bomba +20 # ✅ fricción bomba
 
