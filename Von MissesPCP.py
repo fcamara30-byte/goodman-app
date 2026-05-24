@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL FÍSICA REAL
+# ✅ ANIMACIÓN FINAL ESTABLE (SIN ERRORES + ROTACIÓN REAL + TUBO CLARO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -757,64 +757,66 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ CENTRADO PARA EVITAR CORTE
+    # ✅ CENTRADO SUAVE (sin distorsión)
     Xn = X - np.mean(X)
     Yn = Y - np.mean(Y)
     Zn = Z - np.mean(Z)
 
     # =========================
-    # BASE LOCAL
+    # BASE LOCAL ESTABLE
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
     T = np.vstack([dx,dy,dz]).T
-    T = T/(np.linalg.norm(T,axis=1)[:,None] + 1e-6)
+    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
 
     N = np.zeros_like(T)
-    N[0] = np.array([1,0,0])
+    N[0] = np.array([1, 0, 0])
 
-    for i in range(1,len(T)):
+    for i in range(1, len(T)):
         v = N[i-1]
         t = T[i]
-        v = v - np.dot(v,t)*t
+        v = v - np.dot(v, t) * t
         if np.linalg.norm(v) < 1e-6:
-            v = np.cross(t, np.array([0,1,0]))
-        N[i] = v/(np.linalg.norm(v)+1e-6)
+            v = np.cross(t, np.array([0, 1, 0]))
+        N[i] = v / (np.linalg.norm(v) + 1e-6)
 
-    B = np.cross(T,N)
+    B = np.cross(T, N)
 
     # =========================
-    # FÍSICA REAL (CONTACTO)
+    # GEOMETRÍA FÍSICA
     # =========================
     radio_tubo = 3.5
-    radio_varilla = 3.2   # 👈 CASI IGUAL → toca fuerte
+    radio_varilla = 3.2   # 👈 CASI TOCANDO → EFECTO REAL
 
-    # zonas críticas amplificadas
-    contacto_base = np.clip(DLS/np.max(DLS+1e-6),0,1)
-
-    # =========================
-    # TUBING (VISIBLE REAL)
-    # =========================
-    theta_cyl = np.linspace(0,2*np.pi,20)
-
-    Xcyl=[];Ycyl=[];Zcyl=[]
-    for i in range(len(Xn)):
-        for th in theta_cyl:
-            Xcyl.append(Xn[i] + radio_tubo*(N[i,0]*np.cos(th)+B[i,0]*np.sin(th)))
-            Ycyl.append(Yn[i] + radio_tubo*(N[i,1]*np.cos(th)+B[i,1]*np.sin(th)))
-            Zcyl.append(Zn[i] + radio_tubo*(N[i,2]*np.cos(th)+B[i,2]*np.sin(th)))
-
-    Xcyl=np.array(Xcyl)
-    Ycyl=np.array(Ycyl)
-    Zcyl=np.array(Zcyl)
+    crit = DLS > 3
 
     # =========================
-    # ANIMACIÓN REAL (~30s)
+    # TUBING (SEGMENTS LIMPIOS)
     # =========================
-    frames=[]
-    n_frames = 450   # 👈 30s real
+    tube_lines = []
+    for angle in np.linspace(0, 2*np.pi, 10):
+        Xc = Xn + radio_tubo*(N[:,0]*np.cos(angle)+B[:,0]*np.sin(angle))
+        Yc = Yn + radio_tubo*(N[:,1]*np.cos(angle)+B[:,1]*np.sin(angle))
+        Zc = Zn + radio_tubo*(N[:,2]*np.cos(angle)+B[:,2]*np.sin(angle))
+
+        tube_lines.append(
+            go.Scatter3d(
+                x=Xc, y=Yc, z=Zc,
+                mode='lines',
+                line=dict(color='gray', width=2),
+                opacity=0.4,
+                showlegend=False
+            )
+        )
+
+    # =========================
+    # ANIMACIÓN (ROTACIÓN REAL)
+    # =========================
+    frames = []
+    n_frames = 360
 
     for k in range(n_frames):
 
@@ -823,51 +825,34 @@ if len(df) > 1:
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ ROTACIÓN REAL (NO SOLO CRÍTICOS)
+        # ✅ ROTA TODO EL EJE
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO FUERTE (SIMULACIÓN)
-        contacto = (cos_t + 1)/2 * contacto_base
+        # ✅ CONTACTO SUAVE (sin arrays problemáticos)
+        intensidad = (cos_t + 1) / 2
 
-        size = 4 + 10*contacto
-        opacity = 0.3 + 0.7*contacto
+        frames.append(go.Frame(data=tube_lines + [
 
-        frames.append(go.Frame(data=[
-
-            # ✅ TUBING (AHORA SÍ SE VE)
-            go.Scatter3d(
-                x=Xcyl, y=Ycyl, z=Zcyl,
-                mode='markers',
-                marker=dict(
-                    size=2,
-                    color='gray',
-                    opacity=0.6
-                ),
-                showlegend=False
-            ),
-
-            # ✅ VARILLA GIRANDO COMPLETA
             go.Scatter3d(
                 x=Xoff,
                 y=Yoff,
                 z=Zoff,
                 mode='lines',
-                line=dict(color='green', width=7),
+                line=dict(color='green', width=6),
                 showlegend=False
             ),
 
-            # ✅ CONTACTO (PRESIÓN VISUAL)
             go.Scatter3d(
-                x=Xoff,
-                y=Yoff,
-                z=Zoff,
+                x=Xoff[crit],
+                y=Yoff[crit],
+                z=Zoff[crit],
                 mode='markers',
                 marker=dict(
-                    size=size,
+                    size=6 + 5*intensidad,
                     color='red',
-                    opacity=opacity
+                    opacity=0.4 + 0.5*intensidad
                 ),
                 name="Contacto"
             )
@@ -876,7 +861,6 @@ if len(df) > 1:
 
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # ✅ VISTA REAL (MÁXIMA DESVIACIÓN)
     fig.update_layout(
 
         height=950,
@@ -892,21 +876,19 @@ if len(df) > 1:
             zaxis=dict(visible=True)
         ),
 
-        margin=dict(l=0, r=0, t=60, b=20),
+        margin=dict(l=0, r=0, t=50, b=80),  # ✅ SUBE EL GRÁFICO
 
         updatemenus=[{
-            "type":"buttons",
-            "buttons":[
+            "type": "buttons",
+            "buttons": [
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,{"frame":{"duration":65}}]),
-
+                     args=[None, {"frame": {"duration": 80}}]),
                 dict(label="⏸ Stop",
                      method="animate",
-                     args=[[None],{"mode":"immediate"}])
+                     args=[[None], {"mode": "immediate"}])
             ]
         }]
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
