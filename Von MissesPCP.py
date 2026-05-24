@@ -892,7 +892,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=730,
+        height=780,
         uirevision="keep",
 
         scene=dict(
