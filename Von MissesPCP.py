@@ -628,23 +628,23 @@ Z = [0]*len(df)
 for i in range(1,len(inc)):
     dz = df["md"][i] - df["md"][i-1]
 
-    X[i] = X[i-1] + np.sin(inc[i])*np.cos(az[i])*dz
-    Y[i] = Y[i-1] + np.sin(inc[i])*np.sin(az[i])*dz
-    Z[i] = Z[i-1] - np.cos(inc[i])*dz
+       X[i] = X[i-1] + np.sin(inc[i])*np.cos(az[i])*dz
+       Y[i] = Y[i-1] + np.sin(inc[i])*np.sin(az[i])*dz
+       Z[i] = Z[i-1] - np.cos(inc[i])*dz
 
-df["X"] = X
-df["Y"] = Y
-df["Z"] = Z
+       df["X"] = X
+       df["Y"] = Y
+       df["Z"] = Z
 
-# ✅ ESTE ES TU CAMBIO (correcto)
-df["Z"] = -df["md"]
+       # ✅ ESTE ES TU CAMBIO (correcto)
+       df["Z"] = -df["md"]
 
 
         # =====================
         # ✅ RECOMENDACIÓN POR DLS
         # =====================
-colores=[]
-rec=[]
+        colores=[]
+        rec=[]
 
         for dls_val in df["DLS"]:
 
