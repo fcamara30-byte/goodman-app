@@ -1040,6 +1040,7 @@ frames.append(
 # ===============================
     # FIGURA (✅ TODO ADENTRO DEL IF)
     # ===============================
+  if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
