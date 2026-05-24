@@ -1045,14 +1045,14 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=550,
+        height=650,
         uirevision="keep",
 
         scene=dict(
             aspectmode='data',
 
             camera=dict(
-                eye=dict(x=0.8, y=1.2, z=0.8),
+                eye=dict(x=0.3, y=1.6, z=1.5),
                 projection=dict(type="perspective")
             ),
 
