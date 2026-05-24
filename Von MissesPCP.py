@@ -893,7 +893,8 @@ fig.update_layout(
 
 
 scene=dict(
-    aspectmode='data',
+    aspectmode='manual',
+    aspectratio=dict(x=1, y=1, z=2.5),
 
     camera=dict(
         eye=dict(x=6, y=0.6, z=0.8)   # ✅ MÁS DE COSTADO
