@@ -760,6 +760,7 @@ if len(df) > 1:
 
     # ✅ TITULO TOTALMENTE PEGADO
     st.markdown("<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top:-80px'></div>", unsafe_allow_html=True)
     st.write("len df:", len(df))
     # ===============================
     # DATA
