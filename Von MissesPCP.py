@@ -648,8 +648,7 @@ with colR:
         st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
 
    
-
-  colG, colS, colT = st.columns([3.8,1.6,3])
+colG, colS, colT = st.columns([3.8,1.6,3])
 
     # sliders
 with colS:
