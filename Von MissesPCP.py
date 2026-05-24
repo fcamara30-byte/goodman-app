@@ -991,43 +991,45 @@ if len(df) > 1:
 
         puls = 0.5 + 0.5*np.cos(theta*2)
 
-        frames.append(go.Frame(data=tube+[
+frames.append(
+    go.Frame(
+        data = tube + [
 
             go.Scatter3d(
-                x=Xr,y=Yr,z=Zr,
+                x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='silver',width=10),
+                line=dict(color='silver', width=10),
                 showlegend=False
             ),
 
- 
-go.Scatter3d(
-    x=Xr[~crit], 
-    y=Yr[~crit], 
-    z=Zr[~crit],
-    mode='markers',
-    marker=dict(
-        size=4,
-        color=df["DLS_plot"][~crit],
-        colorscale="RdYlGn_r",
-        cmin=0,
-        cmax=10,
-        colorbar=dict(title="DLS")
-    ),
-    showlegend=False
-),
-
+            go.Scatter3d(
+                x=Xr[~crit],
+                y=Yr[~crit],
+                z=Zr[~crit],
+                mode='markers',
+                marker=dict(
+                    size=4,
+                    color=df["DLS_plot"][~crit],
+                    colorscale="RdYlGn_r",
+                    cmin=0,
+                    cmax=10,
+                    colorbar=dict(title="DLS")
+                ),
+                showlegend=False
             ),
 
             go.Scatter3d(
-                x=Xr[crit],y=Yr[crit],z=Zr[crit],
+                x=Xr[crit],
+                y=Yr[crit],
+                z=Zr[crit],
                 mode='markers',
-                marker=dict(size=7,color='red',opacity=puls),
+                marker=dict(size=7, color='red', opacity=puls),
                 showlegend=False
             )
 
-        ]))
-
+        ]
+    )
+)
 
 # ===============================
     # FIGURA
