@@ -646,6 +646,26 @@ for i in range(1,len(inc)):
        colores=[]
        rec=[]
 
+       
+for _, row in df.iterrows():
+    dls_val = row["DLS"]
+
+    if dls_val <= 1.9:
+        colores.append("green")
+        rec.append("sin centralizadores")
+
+    elif dls_val <= 3:
+        colores.append("yellow")
+        rec.append("2 centralizadores")
+
+    elif dls_val <= 6:
+        colores.append("orange")
+        rec.append("3 centralizadores")
+
+    else:
+        colores.append("red")
+        rec.append("Más de 3 cent o Black Mamba")
+
        for dls_val in df["DLS"]:
 
             if dls_val <= 1.9:
