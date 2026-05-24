@@ -885,12 +885,14 @@ if len(df) > 1:
 # ===============================
 # FIGURA1:# FIGURA
 
+# ===============================
+    # FIGURA (✅ TODO ADENTRO DEL IF)
+    # ===============================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
 
         height=850,
-
         uirevision="keep",
 
         scene=dict(
@@ -901,9 +903,7 @@ if len(df) > 1:
                 projection=dict(type="perspective")
             ),
 
-            zaxis=dict(
-                title="Profundidad"
-            )
+            zaxis=dict(title="Profundidad")
         ),
 
         margin=dict(l=0, r=0, t=0, b=0),
@@ -928,18 +928,7 @@ if len(df) > 1:
         }]
     )
 
-    
-st.markdown("""
-<style>
-.block-container {
-    padding-top: 0.5rem;
-}
-div[data-testid="stPlotlyChart"] {
-    margin-top: -120px;
-}
-</style>
-""", unsafe_allow_html=True)
-
+    st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
 
