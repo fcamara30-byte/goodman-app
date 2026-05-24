@@ -880,45 +880,47 @@ if len(df) > 1:
     # ===============================
     # FIGURA
     # ===============================
+# ===============================
+    # FIGURA
+    # ===============================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-fig.update_layout(
+    fig.update_layout(
 
-    height=600,
+        height=600,
 
-    scene=dict(
-        aspectmode='manual',
-        aspectratio=dict(x=1, y=1, z=3),
+        scene=dict(
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=3),
 
-        camera=dict(
-            eye=dict(x=-2.2, y=1.6, z=2.2)
+            camera=dict(
+                eye=dict(x=-2.2, y=1.6, z=2.2)
+            ),
+
+            zaxis=dict(
+                title="Profundidad",
+                autorange="reversed"
+            )
         ),
 
-        zaxis=dict(
-            title="Profundidad",
-            autorange="reversed"
-        )
-    ),
+        margin=dict(l=0, r=0, t=0, b=0),
 
-    margin=dict(l=0, r=0, t=0, b=0),
+        updatemenus=[{
+            "type":"buttons",
+            "x":0.35,
+            "y":0.10,
+            "buttons":[
+                dict(label="▶",
+                     method="animate",
+                     args=[None,{"frame":{"duration":80}}]),
 
-    updatemenus=[{
-        "type":"buttons",
-        "x":0.35,
-        "y":0.10,
-        "buttons":[
-            dict(label="▶",
-                 method="animate",
-                 args=[None,{"frame":{"duration":80}}]),
+                dict(label="⏸",
+                     method="animate",
+                     args=[[None],{"mode":"immediate"}])
+            ]
+        }]
 
-            dict(label="⏸",
-                 method="animate",
-                 args=[[None],{"mode":"immediate"}])
-        ]
-    }]
-
-)
-
+    )
 
     st.plotly_chart(fig, use_container_width=True)
 
