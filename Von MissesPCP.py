@@ -628,6 +628,27 @@ with c5:
 # =========================
 
 with colR:
+with colR:
+
+    st.markdown("### Resumen de Centralización")
+
+    df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+
+    total_tramos = len(df_centralizados)
+    st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+    grupos = df_centralizados.groupby("Recomendación")
+
+    for tipo, grupo in grupos:
+
+        cantidad = len(grupo)
+        md_min = grupo["md"].min()
+        md_max = grupo["md"].max()
+
+        st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+
+   
+
   colG, colS, colT = st.columns([3.8,1.6,3])
 
     # sliders
@@ -697,24 +718,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
 
     df.columns = df.columns.str.strip()
 
-    st.markdown("### Resumen de Centralización")
-
-    df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
-
-    total_tramos = len(df_centralizados)
-    st.write(f"**Varillas centralizadas:** {total_tramos}")
-
-    grupos = df_centralizados.groupby("Recomendación")
-
-
-    for tipo, grupo in grupos:
-
-      cantidad = len(grupo)
-      md_min = grupo["md"].min()
-      md_max = grupo["md"].max()
-
-      st.write(f"{tipo}   |   {cantidad} tramos   |   {md_min:.0f} → {md_max:.0f} m")
-
+   
 
                
             
