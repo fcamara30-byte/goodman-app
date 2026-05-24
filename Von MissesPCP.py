@@ -1011,7 +1011,7 @@ if len(df) > 1:
                   cmin=0,
                   cmax=10,
                   colorbar=dict(title="DLS")
-              )
+              ),
 
                 showlegend=False
             ),
