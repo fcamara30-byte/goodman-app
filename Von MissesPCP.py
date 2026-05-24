@@ -739,20 +739,18 @@ with c5:
 color_class = "metric-red" if uso > 100 else ""
 
 
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
 # ===============================
-# ✅ CÓDIGO FINAL DEFINITIVO
+# ✅ FINAL DEFINITIVO (GEOMETRÍA + COMPACTO + ROTACIÓN OK)
 # ===============================
 
 import plotly.graph_objects as go
 import numpy as np
 
-# ✅ ACHICA ESPACIOS GLOBALES STREAMLIT
+# ✅ ELIMINA ESPACIOS DE STREAMLIT (CLAVE)
 st.markdown("""
 <style>
 .block-container {
-    padding-top: 1rem;
+    padding-top: 0.2rem;
     padding-bottom: 0rem;
 }
 </style>
@@ -760,21 +758,28 @@ st.markdown("""
 
 if len(df) > 1:
 
-    # ✅ TÍTULO COMPACTO
+    # ===============================
+    # ✅ TÍTULO PEGADO
+    # ===============================
     st.markdown(
-        "<h3 style='margin-top:-10px;margin-bottom:0px'>Interacción varilla–tubing</h3>",
+        "<h3 style='margin:0'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
     )
 
+    # ===============================
+    # DATA
+    # ===============================
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ GEOMETRÍA
+    # ===============================
+    # ✅ PERFIL CORRECTO (0 ARRIBA / NEGATIVO ABAJO)
+    # ===============================
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
-    Zc = Z - Z.min()   # ✅ 0 arriba, crece hacia abajo
+    Zc = -(Z - Z.min())     # ✅ ESTE ES EL FIX REAL
 
     # ===============================
     # BASE LOCAL
@@ -808,75 +813,74 @@ if len(df) > 1:
     # ===============================
     # SEMÁFORO
     # ===============================
-    col_map = []
+    col_map=[]
     for d in DLS:
-        if d <= 1.9:
-            col_map.append("green")
-        elif d <= 3:
-            col_map.append("yellow")
-        elif d <= 6:
-            col_map.append("orange")
-        else:
-            col_map.append("red")
-    col_map = np.array(col_map)
-    crit = col_map == "red"
+        if d<=1.9: col_map.append("green")
+        elif d<=3: col_map.append("yellow")
+        elif d<=6: col_map.append("orange")
+        else: col_map.append("red")
+    col_map=np.array(col_map)
+    crit = col_map=="red"
 
     # ===============================
-    # TUBING (CONTORNO FINO AZUL)
+    # TUBING (CONTORNO FINO)
     # ===============================
-    tube = []
-    for ang in np.linspace(0, 2*np.pi, 10):
+    tube=[]
+    for ang in np.linspace(0, 2*np.pi, 8):
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
 
         tube.append(go.Scatter3d(
-            x=Xt, y=Yt, z=Zt,
+            x=Xt,y=Yt,z=Zt,
             mode='lines',
-            line=dict(color='blue', width=1),
-            opacity=0.6,
+            line=dict(color='blue',width=1),
             showlegend=False
         ))
 
     # ===============================
-    # ANIMACIÓN
+    # ANIMACIÓN (LIVIANA)
     # ===============================
-    frames = []
-    n_frames = 180
+    frames=[]
+    n_frames=140   # ✅ liviano
 
     for k in range(n_frames):
 
-        theta = k * 0.30
+        theta=k*0.35
 
-        cos_t = np.cos(theta)
-        sin_t = np.sin(theta)
+        cos_t=np.cos(theta)
+        sin_t=np.sin(theta)
 
+        # ROTACIÓN REAL (TODA LA VARILLA)
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
         puls = 0.5 + 0.5*np.cos(theta*2)
 
-        frames.append(go.Frame(data = tube + [
+        frames.append(go.Frame(data=tube+[
 
+            # VARILLA
             go.Scatter3d(
-                x=Xr, y=Yr, z=Zr,
+                x=Xr,y=Yr,z=Zr,
                 mode='lines',
-                line=dict(color='silver', width=10),
+                line=dict(color='silver',width=10),
                 showlegend=False
             ),
 
+            # NO CRÍTICOS
             go.Scatter3d(
-                x=Xr[~crit], y=Yr[~crit], z=Zr[~crit],
+                x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
                 mode='markers',
-                marker=dict(size=4, color=col_map[~crit]),
+                marker=dict(size=4,color=col_map[~crit]),
                 showlegend=False
             ),
 
+            # CRÍTICOS PULSO
             go.Scatter3d(
-                x=Xr[crit], y=Yr[crit], z=Zr[crit],
+                x=Xr[crit],y=Yr[crit],z=Zr[crit],
                 mode='markers',
-                marker=dict(size=7, color='red', opacity=puls),
+                marker=dict(size=7,color='red',opacity=puls),
                 showlegend=False
             )
 
@@ -889,36 +893,40 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=1300,   # ✅ MÁS GRANDE → sube
+        height=1100,
 
         scene=dict(
             aspectmode='data',
-            camera=dict(eye=dict(x=-5, y=3, z=2)),
+            camera=dict(eye=dict(x=-5,y=3,z=2)),
+
+            # ✅ PERFIL CORRECTO
             zaxis=dict(
-                title="Profundidad",
-                autorange="reversed"   # ✅ inversión correcta
+                title="Profundidad"
             )
         ),
 
-        # ✅ CLAVE → ELIMINA EL "RECTÁNGULO INVISIBLE"
-        margin=dict(l=0, r=0, t=0, b=0),
+        # ✅ ELIMINA ESPACIO FANTASMA
+        margin=dict(l=0,r=0,t=0,b=0),
 
-        # ✅ CONTROLES PEGADOS (NO FLOTA)
+        # ✅ CONTROLES COMPACTOS
         updatemenus=[{
             "type":"buttons",
-            "direction":"left",
             "x":0.35,
-            "y":0.08,
-            "pad":{"t":0},
+            "y":0.12,   # ✅ pegado al gráfico
             "buttons":[
                 dict(label="▶",
                      method="animate",
-                     args=[None, {"frame":{"duration":80}}]),
+                     args=[None,{"frame":{"duration":80}}]),
                 dict(label="⏸",
                      method="animate",
-                     args=[[None], {"mode":"immediate"}])
+                     args=[[None],{"mode":"immediate"}])
             ]
         }]
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
+
+
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
