@@ -742,33 +742,39 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL COMPLETA (ESTABLE + COMPACTA)
+# ✅ CÓDIGO FINAL DEFINITIVO
 # ===============================
 
 import plotly.graph_objects as go
 import numpy as np
 
+# ✅ ACHICA ESPACIOS GLOBALES STREAMLIT
+st.markdown("""
+<style>
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+}
+</style>
+""", unsafe_allow_html=True)
+
 if len(df) > 1:
 
+    # ✅ TÍTULO COMPACTO
     st.markdown(
-        "<h3 style='margin-top:0px;margin-bottom:0px'>Interacción varilla–tubing</h3>",
+        "<h3 style='margin-top:-10px;margin-bottom:0px'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
     )
 
-    # ===============================
-    # DATOS
-    # ===============================
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ===============================
-    # GEOMETRÍA GLOBAL
-    # ===============================
+    # ✅ GEOMETRÍA
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
-    Zc = (Z - Z.min())   # ✅ 0 arriba
+    Zc = Z - Z.min()   # ✅ 0 arriba, crece hacia abajo
 
     # ===============================
     # BASE LOCAL
@@ -816,7 +822,7 @@ if len(df) > 1:
     crit = col_map == "red"
 
     # ===============================
-    # TUBING (CONTORNO FINO)
+    # TUBING (CONTORNO FINO AZUL)
     # ===============================
     tube = []
     for ang in np.linspace(0, 2*np.pi, 10):
@@ -833,7 +839,7 @@ if len(df) > 1:
         ))
 
     # ===============================
-    # ANIMACIÓN (LIVIANA)
+    # ANIMACIÓN
     # ===============================
     frames = []
     n_frames = 180
@@ -853,7 +859,6 @@ if len(df) > 1:
 
         frames.append(go.Frame(data = tube + [
 
-            # VARILLA
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
@@ -861,7 +866,6 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # NO CRÍTICOS
             go.Scatter3d(
                 x=Xr[~crit], y=Yr[~crit], z=Zr[~crit],
                 mode='markers',
@@ -869,7 +873,6 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # CRÍTICOS
             go.Scatter3d(
                 x=Xr[crit], y=Yr[crit], z=Zr[crit],
                 mode='markers',
@@ -886,30 +889,26 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=1150,
+        height=1300,   # ✅ MÁS GRANDE → sube
 
         scene=dict(
             aspectmode='data',
             camera=dict(eye=dict(x=-5, y=3, z=2)),
             zaxis=dict(
                 title="Profundidad",
-                autorange="reversed"   # ✅ 0 arriba → mayor abajo
+                autorange="reversed"   # ✅ inversión correcta
             )
         ),
 
-        margin=dict(
-            l=0,
-            r=0,
-            t=0,
-            b=40
-        ),
+        # ✅ CLAVE → ELIMINA EL "RECTÁNGULO INVISIBLE"
+        margin=dict(l=0, r=0, t=0, b=0),
 
-        # ✅ CONTROLES COMPACTOS
+        # ✅ CONTROLES PEGADOS (NO FLOTA)
         updatemenus=[{
             "type":"buttons",
             "direction":"left",
             "x":0.35,
-            "y":0.10,
+            "y":0.08,
             "pad":{"t":0},
             "buttons":[
                 dict(label="▶",
