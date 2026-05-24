@@ -678,12 +678,14 @@ with colT:
 
     if len(df) > 1:
 
-        st.markdown("### Centralización")
-        st.dataframe(...)
+        # ⬇️ ESTO EMPUJA EL RESUMEN HACIA ABAJO (CLAVE)
+        st.empty()
+        st.empty()
+        st.empty()
+        st.empty()
+        st.empty()
 
-        st.markdown("<br><br><br>", unsafe_allow_html=True)  # 👈 ESTE ES EL TRUCO
-
-        # ✅ RESUMEN ABAJO (hueco)
+        # ✅ RESUMEN BAJO
         if "Recomendación" in df.columns:
 
             st.markdown("### Resumen de Centralización")
@@ -701,6 +703,7 @@ with colT:
                 md_max = grupo["md"].max()
 
                 st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+
 
         st.markdown("### Centralización")
 
