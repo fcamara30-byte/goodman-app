@@ -1068,18 +1068,23 @@ if len(df) > 1:
         uirevision="keep",
 
 
-        scene=dict(
-          aspectmode='cube',
+scene=dict(
+    aspectmode='cube',
 
-          camera=dict(
-          eye=dict(x=2, y=2.0, z=0.2),
-          center=dict(x=0, y=0, z=-0.3)
+    camera=dict(
+        eye=dict(x=2, y=2.0, z=0.2),
+        center=dict(x=0, y=0, z=-0.3)
     ),
 
-          zaxis=dict(
-          title="Profundidad",
-          
-    ),
+    xaxis=dict(range=[Xc.min(), Xc.max()]),
+    yaxis=dict(range=[Yc.min(), Yc.max()]),
+
+    zaxis=dict(
+        title="Profundidad",
+        range=[Zc.min(), Zc.max()]
+    )
+),
+
  
 ),
 
