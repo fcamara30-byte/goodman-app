@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL LIMPIA (TUBING CILINDRO + VARILLA CUERDA)
+# ✅ ANIMACIÓN FINAL LIMPIA (CORREGIDA SIN ERROR + TUBO + ROTACIÓN REAL)
 # ===============================
 
 import plotly.graph_objects as go
@@ -757,141 +757,134 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # =========================
     # ESCALA
-    # =========================
     scale = max(np.ptp(X), np.ptp(Y)) or 1
+    Xn = X/scale*100
+    Yn = Y/scale*100
+    Zn = Z/abs(np.ptp(Z))*350
 
-    Xn = X / scale * 100
-    Yn = Y / scale * 100
-    Zn = Z / abs(np.ptp(Z)) * 350
-
-    # =========================
     # BASE LOCAL
-    # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
-    T = np.vstack([dx, dy, dz]).T
-    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
+    T = np.vstack([dx,dy,dz]).T
+    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
     ref = np.array([0,0,1])
     N = np.cross(T, ref)
-    mask = np.linalg.norm(N, axis=1) < 1e-6
+
+    mask = np.linalg.norm(N,axis=1)<1e-6
     N[mask] = np.cross(T[mask], np.array([0,1,0]))
-    N = N / (np.linalg.norm(N, axis=1)[:, None] + 1e-6)
+    N = N/(np.linalg.norm(N,axis=1)[:,None]+1e-6)
 
-    B = np.cross(T, N)
+    B = np.cross(T,N)
 
-    # =========================
     # PARAMETROS
-    # =========================
-    radio_varilla = 4
-    radio_tubo = 10
+    radio_varilla = 3.5   # ✅ MÁS CHICO → NO PARECE RESORTE
+    radio_tubo = 8.0
 
     crit = DLS > 3
 
     # =========================
-    # TUBING CILINDRO (SUAVE)
+    # CILINDRO (MALLA SIMPLE)
     # =========================
-    theta_cyl = np.linspace(0, 2*np.pi, 20)
+    theta_cyl = np.linspace(0, 2*np.pi, 16)
 
-    Xcyl = []
-    Ycyl = []
-    Zcyl = []
+    Xcyl=[];Ycyl=[];Zcyl=[]
 
     for i in range(len(Xn)):
         for th in theta_cyl:
-            Xcyl.append(Xn[i] + radio_tubo*(N[i,0]*np.cos(th) + B[i,0]*np.sin(th)))
-            Ycyl.append(Yn[i] + radio_tubo*(N[i,1]*np.cos(th) + B[i,1]*np.sin(th)))
-            Zcyl.append(Zn[i] + radio_tubo*(N[i,2]*np.cos(th) + B[i,2]*np.sin(th)))
+            Xcyl.append(Xn[i] + radio_tubo*(N[i,0]*np.cos(th)+B[i,0]*np.sin(th)))
+            Ycyl.append(Yn[i] + radio_tubo*(N[i,1]*np.cos(th)+B[i,1]*np.sin(th)))
+            Zcyl.append(Zn[i] + radio_tubo*(N[i,2]*np.cos(th)+B[i,2]*np.sin(th)))
 
-    # =========================
-    # FRAMES (~30s)
-    # =========================
-    frames = []
-    n_frames = 360
+    Xcyl = np.array(Xcyl)
+    Ycyl = np.array(Ycyl)
+    Zcyl = np.array(Zcyl)
+
+    # ANIMACION
+    frames=[]
+    n_frames=360
 
     for k in range(n_frames):
 
-        theta = k * 0.08
+        theta = k*0.07
 
-        cos_t = np.cos(theta)
-        sin_t = np.sin(theta)
+        cos_t=np.cos(theta)
+        sin_t=np.sin(theta)
 
-        # ✅ VARILLA COMO "CUERDA" (no helix exagerado)
+        # ✅ ROTACIÓN LIMPIA (NO HELICOIDE EXAGERADO)
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO CONTINUO
-        intensidad = (np.cos(theta*1.2 + np.linspace(0,5,len(X))) + 1)/2
-        intensidad = intensidad * crit
+        # ✅ CONTACTO (FIJO + PULSANTE)
+        puls = (np.cos(theta + np.linspace(0,3,len(Xn)))+1)/2
 
-        size_pts = 5 + 6*intensidad
-        opacity_pts = 0.3 + 0.7*intensidad
+        Xc = Xoff[crit]
+        Yc = Yoff[crit]
+        Zc = Zoff[crit]
+
+        size = 6 + 6*np.mean(puls)
+        opacity = 0.3 + 0.6*np.mean(puls)
 
         frames.append(go.Frame(data=[
 
-            # 🔵 TUBING (cilindro claro)
+            # TUBING (CILINDRO SUAVE)
             go.Scatter3d(
-                x=Xcyl,
-                y=Ycyl,
-                z=Zcyl,
+                x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
                 marker=dict(size=1, color='lightgray', opacity=0.08),
                 showlegend=False
             ),
 
-            # 🟢 VARILLA (cuerda limpia)
+            # VARILLA (LINEA LIMPIA)
             go.Scatter3d(
-                x=Xoff,
-                y=Yoff,
-                z=Zoff,
+                x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
                 line=dict(color='green', width=6),
                 showlegend=False
             ),
 
-            # 🔴 CONTACTO (sube/baja intensidad)
+            # CONTACTO (ESTABLE → SIN ERROR)
             go.Scatter3d(
-                x=Xoff[crit],
-                y=Yoff[crit],
-                z=Zoff[crit],
+                x=Xc,
+                y=Yc,
+                z=Zc,
                 mode='markers',
                 marker=dict(
-                    size=size_pts[crit],
+                    size=size,
                     color='red',
-                    opacity=opacity_pts[crit]
+                    opacity=opacity
                 ),
                 name="Contacto"
             )
 
         ]))
 
-    fig = go.Figure(data=frames[0].data, frames=frames)
+    fig=go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
         height=820,
         scene=dict(
             aspectmode='manual',
-            aspectratio=dict(x=1, y=1, z=3),
-            camera=dict(eye=dict(x=2.2, y=2.0, z=2.0))
+            aspectratio=dict(x=1,y=1,z=3),
+            camera=dict(eye=dict(x=2.2,y=2.0,z=2.0))
         ),
         updatemenus=[{
-            "type": "buttons",
-            "buttons": [
+            "type":"buttons",
+            "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None, {
-                         "frame": {"duration": 80, "redraw": True},
-                         "transition": {"duration": 30},
-                         "fromcurrent": True
+                     args=[None,{
+                         "frame":{"duration":80,"redraw":True},
+                         "transition":{"duration":30},
+                         "fromcurrent":True
                      }]),
                 dict(label="⏸ Stop",
                      method="animate",
-                     args=[[None], {"mode": "immediate"}])
+                     args=[[None],{"mode":"immediate"}])
             ]
         }]
     )
