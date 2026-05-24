@@ -120,7 +120,7 @@ st.markdown("""
 st.markdown("""
 <style>
 .stApp {
-    background-color: #e6eef8;
+    background-color: #0055A4;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -1068,24 +1068,20 @@ if len(df) > 1:
         uirevision="keep",
 
 
-scene=dict(
-    aspectmode='cube',
+        scene=dict(
+          aspectmode='cube',
 
-    camera=dict(
-        eye=dict(x=2, y=2.0, z=0.2),
-        center=dict(x=0, y=0, z=-0.25)
+          camera=dict(
+          eye=dict(x=2, y=2.0, z=0.2),
+          center=dict(x=0, y=0, z=-0.3)
     ),
 
+          zaxis=dict(
+          title="Profundidad",
+          
+    ),
 
-
-    zaxis=dict(
-        title="Profundidad",
-        range=[Zc.min(), Zc.max()]
-    )
 ),
-
- 
-
 
 
 
@@ -1094,10 +1090,10 @@ scene=dict(
 
         updatemenus=[{
             "type":"buttons",
-            "x":0.2,
-            "y":1.15,
+            "x":0.35,
+            "y":0.3,
             "buttons":[
-                dict(label="Play▶",
+                dict(label="▶",
                      method="animate",
                      args=[None, {
                          "frame": {"duration":80},
