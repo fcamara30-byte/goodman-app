@@ -1075,8 +1075,8 @@ if len(df) > 1:
           title="Profundidad",
           autorange="reversed"
     ),
+ )
 )
-
 
 
 
