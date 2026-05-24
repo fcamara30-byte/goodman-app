@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL LIMPIA (CORREGIDA SIN ERROR + TUBO + ROTACIÓN REAL)
+# ✅ ANIMACIÓN FINAL (SIN NUDO + TUBING MEJORADO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -763,7 +763,7 @@ if len(df) > 1:
     Yn = Y/scale*100
     Zn = Z/abs(np.ptp(Z))*350
 
-    # BASE LOCAL
+    # BASE LOCAL (SIN GIRO BRUSCO)
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
@@ -771,28 +771,35 @@ if len(df) > 1:
     T = np.vstack([dx,dy,dz]).T
     T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
-    ref = np.array([0,0,1])
-    N = np.cross(T, ref)
+    # ✅ paralelo transport (evita nudo)
+    N = np.zeros_like(T)
+    N[0] = np.array([1,0,0])
 
-    mask = np.linalg.norm(N,axis=1)<1e-6
-    N[mask] = np.cross(T[mask], np.array([0,1,0]))
-    N = N/(np.linalg.norm(N,axis=1)[:,None]+1e-6)
+    for i in range(1,len(T)):
+        v = N[i-1]
+        t = T[i]
 
-    B = np.cross(T,N)
+        v = v - np.dot(v,t)*t
+        n = np.linalg.norm(v)
 
-    # PARAMETROS
-    radio_varilla = 3.5   # ✅ MÁS CHICO → NO PARECE RESORTE
-    radio_tubo = 8.0
+        if n < 1e-6:
+            v = np.cross(t, np.array([0,0,1]))
+
+        N[i] = v / (np.linalg.norm(v)+1e-6)
+
+    B = np.cross(T, N)
+
+    radio_varilla = 3.5
+    radio_tubo = 8.5
 
     crit = DLS > 3
 
     # =========================
-    # CILINDRO (MALLA SIMPLE)
+    # TUBING (MÁS OSCURO Y LIMPIO)
     # =========================
-    theta_cyl = np.linspace(0, 2*np.pi, 16)
+    theta_cyl = np.linspace(0, 2*np.pi, 12)
 
     Xcyl=[];Ycyl=[];Zcyl=[]
-
     for i in range(len(Xn)):
         for th in theta_cyl:
             Xcyl.append(Xn[i] + radio_tubo*(N[i,0]*np.cos(th)+B[i,0]*np.sin(th)))
@@ -803,7 +810,9 @@ if len(df) > 1:
     Ycyl = np.array(Ycyl)
     Zcyl = np.array(Zcyl)
 
+    # =========================
     # ANIMACION
+    # =========================
     frames=[]
     n_frames=360
 
@@ -814,32 +823,32 @@ if len(df) > 1:
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN LIMPIA (NO HELICOIDE EXAGERADO)
+        # ✅ ROTACIÓN LIMPIA
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO (FIJO + PULSANTE)
+        # ✅ CONTACTO
         puls = (np.cos(theta + np.linspace(0,3,len(Xn)))+1)/2
 
         Xc = Xoff[crit]
         Yc = Yoff[crit]
         Zc = Zoff[crit]
 
-        size = 6 + 6*np.mean(puls)
-        opacity = 0.3 + 0.6*np.mean(puls)
+        size = 6 + 5*np.mean(puls)
+        opacity = 0.35 + 0.6*np.mean(puls)
 
         frames.append(go.Frame(data=[
 
-            # TUBING (CILINDRO SUAVE)
+            # ✅ TUBO MÁS DEFINIDO
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=1, color='lightgray', opacity=0.08),
+                marker=dict(size=1.5, color='gray', opacity=0.18),
                 showlegend=False
             ),
 
-            # VARILLA (LINEA LIMPIA)
+            # ✅ VARILLA LIMPIA (SIN RESORTE)
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
@@ -847,7 +856,7 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # CONTACTO (ESTABLE → SIN ERROR)
+            # ✅ CONTACTO
             go.Scatter3d(
                 x=Xc,
                 y=Yc,
