@@ -740,8 +740,10 @@ color_class = "metric-red" if uso > 100 else ""
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
+
 # ===============================
-# ✅ ANIMACIÓN FINAL AJUSTADA (TODO CORREGIDO)
+# ✅ ANIMACIÓN FINAL (ESTABLE + ROTACIÓN REAL + TUBING CLARO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -749,7 +751,6 @@ import numpy as np
 
 if len(df) > 1:
 
-    # ✅ MENOS ESPACIO CON EL TÍTULO
     st.markdown("### Interacción varilla–tubing")
 
     X = df["X"].values
@@ -757,17 +758,17 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ CENTRADO SUAVE
-    Xn = X - np.mean(X)
-    Yn = Y - np.mean(Y)
-    Zn = Z - np.mean(Z)
+    # ✅ centrado
+    Xc = X - np.mean(X)
+    Yc = Y - np.mean(Y)
+    Zc = Z - np.mean(Z)
 
     # =========================
-    # BASE LOCAL (ESTABLE)
+    # base local
     # =========================
-    dx = np.gradient(Xn)
-    dy = np.gradient(Yn)
-    dz = np.gradient(Zn)
+    dx = np.gradient(Xc)
+    dy = np.gradient(Yc)
+    dz = np.gradient(Zc)
 
     T = np.vstack([dx,dy,dz]).T
     T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
@@ -786,82 +787,62 @@ if len(df) > 1:
     B = np.cross(T,N)
 
     # =========================
-    # PARAMETROS (OPTIMIZADOS)
+    # parámetros
     # =========================
-    radio_tubo = 5.0      # ✅ MÁS GRANDE → visible
-    radio_varilla = 4.6   # ✅ CASI IGUAL → roza
+    radio_tubo = 4.5
+    radio_varilla = 3.0   # separación clara → se ve rotación
 
     crit = DLS > 3
 
     # =========================
-    # TUBING (BIEN VISIBLE)
+    # tubing
     # =========================
-    tube_lines = []
-    angulos = np.linspace(0, 2*np.pi, 14)
+    tube = []
+    for ang in np.linspace(0,2*np.pi,16):
+        Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
+        Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
+        Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
 
-    for ang in angulos:
-        Xc = Xn + radio_tubo*(N[:,0]*np.cos(ang) + B[:,0]*np.sin(ang))
-        Yc = Yn + radio_tubo*(N[:,1]*np.cos(ang) + B[:,1]*np.sin(ang))
-        Zc = Zn + radio_tubo*(N[:,2]*np.cos(ang) + B[:,2]*np.sin(ang))
-
-        tube_lines.append(
-            go.Scatter3d(
-                x=Xc, y=Yc, z=Zc,
-                mode='lines',
-                line=dict(color='gray', width=3),
-                opacity=0.5,
-                showlegend=False
-            )
-        )
+        tube.append(go.Scatter3d(
+            x=Xt, y=Yt, z=Zt,
+            mode='lines',
+            line=dict(color='gray', width=3),
+            opacity=0.6,
+            showlegend=False
+        ))
 
     # =========================
-    # ANIMACION (ROTACIÓN FUERTE)
+    # animación
     # =========================
     frames=[]
-    n_frames=420   # ✅ ~30 segundos
+    n_frames=420  # ~30s
 
     for k in range(n_frames):
 
-        theta = k * 0.22   # ✅ ROTACIÓN MUCHO MÁS VISIBLE
+        theta = k * 0.22
 
-        cos_t=np.cos(theta)
-        sin_t=np.sin(theta)
+        cos_t = np.cos(theta)
+        sin_t = np.sin(theta)
 
-        # ✅ TODA LA CUERDA ROTA
-        Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
-        Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
-        Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+        Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
+        Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
+        Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO REAL (EN TODA LA VARILLA)
-        contacto = np.clip(DLS/np.max(DLS+1e-6),0,1)
-        puls = (np.cos(theta)+1)/2
+        frames.append(go.Frame(data=tube + [
 
-        size = 4 + 8*(contacto*puls)
-        opacity = 0.3 + 0.7*(contacto*puls)
-
-        frames.append(go.Frame(data=tube_lines + [
-
-            # ✅ VARILLA GIRANDO
             go.Scatter3d(
-                x=Xoff,
-                y=Yoff,
-                z=Zoff,
+                x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='green', width=7),
+                line=dict(color='green', width=6),
                 showlegend=False
             ),
 
-            # ✅ CONTACTO COMPLETO
             go.Scatter3d(
-                x=Xoff,
-                y=Yoff,
-                z=Zoff,
+                x=Xr[crit],
+                y=Yr[crit],
+                z=Zr[crit],
                 mode='markers',
-                marker=dict(
-                    size=size,
-                    color='red',
-                    opacity=opacity
-                ),
+                marker=dict(size=6, color='red', opacity=0.7),
                 name="Contacto"
             )
 
@@ -870,37 +851,21 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
-
         height=900,
-
         scene=dict(
             aspectmode='data',
-            camera=dict(
-                eye=dict(x=-3.8, y=2.2, z=1.9)  # ✅ mejor vista desviación
-            ),
-
-            # ✅ EJES VISIBLES
-            xaxis=dict(visible=True),
-            yaxis=dict(visible=True),
-            zaxis=dict(visible=True)
+            camera=dict(eye=dict(x=-3, y=2, z=1.6)),
         ),
-
-        # ✅ SUBE EL GRÁFICO (MENOS MARGEN ARRIBA)
         margin=dict(l=0, r=0, t=20, b=20),
-
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,{
-                         "frame":{"duration":70},
-                         "transition":{"duration":20}
-                     }]),
-
+                     args=[None, {"frame":{"duration":70}}]),
                 dict(label="⏸ Stop",
                      method="animate",
-                     args=[[None],{"mode":"immediate"}])
+                     args=[[None], {"mode":"immediate"}])
             ]
         }]
     )
