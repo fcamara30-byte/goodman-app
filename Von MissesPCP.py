@@ -649,7 +649,7 @@ df["X"] = X
 df["Y"] = Y
 
 if len(df) > 0:
-    df["Z"] = df.get("md", 0)
+    df["Z"] = = -df["md"]
 
 
 
