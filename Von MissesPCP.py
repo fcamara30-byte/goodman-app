@@ -1068,7 +1068,7 @@ if len(df) > 1:
 
 
         scene=dict(
-          aspectmode='cube',
+          aspectmode='data',
 
           camera=dict(
           eye=dict(x=2.5, y=2.0, z=0.7),
