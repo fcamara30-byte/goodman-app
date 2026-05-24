@@ -927,7 +927,7 @@ if len(df) > 1:
         }]
     )
 
-  st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
 # ===============================
 
 
