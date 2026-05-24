@@ -612,8 +612,11 @@ if modo=="Desviado" and text:
             cosdl=np.clip(cosdl,-1,1)
             dls.append(np.degrees(np.arccos(cosdl))*100/dmd)
 
-        df["DLS"]=np.round(dls,1)
-        df["DLS_plot"] = df["DLS"].shift(-1)
+        df["DLS"] = np.round(dls, 1)
+
+# ✅ versión elegante (centrada en el tramo)
+        df["DLS_plot"] = (df["DLS"] + df["DLS"].shift(1)) / 2
+
         # =====================
         # COORDENADAS
         # =====================
