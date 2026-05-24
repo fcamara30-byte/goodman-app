@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL (FIX ROTACIÓN + CONTROLES REALTIME + UI LIMPIA)
+# ✅ ANIMACIÓN FINAL (LIMPIA + ROTACIÓN CORRECTA + VISTA FIJA)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,25 +750,19 @@ import numpy as np
 
 if len(df) > 1:
 
-    # ✅ CONTROLES COMPACTOS Y REACTIVOS
-    col_view = st.columns([1,1,6])
-    with col_view[0]:
-        elev = st.slider("Elev", 0, 90, 25, key="elev_anim")
-    with col_view[1]:
-        azim = st.slider("Azim", 0, 360, 45, key="azim_anim")
+    st.markdown("### Interacción varilla–tubing")
 
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ SIN REESCALADO → MISMA GEOMETRÍA
     Xn = X
     Yn = Y
     Zn = Z
 
     # =========================
-    # BASE LOCAL
+    # BASE LOCAL ESTABLE (SIN NUDO)
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
@@ -777,18 +771,15 @@ if len(df) > 1:
     T = np.vstack([dx,dy,dz]).T
     T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
-    # transporte paralelo (estable)
     N = np.zeros_like(T)
     N[0] = np.array([1,0,0])
 
     for i in range(1,len(T)):
         v = N[i-1]
         t = T[i]
-
         v = v - np.dot(v,t)*t
         if np.linalg.norm(v) < 1e-6:
             v = np.cross(t, np.array([0,1,0]))
-
         N[i] = v/(np.linalg.norm(v)+1e-6)
 
     B = np.cross(T,N)
@@ -796,14 +787,15 @@ if len(df) > 1:
     # =========================
     # PARAMETROS
     # =========================
-    radio_varilla = 0.8
-    radio_tubo = 2.2
+    radio_varilla = 0.7     # ✅ ajuste fino → no vibra
+    radio_tubo = 2.2        # ✅ tubing más real
+
     crit = DLS > 3
 
     # =========================
-    # TUBING (OSCURECIDO)
+    # TUBING (CILINDRO MÁS DEFINIDO)
     # =========================
-    theta_cyl = np.linspace(0,2*np.pi,10)
+    theta_cyl = np.linspace(0,2*np.pi,8)
 
     Xcyl=[];Ycyl=[];Zcyl=[]
     for i in range(len(Xn)):
@@ -817,23 +809,24 @@ if len(df) > 1:
     Zcyl=np.array(Zcyl)
 
     # =========================
-    # ANIMACION REAL (FIX ROTACIÓN)
+    # ANIMACIÓN
     # =========================
     frames=[]
     n_frames=360
 
     for k in range(n_frames):
 
-        theta = k * 0.12  # ✅ ahora sí rota visible
+        theta = k*0.15   # ✅ giro real (más evidente)
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN CORRECTA (ANTES NO ESTABA EN EJE)
+        # ✅ ROTACIÓN LIMPIA (sobre eje)
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
+        # ✅ CONTACTO
         puls = (np.cos(theta)+1)/2
 
         Xc = Xoff[crit]
@@ -849,7 +842,7 @@ if len(df) > 1:
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=1.2, color='grey', opacity=0.35),
+                marker=dict(size=1.2, color='gray', opacity=0.35),
                 showlegend=False
             ),
 
@@ -857,7 +850,7 @@ if len(df) > 1:
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
-                line=dict(color='green', width=5),
+                line=dict(color='green', width=6),
                 showlegend=False
             ),
 
@@ -875,32 +868,12 @@ if len(df) > 1:
 
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # ✅ CÁMARA REALTIME (AHORA sí responde a sliders)
-    cam = dict(
-        eye=dict(
-            x=np.cos(np.radians(azim))*np.cos(np.radians(elev))*3,
-            y=np.sin(np.radians(azim))*np.cos(np.radians(elev))*3,
-            z=np.sin(np.radians(elev))*3
-        )
-    )
-
+    # ✅ VISTA FIJA OPTIMIZADA (NO MÁS SLIDERS)
     fig.update_layout(
-        height=780,
+
+        height=800,
+
         scene=dict(
             aspectmode='data',
-            camera=cam
-        ),
-        updatemenus=[{
-            "type":"buttons",
-            "buttons":[
-                dict(label="▶",
-                     method="animate",
-                     args=[None,{"frame":{"duration":80}}]),
-                dict(label="⏸",
-                     method="animate",
-                     args=[[None],{"mode":"immediate"}])
-            ]
-        }]
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
+            camera=dict(
+                eye=dict(x=1.8, y=1.6, z=1.4)  # ✅ vista óptima (tipo gráfico original)
