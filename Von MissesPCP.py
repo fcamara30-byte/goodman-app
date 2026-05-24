@@ -900,7 +900,7 @@ aspectmode='data',
         projection=dict(type="perspective")   # ✅ NUEVO
     ),
 
-    ),
+    
 
     zaxis=dict(
         title="Profundidad"
