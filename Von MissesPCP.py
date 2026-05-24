@@ -881,30 +881,29 @@ if len(df) > 1:
 # ===============================
     # FIGURA
     # ===============================
-   fig = go.Figure(data=frames[0].data, frames=frames)
+# ===============================
+# FIGURA1:# FIGURA
 
-   fig.update_layout(
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
 
         height=850,
 
         uirevision="keep",
 
+        scene=dict(
+            aspectmode='data',
 
-scene=dict(
-aspectmode='data',
+            camera=dict(
+                eye=dict(x=3, y=0.2, z=1.8),
+                projection=dict(type="perspective")
+            ),
 
-    camera=dict(
-        eye=dict(x=3, y=0.2, z=1.8),   # ✅ MÁS DE COSTADO
-        projection=dict(type="perspective")   # ✅ NUEVO
-    ),
-
-    
-
-    zaxis=dict(
-        title="Profundidad"
-    )
-),
-
+            zaxis=dict(
+                title="Profundidad"
+            )
+        ),
 
         margin=dict(l=0, r=0, t=0, b=0),
 
@@ -928,7 +927,8 @@ aspectmode='data',
         }]
     )
 
-st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
+# ===============================
 
 
 
