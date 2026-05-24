@@ -976,50 +976,60 @@ if len(df) > 1:
     # ===============================
     # ANIMACIÓN (NO TOCADA)
     # ===============================
-frames=[]
-n_frames=140
 
-for k in range(n_frames):
 
-    theta = k*0.35
+if len(df) > 1:
 
-    cos_t=np.cos(theta)
-    sin_t=np.sin(theta)
+    frames=[]
+    n_frames=140
 
-    Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
-    Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
-    Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+    for k in range(n_frames):
 
-    puls = 0.5 + 0.5*np.cos(theta*2)
+        theta = k*0.35
 
-    frames.append(go.Frame(data=tube+[
+        cos_t=np.cos(theta)
+        sin_t=np.sin(theta)
 
-        go.Scatter3d(
-            x=Xr,y=Yr,z=Zr,
-            mode='lines',
-            line=dict(color='silver',width=10),
-            showlegend=False
-        ),
+        Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
+        Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
+        Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        go.Scatter3d(
-            x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
-            mode='markers',
-            marker=dict(size=4,color=col_map[~crit]),   
-            showlegend=False
-        ),
+        puls = 0.5 + 0.5*np.cos(theta*2)
 
-        go.Scatter3d(
-            x=Xr[crit],y=Yr[crit],z=Zr[crit],
-            mode='markers',
-            marker=dict(size=7,color='red',opacity=puls),
-            showlegend=False
-        )
+        frames.append(go.Frame(data=tube+[
 
-    ]))
+            go.Scatter3d(
+                x=Xr,y=Yr,z=Zr,
+                mode='lines',
+                line=dict(color='silver',width=10),
+                showlegend=False
+            ),
 
-    # ===============================
-  
+            go.Scatter3d(
+                x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
+                mode='markers',
+                marker=dict(size=4,color=col_map[~crit]),
+                showlegend=False
+            ),
+
+            go.Scatter3d(
+                x=Xr[crit],y=Yr[crit],z=Zr[crit],
+                mode='markers',
+                marker=dict(size=7,color='red',opacity=puls),
+                showlegend=False
+            )
+
+        ]))
+
+    # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
+        height=850,
+        scene=dict(aspectmode='data'),
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
     fig.update_layout(
 
