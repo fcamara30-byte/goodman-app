@@ -738,21 +738,16 @@ with c5:
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
-
-
-
-# ===============================
-# ✅ VERSIÓN FINAL CORREGIDA (LAYOUT + PERFIL + COMPACTO)
-# ===============================
-
 import plotly.graph_objects as go
 import numpy as np
 
-# ✅ QUITAR ESPACIOS STREAMLIT (CLAVE REAL)
+# ===============================
+# ✅ CSS REAL (EL QUE FALTABA)
+# ===============================
 st.markdown("""
 <style>
 .block-container {
-    padding-top: 0rem;
+    padding-top: 0.1rem;
     padding-bottom: 0rem;
 }
 </style>
@@ -760,9 +755,8 @@ st.markdown("""
 
 if len(df) > 1:
 
-    # ✅ TÍTULO PEGADO
     st.markdown(
-        "<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>",
+        "<h3 style='margin:0'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
     )
 
@@ -775,21 +769,23 @@ if len(df) > 1:
     DLS = df["DLS"].values
 
     # ===============================
-    # ✅ PERFIL CORRECTO (SURVEY REAL)
+    # ✅ PERFIL CORRECTO (COMO TU SURVEY)
     # ===============================
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
-    Zc = Z   # ✅ NO tocar, el invert lo hace el eje
+
+    # 👇 CLAVE: profundidad NEGATIVA desde superficie
+    Zc = -(Z - Z.min())
 
     # ===============================
-    # BASE LOCAL
+    # BASE LOCAL (sin tocar)
     # ===============================
     dx = np.gradient(Xc)
     dy = np.gradient(Yc)
     dz = np.gradient(Zc)
 
     T = np.vstack([dx, dy, dz]).T
-    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
+    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
     N = np.zeros_like(T)
     N[0] = np.array([1,0,0])
@@ -802,7 +798,7 @@ if len(df) > 1:
             v = np.cross(t, np.array([0,1,0]))
         N[i] = v/(np.linalg.norm(v)+1e-6)
 
-    B = np.cross(T, N)
+    B = np.cross(T,N)
 
     # ===============================
     # DIMENSIONES
@@ -819,14 +815,14 @@ if len(df) > 1:
         elif d<=3: col_map.append("yellow")
         elif d<=6: col_map.append("orange")
         else: col_map.append("red")
-    col_map=np.array(col_map)
-    crit = col_map=="red"
+    col_map = np.array(col_map)
+    crit = col_map == "red"
 
     # ===============================
-    # TUBING CONTORNO
+    # TUBING (líneas finas)
     # ===============================
     tube=[]
-    for ang in np.linspace(0, 2*np.pi, 8):
+    for ang in np.linspace(0,2*np.pi,8):
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
@@ -839,14 +835,14 @@ if len(df) > 1:
         ))
 
     # ===============================
-    # ANIMACIÓN
+    # ✅ ANIMACIÓN (NO TOCADA)
     # ===============================
     frames=[]
     n_frames=140
 
     for k in range(n_frames):
 
-        theta = k * 0.35
+        theta = k*0.35
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
@@ -882,34 +878,31 @@ if len(df) > 1:
 
         ]))
 
-    # ===============================
-    # FIGURA
-    # ===============================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
+    # ===============================
+    # ✅ LAYOUT CORRECTO (AQUÍ ESTABA EL PROBLEMA)
+    # ===============================
     fig.update_layout(
 
-        height=1100,
+        height=1000,   # ✅ Alto real (NO exagerado)
 
         scene=dict(
             aspectmode='data',
             camera=dict(eye=dict(x=-5,y=3,z=2)),
 
-            # ✅ INVERTIR SOLO EL EJE (esto es lo correcto)
-            zaxis=dict(
-                title="Profundidad",
-                autorange="reversed"
-            )
+            # ✅ PROFUNDIDAD CORRECTA
+            zaxis=dict(title="Profundidad")
         ),
 
-        # ✅ CLAVE: SIN ESPACIOS FANTASMA
+        # ✅ SIN ESPACIOS FANTASMA
         margin=dict(l=0,r=0,t=0,b=0),
 
-        # ✅ CONTROLES PEGADOS AL GRÁFICO
+        # ✅ CONTROLES CERCA (pero no flotando)
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.05,
+            "y":0.08,
             "buttons":[
                 dict(label="▶",
                      method="animate",
