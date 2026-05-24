@@ -1051,9 +1051,9 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
-        height=850,
+        height=650,
         scene=dict(
-        aspectratio=dict(x=6, y=6, z=1),
+        aspectratio=dict(x=7, y=6, z=1),
         
         
         camera=dict(
