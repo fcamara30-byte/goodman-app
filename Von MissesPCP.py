@@ -631,7 +631,7 @@ with c5:
 
 
     # ✅ FILA NORMAL (NO TOCAR NADA)
-    colG, colS, colT = st.columns([3.8,1.6,3])
+    colG, colS, colR2 = st.columns([3.8,1.6,3])
 
     # sliders
 with colS:
@@ -672,37 +672,31 @@ with colG:
             fig.savefig("grafico.png", bbox_inches="tight")
 
     # tabla derecha
-with colT:
+
+with colR2:with colRinear con gráfico
+    st.markdown("##")   # 👈 este es el truco limpio
+
+    # ✅ RESUMEN
+    if len(df) > 1 and "Recomendación" in df.columns:
+
+        st.markdown("### Resumen de Centralización")
+
+        df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+
+        total_tramos = len(df_centralizados)
+        st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+        grupos = df_centralizados.groupby("Recomendación")
+
+        for tipo, grupo in grupos:
+            cantidad = len(grupo)
+            md_min = grupo["md"].min()
+            md_max = grupo["md"].max()
+
+            st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+``
 
 
-
-    if len(df) > 1:
-
-        # ⬇️ ESTO EMPUJA EL RESUMEN HACIA ABAJO (CLAVE)
-        st.empty()
-        st.empty()
-        st.empty()
-        st.empty()
-        st.empty()
-
-        # ✅ RESUMEN BAJO
-        if "Recomendación" in df.columns:
-
-            st.markdown("### Resumen de Centralización")
-
-            df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
-
-            total_tramos = len(df_centralizados)
-            st.write(f"**Varillas centralizadas:** {total_tramos}")
-
-            grupos = df_centralizados.groupby("Recomendación")
-
-            for tipo, grupo in grupos:
-                cantidad = len(grupo)
-                md_min = grupo["md"].min()
-                md_max = grupo["md"].max()
-
-                st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
 
 
         st.markdown("### Centralización")
