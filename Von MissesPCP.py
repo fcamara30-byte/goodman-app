@@ -943,6 +943,19 @@ div[data-testid="stPlotlyChart"] {
 
 
     fig.write_html("animacion.html")
+    
+# ✅ leer archivo# ✅ open("animacion.html", "r", encoding="utf-8") as f:
+    html_bytes = f.read()
+
+# ✅ botón descarga
+st.download_button(
+    label="⬇ Descargar animación",
+    data=html_bytes,
+    file_name="animacion.html",
+    mime="text/html"
+)
+
+
 
     st.plotly_chart(fig, use_container_width=True)
 
