@@ -931,7 +931,7 @@ if len(df) > 1:
     # ===============================
     X = df["X"].values
     Y = df["Y"].values
-    Z = df["Z"].values-200
+    Z = df["Z"].values
     DLS = df["DLS"].values
 
     # ===============================
@@ -941,7 +941,7 @@ if len(df) > 1:
     Yc = Y - np.mean(Y)
 
     # 👇 esto es lo correcto para survey
-    Zc = Z - Z.mean()*0.3
+    
 
     # ===============================
     # BASE LOCAL
