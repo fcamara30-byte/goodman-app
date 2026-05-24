@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL (FIJA Y FUNCIONA)
+# ✅ ANIMACIÓN FINAL (MEJORA SOBRE TU BASE + TODO LO PEDIDO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,7 +750,6 @@ import numpy as np
 
 if len(df) > 1:
 
-    # ✅ SIN ESPACIO EXTRA
     st.markdown("### Interacción varilla–tubing")
 
     X = df["X"].values
@@ -758,7 +757,7 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ centrado bien
+    # ✅ centrado
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
     Zc = Z - np.mean(Z)
@@ -770,13 +769,13 @@ if len(df) > 1:
     dy = np.gradient(Yc)
     dz = np.gradient(Zc)
 
-    T = np.vstack([dx, dy, dz]).T
-    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
+    T = np.vstack([dx,dy,dz]).T
+    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
     N = np.zeros_like(T)
     N[0] = np.array([1,0,0])
 
-    for i in range(1, len(T)):
+    for i in range(1,len(T)):
         v = N[i-1]
         t = T[i]
         v = v - np.dot(v,t)*t
@@ -784,70 +783,99 @@ if len(df) > 1:
             v = np.cross(t, np.array([0,1,0]))
         N[i] = v/(np.linalg.norm(v)+1e-6)
 
-    B = np.cross(T, N)
+    B = np.cross(T,N)
 
     # =========================
-    # PARAMETROS CLAROS
+    # PARAMETROS
     # =========================
-    radio_tubo = 5.0
-    radio_varilla = 3.5   # ✅ MÁS CHICO → SE VE GIRAR
-
-    crit = DLS > 3
+    radio_tubo = 6.0     # ✅ MÁS ANCHO
+    radio_varilla = 4.2  # ✅ ROZANDO
 
     # =========================
-    # TUBING BIEN VISIBLE
+    # SEMÁFORO DLS
+    # =========================
+    col_map = []
+    for d in DLS:
+        if d <= 1.9:
+            col_map.append("green")
+        elif d <= 3:
+            col_map.append("yellow")
+        elif d <= 6:
+            col_map.append("orange")
+        else:
+            col_map.append("red")
+
+    col_map = np.array(col_map)
+
+    crit_mask = col_map == "red"
+
+    # =========================
+    # TUBING (BIEN VISIBLE)
     # =========================
     tube = []
-    angs = np.linspace(0, 2*np.pi, 24)
-
-    for a in angs:
-        Xt = Xc + radio_tubo*(N[:,0]*np.cos(a)+B[:,0]*np.sin(a))
-        Yt = Yc + radio_tubo*(N[:,1]*np.cos(a)+B[:,1]*np.sin(a))
-        Zt = Zc + radio_tubo*(N[:,2]*np.cos(a)+B[:,2]*np.sin(a))
+    for ang in np.linspace(0, 2*np.pi, 28):
+        Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
+        Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
+        Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
 
         tube.append(go.Scatter3d(
             x=Xt, y=Yt, z=Zt,
             mode='lines',
-            line=dict(color='rgba(120,120,120,0.8)', width=4),
+            line=dict(color='rgba(150,150,150,0.9)', width=5),
             showlegend=False
         ))
 
     # =========================
-    # ANIMACION REAL
+    # ANIMACIÓN
     # =========================
-    frames = []
-    n_frames = 420
+    frames=[]
+    n_frames=420
 
     for k in range(n_frames):
 
-        theta = k * 0.35   # ✅ MÁS FUERTE → VISIBLE
+        theta = k * 0.30  # ✅ GIRO BIEN VISIBLE
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ TODA LA VARILLA ROTA
+        # ✅ TODA LA VARILLA GIRA
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
+        # =========================
+        # CONTACTO (PULSO SOLO EN ROJO)
+        # =========================
+        puls = (np.cos(theta*2)+1)/2  # ✅ alternado
+
+        size_arr = np.full(len(Xr), 4.0)
+        opacity_arr = np.full(len(Xr), 0.6)
+
+        size_arr[crit_mask] = 6 + 8*puls
+        opacity_arr[crit_mask] = 0.4 + 0.6*puls
+
         frames.append(go.Frame(data = tube + [
 
-            # ✅ VARILLA
+            # ✅ VARILLA (LINEA GRUESA)
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='green', width=7),
+                line=dict(color='green', width=9),
                 showlegend=False
             ),
 
-            # ✅ CONTACTO (FIJO)
+            # ✅ PUNTOS SEMÁFORO
             go.Scatter3d(
-                x=Xr[crit],
-                y=Yr[crit],
-                z=Zr[crit],
+                x=Xr,
+                y=Yr,
+                z=Zr,
                 mode='markers',
-                marker=dict(size=7, color='red', opacity=0.8),
-                name="Contacto"
+                marker=dict(
+                    size=size_arr,
+                    color=col_map,
+                    opacity=opacity_arr
+                ),
+                showlegend=False
             )
 
         ]))
@@ -861,18 +889,18 @@ if len(df) > 1:
         scene=dict(
             aspectmode='data',
             camera=dict(
-                eye=dict(x=-3.5, y=2.2, z=1.8)
+                eye=dict(x=-4.2, y=2.5, z=2.0)
             )
         ),
 
-        margin=dict(l=0, r=0, t=5, b=10),  # ✅ SIN ESPACIOS ARRIBA
+        margin=dict(l=0, r=0, t=10, b=10),
 
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None, {"frame":{"duration":70}}]),
+                     args=[None, {"frame":{"duration":65}}]),
 
                 dict(label="⏸ Stop",
                      method="animate",
