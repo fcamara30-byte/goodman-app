@@ -613,7 +613,7 @@ if modo=="Desviado" and text:
             dls.append(np.degrees(np.arccos(cosdl))*100/dmd)
 
         df["DLS"]=np.round(dls,1)
-
+        df["DLS_plot"] = df["DLS"].shift(-1)
         # =====================
         # COORDENADAS
         # =====================
@@ -1004,10 +1004,11 @@ if len(df) > 1:
                 x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
                 mode='markers',
                 
-              marker=dict(
-                  size=4,
-                  color=df["DLS"][~crit],
-                  colorscale="RdYlGn_r",
+            marker=dict(
+                size==df["DLS_plot"][~crit],    size=4,
+                colorscale="RdYlGn_r",
+
+
                   cmin=0,
                   cmax=10,
                   colorbar=dict(title="DLS")
