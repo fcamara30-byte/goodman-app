@@ -630,9 +630,9 @@ if modo=="Desviado" and text:
             Z.append(Z[-1]-np.cos(inc[i])*dz)
 
         
-           df["X"]=X
-           df["Y"]=Y
-           df["Z"] = -df["md"] 
+            df["X"]=X
+            df["Y"]=Y
+            df["Z"] = -df["md"] 
 
 
         # =====================
