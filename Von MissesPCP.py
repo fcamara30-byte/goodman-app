@@ -897,7 +897,7 @@ scene=dict(
 
     camera=dict(
         eye=dict(x=2.5, y=2.0, z=1.2)   # ✅ MÁS DE COSTADO
-    )
+    ),
 
     zaxis=dict(
         title="Profundidad"
