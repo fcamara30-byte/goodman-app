@@ -1109,7 +1109,7 @@ if len(df) > 1:
 }
 
 div[data-testid="stPlotlyChart"] {
-    margin-top: -15px;
+    margin-top: -30px;
 }
 </style>
 """, unsafe_allow_html=True)
