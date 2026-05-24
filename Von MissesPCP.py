@@ -1046,7 +1046,7 @@ if len(df) > 1:
                 showlegend=False
             )
 
-        ])
+        ]))
 
     # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
