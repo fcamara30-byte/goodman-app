@@ -858,4 +858,51 @@ if len(df) > 1:
                 z=Zoff,
                 mode='markers',
                 marker=dict(
+                    size=size,
+                    color='red',
+                    opacity=opacity
+                ),
+                name="Contacto"
+            )
 
+        ]))
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
+
+        height=900,
+
+        scene=dict(
+            aspectmode='data',
+            camera=dict(
+                eye=dict(x=-3.8, y=2.2, z=1.9)  # ✅ mejor vista desviación
+            ),
+
+            # ✅ EJES VISIBLES
+            xaxis=dict(visible=True),
+            yaxis=dict(visible=True),
+            zaxis=dict(visible=True)
+        ),
+
+        # ✅ SUBE EL GRÁFICO (MENOS MARGEN ARRIBA)
+        margin=dict(l=0, r=0, t=20, b=20),
+
+        updatemenus=[{
+            "type":"buttons",
+            "buttons":[
+                dict(label="▶ Play",
+                     method="animate",
+                     args=[None,{
+                         "frame":{"duration":70},
+                         "transition":{"duration":20}
+                     }]),
+
+                dict(label="⏸ Stop",
+                     method="animate",
+                     args=[[None],{"mode":"immediate"}])
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
