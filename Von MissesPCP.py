@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN PRO FINAL (FÍSICA REAL)
+# ✅ ANIMACIÓN FINAL ESTABLE (30s)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,7 +750,7 @@ import numpy as np
 
 if len(df) > 1:
 
-    st.markdown("### Simulación física avanzada varilla–tubing")
+    st.markdown("### Simulación varilla–tubing")
 
     X = df["X"].values
     Y = df["Y"].values
@@ -782,23 +782,10 @@ if len(df) > 1:
 
     B = np.cross(T, N)
 
-    # =========================
-    # PARAMETROS FISICOS
-    # =========================
     radio_varilla = 5
-    radio_tubo = 11
 
-    # zonas críticas
-    crit = DLS > 2.5
+    crit = DLS > 3
 
-    # =========================
-    # DESGASTE ACUMULADO (clave)
-    # =========================
-    desgaste = (DLS / np.max(DLS + 1e-6))**1.5  # no lineal
-
-    # =========================
-    # FRAMES (~30 segundos)
-    # =========================
     frames = []
     n_frames = 360
 
@@ -809,98 +796,56 @@ if len(df) > 1:
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ ROTACIÓN REAL
+        # ✅ ROTACIÓN
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # =========================
-        # CONTACTO ASIMÉTRICO REAL
-        # =========================
+        # ✅ INTENSIDAD SUAVE
+        intensidad = (cos_t + 1) / 2
 
-        # fase distinta por punto → NO uniforme
-        fase_local = np.linspace(0, np.pi*2, len(Xn))
+        # ✅ BASE FIJA (CLAVE → no error)
+        Xc = Xoff[crit]
+        Yc = Yoff[crit]
+        Zc = Zoff[crit]
 
-        intensidad = (
-            (np.cos(theta + fase_local) + 1) / 2
-        )
-
-        intensidad = intensidad * desgaste * crit
-
-        # =========================
-        # TORQUE VISUAL
-        # =========================
-        torque_visual = 0.5 + 1.5 * intensidad
-
-        # =========================
-        # TAMAÑO Y OPACIDAD
-        # =========================
-        size_pts = 5 + 10 * intensidad
-        alpha_pts = 0.2 + 0.8 * intensidad
+        # ✅ UN SOLO VALOR (no array conflictivo)
+        size = 6 + 6 * np.mean(intensidad)
 
         frames.append(go.Frame(data=[
 
-            # =========================
-            # 🟤 TUBING (VISIBLE)
-            # =========================
+            # tubing
             go.Scatter3d(
                 x=Xn, y=Yn, z=Zn,
                 mode='lines',
-                line=dict(color='rgba(50,50,50,0.5)', width=20),
-                opacity=0.25,
+                line=dict(color='rgba(0,0,0,0.3)', width=15),
                 showlegend=False
             ),
 
-            # =========================
-            # 🟢 VARILLA
-            # =========================
+            # varilla
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
-                line=dict(
-                    color='green',
-                    width=6 + 2*np.mean(torque_visual)  # 👈 torque visible
-                ),
+                line=dict(color='green', width=6),
                 showlegend=False
             ),
 
-            # =========================
-            # 🔴 CONTACTO (CONTINUO)
-            # =========================
+            # ✅ CONTACTO SIEMPRE PRESENTE
             go.Scatter3d(
-                x=Xoff[crit],
-                y=Yoff[crit],
-                z=Zoff[crit],
+                x=Xc,
+                y=Yc,
+                z=Zc,
                 mode='markers',
                 marker=dict(
-                    size=size_pts[crit],
+                    size=size,
                     color='red',
-                    opacity=alpha_pts[crit]
+                    opacity=0.4 + 0.6*np.mean(intensidad)
                 ),
                 name="Contacto crítico"
-            ),
-
-            # =========================
-            # 🟠 DESGASTE (FIJO)
-            # =========================
-            go.Scatter3d(
-                x=Xn,
-                y=Yn,
-                z=Zn,
-                mode='markers',
-                marker=dict(
-                    size=4 + 6*desgaste,
-                    color='orange',
-                    opacity=0.5
-                ),
-                name="Desgaste acumulado"
             )
 
         ]))
 
-    # =========================
-    # FIGURA
-    # =========================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
@@ -910,35 +855,25 @@ if len(df) > 1:
         scene=dict(
             aspectmode='manual',
             aspectratio=dict(x=1, y=1, z=3),
-
-            camera=dict(
-                eye=dict(x=2.3, y=2.1, z=2.2)
-            )
+            camera=dict(eye=dict(x=2.2, y=2.0, z=2.0))
         ),
 
         updatemenus=[{
             "type": "buttons",
             "buttons": [
+                dict(label="▶ Play",
+                     method="animate",
+                     args=[None, {
+                         "frame": {"duration": 80, "redraw": True},
+                         "transition": {"duration": 40},
+                         "fromcurrent": True
+                     }]),
 
-                dict(
-                    label="▶ Play",
-                    method="animate",
-                    args=[None, {
-                        "frame": {"duration": 80, "redraw": True},
-                        "transition": {"duration": 40},
-                        "fromcurrent": True
-                    }]
-                ),
-
-                dict(
-                    label="⏸ Stop",
-                    method="animate",
-                    args=[[None], {"mode": "immediate"}]
-                )
-
+                dict(label="⏸ Stop",
+                     method="animate",
+                     args=[[None], {"mode": "immediate"}])
             ]
         }]
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
