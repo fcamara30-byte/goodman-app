@@ -894,7 +894,7 @@ if len(df) > 1:
 
 camera=dict(
     eye=dict(x=-2.2, y=1.6, z=2.2)
-)
+),
 
 
 zaxis=dict(
