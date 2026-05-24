@@ -883,57 +883,46 @@ if len(df) > 1:
 # ===============================
     # FIGURA
     # ===============================
-    fig = go.Figure(data=frames[0].data, frames=frames)
+fig = go.Figure(data=frames[0].data, frames=frames)
 
-fig.update_layout(
+    fig.update_layout(
 
-    height=800,
+        height=800,
 
-    uirevision="keep",  # ✅ ESTA ES LA CLAVE
+        uirevision="keep",
 
-    scene=dict(
-aspectmode='data',
+        scene=dict(
+            aspectmode='data',
 
+            zaxis=dict(
+                title="Profundidad"
+            )
+        ),
 
-scene=dict(scenemode='manual',
-    aspectratio=dict(x=1, y=1, z=3),
+        margin=dict(l=0, r=0, t=0, b=0),
 
-    zaxis=dict(
-        title="Profundidad"
+        updatemenus=[{
+            "type":"buttons",
+            "x":0.35,
+            "y":0.10,
+            "buttons":[
+                dict(label="▶",
+                     method="animate",
+                     args=[None, {
+                         "frame": {"duration":80},
+                         "fromcurrent": True,
+                         "mode": "immediate"
+                     }]),
+
+                dict(label="⏸",
+                     method="animate",
+                     args=[[None], {"mode":"immediate"}])
+            ]
+        }]
     )
-),
 
-        zaxis=dict(
-            title="Profundidad"
-        )
-    ),
+    st.plotly_chart(fig, use_container_width=True)
 
-    margin=dict(l=0, r=0, t=0, b=0),
-
-    updatemenus=[{
-        "type":"buttons",
-        "x":0.35,
-        "y":0.10,
-        "buttons":[
-
-dict(label="▶",
-     method="animate",
-     args=[None, {
-         "frame": {"duration":80},
-         "fromcurrent": True,
-         "mode": "immediate"
-     }]),
-
-
-            dict(label="⏸",
-                 method="animate",
-                 args=[[None], {"mode":"immediate"}])
-        ]
-    }]
-)
-
-
-st.plotly_chart(fig, use_container_width=True)
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
