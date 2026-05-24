@@ -1031,6 +1031,7 @@ for k in range(n_frames):
             ]
         )
     )
+
 # ===============================
     # FIGURA
     # ===============================
@@ -1040,7 +1041,7 @@ for k in range(n_frames):
 # ===============================
     # FIGURA (✅ TODO ADENTRO DEL IF)
     # ===============================
-  if len(df) > 1:
+  
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
