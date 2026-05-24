@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL SIN ERRORES (TODO CORREGIDO)
+# ✅ ANIMACIÓN FINAL DEFINITIVA
 # ===============================
 
 import plotly.graph_objects as go
@@ -757,7 +757,7 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ centrado
+    # ✅ CENTRADO
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
     Zc = Z - np.mean(Z)
@@ -786,13 +786,13 @@ if len(df) > 1:
     B = np.cross(T,N)
 
     # =========================
-    # PARÁMETROS
+    # PARAMETROS
     # =========================
-    radio_tubo = 6.5
-    radio_varilla = 4.2
+    radio_tubo = 7.0       # ✅ MÁS GRANDE
+    radio_varilla = 4.5    # ✅ ROZANDO PERO SE VE
 
     # =========================
-    # COLORES SEMÁFORO
+    # SEMÁFORO
     # =========================
     col_map = []
     for d in DLS:
@@ -809,10 +809,10 @@ if len(df) > 1:
     crit_mask = col_map == "red"
 
     # =========================
-    # TUBING (VISIBLE REAL)
+    # TUBING (BIEN VISIBLE)
     # =========================
     tube = []
-    for ang in np.linspace(0, 2*np.pi, 24):
+    for ang in np.linspace(0, 2*np.pi, 32):
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
@@ -820,63 +820,63 @@ if len(df) > 1:
         tube.append(go.Scatter3d(
             x=Xt, y=Yt, z=Zt,
             mode='lines',
-            line=dict(color='rgba(130,130,130,0.85)', width=5),
+            line=dict(color='rgba(120,120,120,0.95)', width=6),
             showlegend=False
         ))
 
     # =========================
-    # ANIMACIÓN (SIN ARRAYS EN MARKER)
+    # ANIMACIÓN
     # =========================
     frames=[]
     n_frames=420
 
     for k in range(n_frames):
 
-        theta = k * 0.30
+        theta = k * 0.35   # ✅ ROTACIÓN FUERTE
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ VARILLA COMPLETA GIRA
+        # ✅ TODA LA CUERDA GIRA
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ PULSO SOLO PARA ROJO (sin romper Plotly)
+        # ✅ PULSO SOLO ROJO (ESCALAR)
         puls = 0.4 + 0.6*((np.cos(theta*2)+1)/2)
 
-        frames.append(go.Frame(data=tube + [
+        frames.append(go.Frame(data = tube + [
 
-            # VARILLA (CUERDA)
+            # ✅ VARILLA GRUESA (siempre visible)
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='green', width=10),
+                line=dict(color='green', width=12),
                 showlegend=False
             ),
 
-            # PUNTOS VERDE / AMARILLO / NARANJA (FIJOS)
+            # ✅ NO CRÍTICOS (VERDE/AMARILLO/NARANJA)
             go.Scatter3d(
                 x=Xr[~crit_mask],
                 y=Yr[~crit_mask],
                 z=Zr[~crit_mask],
                 mode='markers',
                 marker=dict(
-                    size=4,
+                    size=5,
                     color=col_map[~crit_mask],
-                    opacity=0.6
+                    opacity=0.9
                 ),
                 showlegend=False
             ),
 
-            # ROJO CON PULSO (VALOR ESCALAR ✅)
+            # ✅ CRÍTICOS CON PULSO
             go.Scatter3d(
                 x=Xr[crit_mask],
                 y=Yr[crit_mask],
                 z=Zr[crit_mask],
                 mode='markers',
                 marker=dict(
-                    size=6 + 6*puls,
+                    size=8,
                     color='red',
                     opacity=puls
                 ),
@@ -889,23 +889,24 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=900,
+        height=950,
 
         scene=dict(
             aspectmode='data',
             camera=dict(
-                eye=dict(x=-4.5, y=2.8, z=2.2)
+                eye=dict(x=-4.8, y=2.8, z=2.2)
             )
         ),
 
-        margin=dict(l=0, r=0, t=10, b=10),
+        # ✅ SIN ESPACIO ARRIBA + MÁS ARRIBA EL GRÁFICO
+        margin=dict(l=0, r=0, t=5, b=5),
 
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None, {"frame":{"duration":60}}]),
+                     args=[None, {"frame":{"duration":65}}]),
 
                 dict(label="⏸ Stop",
                      method="animate",
