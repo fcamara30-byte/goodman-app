@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ CÓDIGO FINAL COMPLETO INTEGRADO
+# ✅ ANIMACIÓN FINAL COMPLETA (ESTABLE + COMPACTA)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,28 +750,28 @@ import numpy as np
 
 if len(df) > 1:
 
-    # ===============================
-    # ✅ TÍTULO LIMPIO
-    # ===============================
     st.markdown(
-        "<h3 style='margin-top:0px;margin-bottom:2px'>Interacción varilla–tubing</h3>",
+        "<h3 style='margin-top:0px;margin-bottom:0px'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
     )
 
+    # ===============================
+    # DATOS
+    # ===============================
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
     DLS = df["DLS"].values
 
     # ===============================
-    # ✅ GEOMETRÍA GLOBAL
+    # GEOMETRÍA GLOBAL
     # ===============================
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
-    Zc = -(Z - Z.max())   # ✅ 0 arriba → negativo abajo
+    Zc = (Z - Z.min())   # ✅ 0 arriba
 
     # ===============================
-    # ✅ BASE LOCAL
+    # BASE LOCAL
     # ===============================
     dx = np.gradient(Xc)
     dy = np.gradient(Yc)
@@ -794,13 +794,13 @@ if len(df) > 1:
     B = np.cross(T, N)
 
     # ===============================
-    # ✅ DIMENSIONES
+    # DIMENSIONES
     # ===============================
     radio_varilla = 4
     radio_tubo = radio_varilla * 3
 
     # ===============================
-    # ✅ SEMÁFORO
+    # SEMÁFORO
     # ===============================
     col_map = []
     for d in DLS:
@@ -816,10 +816,10 @@ if len(df) > 1:
     crit = col_map == "red"
 
     # ===============================
-    # ✅ TUBING (CONTORNO FINO AZUL)
+    # TUBING (CONTORNO FINO)
     # ===============================
     tube = []
-    for ang in np.linspace(0, 2*np.pi, 12):
+    for ang in np.linspace(0, 2*np.pi, 10):
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
@@ -827,16 +827,16 @@ if len(df) > 1:
         tube.append(go.Scatter3d(
             x=Xt, y=Yt, z=Zt,
             mode='lines',
-            line=dict(color='blue', width=1.5),
+            line=dict(color='blue', width=1),
             opacity=0.6,
             showlegend=False
         ))
 
     # ===============================
-    # ✅ ANIMACIÓN OPTIMIZADA
+    # ANIMACIÓN (LIVIANA)
     # ===============================
     frames = []
-    n_frames = 180   # ✅ liviano
+    n_frames = 180
 
     for k in range(n_frames):
 
@@ -853,7 +853,7 @@ if len(df) > 1:
 
         frames.append(go.Frame(data = tube + [
 
-            # ✅ VARILLA ACERO
+            # VARILLA
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
@@ -861,7 +861,7 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # ✅ NO CRÍTICOS
+            # NO CRÍTICOS
             go.Scatter3d(
                 x=Xr[~crit], y=Yr[~crit], z=Zr[~crit],
                 mode='markers',
@@ -869,7 +869,7 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # ✅ ROJO PULSANTE
+            # CRÍTICOS
             go.Scatter3d(
                 x=Xr[crit], y=Yr[crit], z=Zr[crit],
                 mode='markers',
@@ -880,38 +880,42 @@ if len(df) > 1:
         ]))
 
     # ===============================
-    # ✅ FIGURA
+    # FIGURA
     # ===============================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
 
-        height=1200,
+        height=1150,
 
         scene=dict(
             aspectmode='data',
             camera=dict(eye=dict(x=-5, y=3, z=2)),
             zaxis=dict(
                 title="Profundidad",
-                autorange=True
+                autorange="reversed"   # ✅ 0 arriba → mayor abajo
             )
         ),
 
-        # ✅ SIN ESPACIO ARRIBA / PEGADO AL TÍTULO
-        margin=dict(l=0, r=0, t=0, b=20),
+        margin=dict(
+            l=0,
+            r=0,
+            t=0,
+            b=40
+        ),
 
-        # ✅ CONTROLES PEGADOS
+        # ✅ CONTROLES COMPACTOS
         updatemenus=[{
             "type":"buttons",
             "direction":"left",
-            "x":0.4,
-            "y":0.02,
+            "x":0.35,
+            "y":0.10,
+            "pad":{"t":0},
             "buttons":[
-                dict(label="▶ Play",
+                dict(label="▶",
                      method="animate",
                      args=[None, {"frame":{"duration":80}}]),
-
-                dict(label="⏸ Stop",
+                dict(label="⏸",
                      method="animate",
                      args=[[None], {"mode":"immediate"}])
             ]
