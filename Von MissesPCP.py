@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN# ===============================# ✅ ANIMACIÓN FINAL (ARREGLADA DEFINITIVA)
+# ✅ ANIMACIÓN FINAL# ✅ ANIMACIÓN FINAL CORRECTA (ROTACIÓN REAL + TUBING + EJES)
 
 import plotly.graph_objects as go
 import numpy as np
@@ -756,46 +756,46 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ CENTRADO (CLAVE PARA QUE NO SE CORTE)
-    Xn = X - np.mean(X)
-    Yn = Y - np.mean(Y)
-    Zn = Z - np.mean(Z)
+    # ✅ SIN MODIFICAR GEOMETRÍA ORIGINAL
+    Xn = X
+    Yn = Y
+    Zn = Z
 
     # =========================
-    # BASE LOCAL (ESTABLE)
+    # BASE LOCAL
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
-    T = np.vstack([dx,dy,dz]).T
-    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
+    T = np.vstack([dx, dy, dz]).T
+    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
 
+    # transporte paralelo (estable)
     N = np.zeros_like(T)
-    N[0] = np.array([1,0,0])
+    N[0] = np.array([1, 0, 0])
 
-    for i in range(1,len(T)):
+    for i in range(1, len(T)):
         v = N[i-1]
         t = T[i]
-        v = v - np.dot(v,t)*t
+        v = v - np.dot(v, t) * t
         if np.linalg.norm(v) < 1e-6:
-            v = np.cross(t, np.array([0,1,0]))
-        N[i] = v/(np.linalg.norm(v)+1e-6)
+            v = np.cross(t, np.array([0, 1, 0]))
+        N[i] = v / (np.linalg.norm(v) + 1e-6)
 
-    B = np.cross(T,N)
+    B = np.cross(T, N)
 
     # =========================
-    # PARAMETROS CORRECTOS
+    # PARAMETROS
     # =========================
-    radio_varilla = 1.2   # ✅ suficiente para ver rotación
-    radio_tubo = 3.2      # ✅ tubo visible
-
+    radio_varilla = 2.0   # ✅ MÁS GRANDE → se ve girar TODA
+    radio_tubo = 4.0      # ✅ tubo claro
     crit = DLS > 3
 
     # =========================
-    # TUBING (VISIBLE DE VERDAD)
+    # TUBING (VISIBLE REAL)
     # =========================
-    theta_cyl = np.linspace(0, 2*np.pi, 16)
+    theta_cyl = np.linspace(0, 2*np.pi, 18)
 
     Xcyl=[];Ycyl=[];Zcyl=[]
     for i in range(len(Xn)):
@@ -809,40 +809,36 @@ if len(df) > 1:
     Zcyl = np.array(Zcyl)
 
     # =========================
-    # ANIMACION (ROTACIÓN CLARA)
+    # ANIMACIÓN (ROTACIÓN REAL COMPLETA)
     # =========================
-    frames=[]
-    n_frames=360
+    frames = []
+    n_frames = 360
 
     for k in range(n_frames):
 
-        theta = k * 0.25   # ✅ ROTACIÓN FUERTE (visible)
+        theta = k * 0.20  # ✅ ROTACIÓN CLARA
 
-        cos_t=np.cos(theta)
-        sin_t=np.sin(theta)
+        cos_t = np.cos(theta)
+        sin_t = np.sin(theta)
 
-        # ✅ ROTACIÓN REAL
+        # ✅ TODA LA VARILLA ROTA
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        puls = (np.cos(theta)+1)/2
-
-        Xc = Xoff[crit]
-        Yc = Yoff[crit]
-        Zc = Zoff[crit]
+        puls = (np.cos(theta) + 1)/2
 
         frames.append(go.Frame(data=[
 
-            # ✅ TUBO BIEN VISIBLE
+            # ✅ TUBO
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=2, color='gray', opacity=0.55),
+                marker=dict(size=2, color='lightgray', opacity=0.6),
                 showlegend=False
             ),
 
-            # ✅ VARILLA (CLARA)
+            # ✅ VARILLA ROTANDO
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
@@ -852,14 +848,14 @@ if len(df) > 1:
 
             # ✅ CONTACTO
             go.Scatter3d(
-                x=Xc,
-                y=Yc,
-                z=Zc,
+                x=Xoff[crit],
+                y=Yoff[crit],
+                z=Zoff[crit],
                 mode='markers',
                 marker=dict(
                     size=6 + 4*puls,
                     color='red',
-                    opacity=0.4 + 0.5*puls
+                    opacity=0.5 + 0.4*puls
                 ),
                 name="Contacto"
             )
@@ -868,34 +864,36 @@ if len(df) > 1:
 
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # =========================
-    # ✅ VISTA BUENA (MÁXIMA DESVIACIÓN)
-    # =========================
     fig.update_layout(
 
         height=900,
 
         scene=dict(
             aspectmode='data',
+
+            # ✅ VISTA QUE MUESTRA DESVIACIÓN REAL
             camera=dict(
-                eye=dict(x=-3.0, y=1.8, z=1.6)  # ✅ muestra desviación REAL
+                eye=dict(x=-3.5, y=2.0, z=1.8)
             ),
-            xaxis=dict(visible=False),
-            yaxis=dict(visible=False),
-            zaxis=dict(visible=False)
+
+            # ✅ EJES VISIBLES
+            xaxis=dict(visible=True),
+            yaxis=dict(visible=True),
+            zaxis=dict(visible=True)
         ),
 
         margin=dict(l=0, r=0, t=50, b=0),
 
         updatemenus=[{
-            "type":"buttons",
-            "buttons":[
+            "type": "buttons",
+            "buttons": [
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,{"frame":{"duration":60}}]),
+                     args=[None, {"frame": {"duration": 60}}]),
+
                 dict(label="⏸ Stop",
                      method="animate",
-                     args=[[None],{"mode":"immediate"}])
+                     args=[[None], {"mode": "immediate"}])
             ]
         }]
     )
