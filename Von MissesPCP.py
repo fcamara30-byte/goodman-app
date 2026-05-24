@@ -883,8 +883,9 @@ if len(df) > 1:
 # ===============================
     # FIGURA
     # ===============================
-fig = go.Figure(data=frames[0].data, frames=frames)fig =
-go.Figure(data=frames[0].data,.update_layout(
+fig = go.Figure(data=frames[0].data, frames=frames)
+
+fig.update_layout(
 
         height=800,
 
