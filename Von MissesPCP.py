@@ -905,3 +905,13 @@ if len(df) > 1:
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
+                     args=[None, {"frame":{"duration":60}}]),
+
+                dict(label="⏸ Stop",
+                     method="animate",
+                     args=[[None], {"mode":"immediate"}])
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
