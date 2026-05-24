@@ -278,7 +278,7 @@ fs=YS/von
 # =========================
 # TRAYECTORIA
 # =========================
-st.markdown("---")
+
 
 col_modo, _ = st.columns([1,3])
 
