@@ -911,9 +911,15 @@ fig.update_layout(
         "x":0.35,
         "y":0.10,
         "buttons":[
-            dict(label="▶",
-                 method="animate",
-                 args=[None, {"frame":{"duration":80}}]),
+
+dict(label="▶",
+     method="animate",
+     args=[None, {
+         "frame": {"duration":80},
+         "fromcurrent": True,
+         "mode": "immediate"
+     }]),
+
 
             dict(label="⏸",
                  method="animate",
