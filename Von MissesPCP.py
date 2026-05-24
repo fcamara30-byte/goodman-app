@@ -1052,11 +1052,7 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
 
-        
-         camera=dict(
-         eye=dict(x=1.8, y=1.8, z=0.9)
-        )
-      
+
     
 
    
@@ -1068,7 +1064,7 @@ if len(df) > 1:
 
 
         scene=dict(
-          aspectmode='data',
+          aspectmode='cube',
 
           camera=dict(
           eye=dict(x=2.5, y=2.0, z=0.7),
