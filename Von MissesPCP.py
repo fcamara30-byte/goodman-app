@@ -673,10 +673,10 @@ with colG:
 
     # tabla derecha
 
-with colR2:with colRinear con gráfico
-    st.markdown("##")   # 👈 este es el truco limpio
+with colR2:with col # ✅ espacio para bajar el resumen (clave)
+    st.markdown("###")
+    st.markdown("###")
 
-    # ✅ RESUMEN
     if len(df) > 1 and "Recomendación" in df.columns:
 
         st.markdown("### Resumen de Centralización")
@@ -694,6 +694,9 @@ with colR2:with colRinear con gráfico
             md_max = grupo["md"].max()
 
             st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+
+
+
 
 
 
