@@ -620,20 +620,24 @@ if modo=="Desviado" and text:
         # =====================
         # COORDENADAS
         # =====================
-        X=[0];Y=[0];Z=[0]
 
-        for i in range(1,len(df)):
-            dz=df["md"][i]-df["md"][i-1]
+X = [0]*len(df)
+Y = [0]*len(df)
+Z = [0]*len(df)
 
-            X.append(X[-1]+np.sin(inc[i])*np.cos(az[i])*dz)
-            Y.append(Y[-1]+np.sin(inc[i])*np.sin(az[i])*dz)
-            Z.append(Z[-1]-np.cos(inc[i])*dz)
+for i in range(1,len(df)):
+    dz = df["md"][i] - df["md"][i-1]
 
-        
-            df["X"]=X
-            df["Y"]=Y
-            df["Z"]=Z
-            df["Z"] = -df["md"] 
+    X[i] = X[i-1] + np.sin(inc[i])*np.cos(az[i])*dz
+    Y[i] = Y[i-1] + np.sin(inc[i])*np.sin(az[i])*dz
+    Z[i] = Z[i-1] - np.cos(inc[i])*dz
+
+df["X"] = X
+df["Y"] = Y
+df["Z"] = Z
+
+# ✅ ESTE ES TU CAMBIO (correcto)
+df["Z"] = -df["md"]
 
 
         # =====================
