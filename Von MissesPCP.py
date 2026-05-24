@@ -887,7 +887,7 @@ fig = go.Figure(data=frames[0].data, frames=frames)
 
 fig.update_layout(
 
-        height=800,
+        height=850,
 
         uirevision="keep",
 
@@ -896,7 +896,10 @@ scene=dict(
 aspectmode='data',
 
     camera=dict(
-        eye=dict(x=5.5, y=0.2, z=1.6)   # ✅ MÁS DE COSTADO
+        eye=dict(x=3, y=0.2, z=1.8)   # ✅ MÁS DE COSTADO
+        projection=dict(type="perspective")   # ✅ NUEVO
+    ),
+
     ),
 
     zaxis=dict(
