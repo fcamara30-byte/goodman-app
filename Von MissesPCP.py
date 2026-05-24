@@ -976,61 +976,61 @@ if len(df) > 1:
     # ===============================
     # ANIMACIÓN (NO TOCADA)
     # ===============================
-    frames=[]
-    n_frames=140
+frames = []
+n_frames = 140
 
-    for k in range(n_frames):
-        theta = k*0.35
+for k in range(n_frames):
 
-        cos_t=np.cos(theta)
-        sin_t=np.sin(theta)
+    theta = k * 0.35
 
-        Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
-        Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
-        Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+    cos_t = np.cos(theta)
+    sin_t = np.sin(theta)
 
-        puls = 0.5 + 0.5*np.cos(theta*2)
+    Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
+    Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
+    Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-frames.append(
-    go.Frame(
-        data = tube + [
+    puls = 0.5 + 0.5*np.cos(theta*2)
 
-            go.Scatter3d(
-                x=Xr, y=Yr, z=Zr,
-                mode='lines',
-                line=dict(color='silver', width=10),
-                showlegend=False
-            ),
+    frames.append(
+        go.Frame(
+            data = tube + [
 
-            go.Scatter3d(
-                x=Xr[~crit],
-                y=Yr[~crit],
-                z=Zr[~crit],
-                mode='markers',
-                marker=dict(
-                    size=4,
-                    color=df["DLS_plot"][~crit],
-                    colorscale="RdYlGn_r",
-                    cmin=0,
-                    cmax=10,
-                    colorbar=dict(title="DLS")
+                go.Scatter3d(
+                    x=Xr, y=Yr, z=Zr,
+                    mode='lines',
+                    line=dict(color='silver', width=10),
+                    showlegend=False
                 ),
-                showlegend=False
-            ),
 
-            go.Scatter3d(
-                x=Xr[crit],
-                y=Yr[crit],
-                z=Zr[crit],
-                mode='markers',
-                marker=dict(size=7, color='red', opacity=puls),
-                showlegend=False
-            )
+                go.Scatter3d(
+                    x=Xr[~crit],
+                    y=Yr[~crit],
+                    z=Zr[~crit],
+                    mode='markers',
+                    marker=dict(
+                        size=4,
+                        color=df["DLS_plot"][~crit],
+                        colorscale="RdYlGn_r",
+                        cmin=0,
+                        cmax=10,
+                        colorbar=dict(title="DLS")
+                    ),
+                    showlegend=False
+                ),
 
-        ]
+                go.Scatter3d(
+                    x=Xr[crit],
+                    y=Yr[crit],
+                    z=Zr[crit],
+                    mode='markers',
+                    marker=dict(size=7, color='red', opacity=puls),
+                    showlegend=False
+                )
+
+            ]
+        )
     )
-)
-
 # ===============================
     # FIGURA
     # ===============================
