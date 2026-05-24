@@ -643,10 +643,10 @@ for i in range(1,len(inc)):
         # =====================
         # ✅ RECOMENDACIÓN POR DLS
         # =====================
-        colores=[]
-        rec=[]
+       colores=[]
+       rec=[]
 
-        for dls_val in df["DLS"]:
+       for dls_val in df["DLS"]:
 
             if dls_val <= 1.9:
                 colores.append("green")
