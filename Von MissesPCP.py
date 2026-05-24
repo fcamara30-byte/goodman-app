@@ -1053,7 +1053,7 @@ if len(df) > 1:
 
 
         
-        camera=dict(
+            camera=dict(
             eye=dict(x=1.8, y=1.8, z=0.9)
         )
       
