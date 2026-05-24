@@ -892,8 +892,7 @@ fig.update_layout(
     uirevision="keep",  # ✅ ESTA ES LA CLAVE
 
     scene=dict(
-        aspectmode='manual',
-        aspectratio=dict(x=1, y=1, z=3),
+aspectmode='data',
 
 
 scene=dict(scenemode='manual',
