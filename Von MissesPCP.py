@@ -1,5 +1,6 @@
 
 import streamlit as st
+df = pd.DataFrame()
 import streamlit.components.v1 as components
 import math# =====================
 # NTZ 400 ST COMPLETO (4")
