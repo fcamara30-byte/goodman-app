@@ -760,7 +760,7 @@ if len(df) > 1:
 
     # ✅ TITULO TOTALMENTE PEGADO
     st.markdown("<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>", unsafe_allow_html=True)
-    st.write("len df:", len(df))
+   
     # ===============================
     # DATA
     # ===============================
@@ -936,8 +936,11 @@ st.markdown("""
 }
 
 
-div[data-testid="stPlotlyChart"] {div[data-testid="stPlot margin-top: -30px;  /* ✅ ajuste suave */
+
+div[data-testid="stPlotlyChart"] {
+    margin-top: -40px;   /* ✅ ajuste correcto */
 }
+
 
 
 </style>
