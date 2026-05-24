@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL ESTABLE (30s)
+# ✅ ANIMACIÓN FINAL (ROTACIÓN REAL CORREGIDA)
 # ===============================
 
 import plotly.graph_objects as go
@@ -767,50 +767,56 @@ if len(df) > 1:
     Zn = Z / abs(np.ptp(Z)) * 350
 
     # =========================
-    # BASE LOCAL
+    # BASE LOCAL (CORREGIDA)
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
-    T = np.vstack([dx,dy,dz]).T
-    T = T/(np.linalg.norm(T,axis=1)[:,None] + 1e-6)
+    T = np.vstack([dx, dy, dz]).T
+    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
 
-    N = np.zeros_like(T)
-    N[:,0] = -T[:,1]
-    N[:,1] = T[:,0]
+    # ✅ normal ortogonal real
+    ref = np.array([0, 0, 1])
+    N = np.cross(T, ref)
+    normN = np.linalg.norm(N, axis=1)
+    
+    # evitar degeneración en vertical
+    mask = normN < 1e-6
+    N[mask] = np.cross(T[mask], np.array([0,1,0]))
+    
+    N = N / (np.linalg.norm(N, axis=1)[:, None] + 1e-6)
 
+    # ✅ binormal ortogonal real
     B = np.cross(T, N)
 
     radio_varilla = 5
-
     crit = DLS > 3
 
     frames = []
-    n_frames = 360
+    n_frames = 360  # ~30s
 
     for k in range(n_frames):
 
-        theta = k * 0.10
+        theta = k * 0.08   # ✅ ROTACIÓN MÁS NATURAL (NO bambolea)
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ ROTACIÓN
-        Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
-        Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
-        Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+        # ✅ ROTACIÓN REAL EN PLANO PERPENDICULAR
+        Xoff = Xn + radio_varilla * (N[:,0]*cos_t + B[:,0]*sin_t)
+        Yoff = Yn + radio_varilla * (N[:,1]*cos_t + B[:,1]*sin_t)
+        Zoff = Zn + radio_varilla * (N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ INTENSIDAD SUAVE
+        # ✅ CONTACTO CONTINUO
         intensidad = (cos_t + 1) / 2
 
-        # ✅ BASE FIJA (CLAVE → no error)
         Xc = Xoff[crit]
         Yc = Yoff[crit]
         Zc = Zoff[crit]
 
-        # ✅ UN SOLO VALOR (no array conflictivo)
-        size = 6 + 6 * np.mean(intensidad)
+        size = 6 + 6 * intensidad
+        opacity = 0.3 + 0.7 * intensidad
 
         frames.append(go.Frame(data=[
 
@@ -818,7 +824,7 @@ if len(df) > 1:
             go.Scatter3d(
                 x=Xn, y=Yn, z=Zn,
                 mode='lines',
-                line=dict(color='rgba(0,0,0,0.3)', width=15),
+                line=dict(color='rgba(0,0,0,0.35)', width=16),
                 showlegend=False
             ),
 
@@ -830,7 +836,7 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # ✅ CONTACTO SIEMPRE PRESENTE
+            # contacto
             go.Scatter3d(
                 x=Xc,
                 y=Yc,
@@ -839,7 +845,7 @@ if len(df) > 1:
                 marker=dict(
                     size=size,
                     color='red',
-                    opacity=0.4 + 0.6*np.mean(intensidad)
+                    opacity=opacity
                 ),
                 name="Contacto crítico"
             )
@@ -849,31 +855,32 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
-
         height=820,
-
         scene=dict(
             aspectmode='manual',
             aspectratio=dict(x=1, y=1, z=3),
             camera=dict(eye=dict(x=2.2, y=2.0, z=2.0))
         ),
-
         updatemenus=[{
             "type": "buttons",
             "buttons": [
-                dict(label="▶ Play",
-                     method="animate",
-                     args=[None, {
-                         "frame": {"duration": 80, "redraw": True},
-                         "transition": {"duration": 40},
-                         "fromcurrent": True
-                     }]),
-
-                dict(label="⏸ Stop",
-                     method="animate",
-                     args=[[None], {"mode": "immediate"}])
+                dict(
+                    label="▶ Play",
+                    method="animate",
+                    args=[None, {
+                        "frame": {"duration": 80, "redraw": True},
+                        "transition": {"duration": 30},
+                        "fromcurrent": True
+                    }]
+                ),
+                dict(
+                    label="⏸ Stop",
+                    method="animate",
+                    args=[[None], {"mode": "immediate"}]
+                )
             ]
         }]
     )
 
     st.plotly_chart(fig, use_container_width=True)
+``
