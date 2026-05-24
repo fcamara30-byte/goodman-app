@@ -927,16 +927,7 @@ if len(df) > 1:
         }]
     )
 
-    st.markdown("""
-<style>
-.block-container {
-    padding-top: 0.5rem;
-}
-div[data-testid="stPlotlyChart"] {
-    margin-top: -80px;
-}
-</style>
-""", unsafe_allow_html=True)
+
     st.plotly_chart(fig, use_container_width=True)
 # ===============================
 
