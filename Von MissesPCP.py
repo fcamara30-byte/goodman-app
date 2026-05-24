@@ -1069,7 +1069,7 @@ if len(df) > 1:
 
           zaxis=dict(
           title="Profundidad",
-          autorange="reversed"
+          
     ),
  
 ),
