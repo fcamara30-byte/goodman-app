@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL (AJUSTE FINO REAL)
+# ✅ ANIMACIÓN FINAL AJUSTE UI + CONTORNO TUBING + ROTACIÓN REAL
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,9 +750,9 @@ import numpy as np
 
 if len(df) > 1:
 
-    # ✅ TÍTULO SIN PISAR FOOTER Y SIN ESPACIO
+    # ✅ título sin solapar footer + poco espacio
     st.markdown(
-        "<h3 style='margin-top:-20px;margin-bottom:-5px'>Interacción varilla–tubing</h3>",
+        "<h3 style='margin-top:5px;margin-bottom:0px'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
     )
 
@@ -761,7 +761,7 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ CENTRADO + PROFUNDIDAD NEGATIVA
+    # ✅ centrado + profundidad negativa real
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
     Zc = -(Z - Z.min())
@@ -792,8 +792,8 @@ if len(df) > 1:
     # =========================
     # PARÁMETROS
     # =========================
-    radio_tubo = 10.0     # ✅ MÁS GRANDE
-    radio_varilla = 6.5   # ✅ ROZANDO PERO VISIBLE
+    radio_tubo = 11.0
+    radio_varilla = 6.5
 
     # =========================
     # SEMÁFORO
@@ -808,10 +808,12 @@ if len(df) > 1:
     crit = col_map=="red"
 
     # =========================
-    # TUBING CILÍNDRICO (TRANSLÚCIDO)
+    # TUBING SOLO CONTORNO (VERTICALES)
     # =========================
     tube=[]
-    for ang in np.linspace(0,2*np.pi,40):
+    angs=[0, np.pi/2, np.pi, 3*np.pi/2]  # solo líneas principales
+
+    for ang in angs:
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
@@ -819,7 +821,7 @@ if len(df) > 1:
         tube.append(go.Scatter3d(
             x=Xt,y=Yt,z=Zt,
             mode='lines',
-            line=dict(color='rgba(80,80,80,0.45)',width=6),
+            line=dict(color='rgba(70,70,70,0.8)',width=5),
             showlegend=False
         ))
 
@@ -831,12 +833,12 @@ if len(df) > 1:
 
     for k in range(n_frames):
 
-        theta=k*0.40  # ✅ ROTACIÓN MÁS FUERTE
+        theta=k*0.40
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ TODA LA VARILLA GIRA
+        # ✅ VARILLA COMPLETA ROTANDO
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
@@ -861,7 +863,7 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # ✅ CRÍTICOS CON PULSO (SIN ERROR)
+            # ✅ CRÍTICOS CON PULSO
             go.Scatter3d(
                 x=Xr[crit],y=Yr[crit],z=Zr[crit],
                 mode='markers',
@@ -875,7 +877,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=1050,  # ✅ MÁS GRANDE → SUBE VISUAL
+        height=1150,  # ✅ MÁS GRANDE → SUBE VISUAL
 
         scene=dict(
             aspectmode='data',
@@ -885,7 +887,7 @@ if len(df) > 1:
             zaxis=dict(autorange="reversed",title="Profundidad")
         ),
 
-        # ✅ SUBE EL GRÁFICO AL MÁXIMO
+        # ✅ PEGADO ARRIBA
         margin=dict(l=0,r=0,t=0,b=0),
 
         updatemenus=[{
