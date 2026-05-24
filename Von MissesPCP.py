@@ -1,6 +1,6 @@
 
 import streamlit as st
-df = pd.DataFrame()
+
 import streamlit.components.v1 as components
 import math# =====================
 # NTZ 400 ST COMPLETO (4")
@@ -52,7 +52,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os   # ✅ ESTE FALTABA
 from io import BytesIO
-
+df = pd.DataFrame()
 # CONTADOR DE VISITAS# =========================
 # =========================
 
