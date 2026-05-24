@@ -909,4 +909,36 @@ if len(df) > 1:
 
         scene=dict(
             aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=3),
+
+            camera=dict(
+                eye=dict(x=2.3, y=2.1, z=2.2)
+            )
+        ),
+
+        updatemenus=[{
+            "type": "buttons",
+            "buttons": [
+
+                dict(
+                    label="▶ Play",
+                    method="animate",
+                    args=[None, {
+                        "frame": {"duration": 80, "redraw": True},
+                        "transition": {"duration": 40},
+                        "fromcurrent": True
+                    }]
+                ),
+
+                dict(
+                    label="⏸ Stop",
+                    method="animate",
+                    args=[[None], {"mode": "immediate"}]
+                )
+
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
 
