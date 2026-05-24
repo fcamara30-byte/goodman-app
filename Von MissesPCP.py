@@ -632,6 +632,7 @@ if modo=="Desviado" and text:
         
             df["X"]=X
             df["Y"]=Y
+            df["Z"]=Z
             df["Z"] = -df["md"] 
 
 
