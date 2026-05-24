@@ -901,8 +901,8 @@ scene=dict(
 
     zaxis=dict(
         title="Profundidad"
-    ),
-)
+    )
+),
 
 
         margin=dict(l=0, r=0, t=0, b=0),
