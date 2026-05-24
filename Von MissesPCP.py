@@ -119,15 +119,16 @@ with colL:
         nombre_pozo = st.text_input("Nombre Pozo")
         profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
         # ✅ selección de bomba
-        bomba_sel = st.selectbox("B = BOMBAS[bomba_sel]bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
-
+        prod = st.number_input("Producción (m³/d)",5.0)
+        bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
+        Q100 = BOMBAS[bomba_sel]
         # ✅ cálculo de RPM automático
         rpm = (prod / Q100) * 100
 
         st.write(f"RPM sugerida: {rpm:.0f}")
 
 
-        prod = st.number_input("Producción (m³/d)",5.0)
+        
         pres_linea = st.number_input("Presión línea (kg/cm²)", value=1.0,    step=2.0
 )
   
