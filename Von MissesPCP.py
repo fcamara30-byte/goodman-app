@@ -1053,11 +1053,11 @@ if len(df) > 1:
     fig.update_layout(
         height=850,
         scene=dict(
-        aspectratio=dict(x=3, y=3, z=1),
+        aspectratio=dict(x=6, y=6, z=1),
         
         
         camera=dict(
-            eye=dict(x=1.2, y=1.2, z=0.6)
+            eye=dict(x=1.6, y=1.6, z=0.4)
         )
       )
     )
