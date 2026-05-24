@@ -1073,7 +1073,7 @@ scene=dict(
 
     camera=dict(
         eye=dict(x=2, y=2.0, z=0.2),
-        center=dict(x=0, y=0, z=-0.5)
+        center=dict(x=0, y=0, z=-0.25)
     ),
 
 
