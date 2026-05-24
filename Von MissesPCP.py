@@ -117,7 +117,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("APOLO TUBULARES  PCP-DESIGN 🌎")
+st.title("TUBOS APOLO PCP-DESIGN 🌎")
 
 visitas = contador_visitas()
 
