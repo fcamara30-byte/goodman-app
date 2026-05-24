@@ -887,7 +887,7 @@ fig = go.Figure(data=frames[0].data, frames=frames)
 
 fig.update_layout(
 
-        height=600,
+        height=700,
 
         uirevision="keep",
 
