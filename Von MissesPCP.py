@@ -742,8 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL CORREGIDA (NO CORTA / ROTA BIEN / TUBO VISIBLE)
-# ===============================
+# ✅ ANIMACIÓN# ===============================# ✅ ANIMACIÓN FINAL (ARREGLADA DEFINITIVA)
 
 import plotly.graph_objects as go
 import numpy as np
@@ -757,9 +756,10 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    Xn = X
-    Yn = Y
-    Zn = Z
+    # ✅ CENTRADO (CLAVE PARA QUE NO SE CORTE)
+    Xn = X - np.mean(X)
+    Yn = Y - np.mean(Y)
+    Zn = Z - np.mean(Z)
 
     # =========================
     # BASE LOCAL (ESTABLE)
@@ -785,16 +785,17 @@ if len(df) > 1:
     B = np.cross(T,N)
 
     # =========================
-    # PARAMETROS
+    # PARAMETROS CORRECTOS
     # =========================
-    radio_varilla = 0.8
-    radio_tubo = 2.5
+    radio_varilla = 1.2   # ✅ suficiente para ver rotación
+    radio_tubo = 3.2      # ✅ tubo visible
+
     crit = DLS > 3
 
     # =========================
-    # TUBING (VISIBLE)
+    # TUBING (VISIBLE DE VERDAD)
     # =========================
-    theta_cyl = np.linspace(0,2*np.pi,12)
+    theta_cyl = np.linspace(0, 2*np.pi, 16)
 
     Xcyl=[];Ycyl=[];Zcyl=[]
     for i in range(len(Xn)):
@@ -803,24 +804,24 @@ if len(df) > 1:
             Ycyl.append(Yn[i] + radio_tubo*(N[i,1]*np.cos(th)+B[i,1]*np.sin(th)))
             Zcyl.append(Zn[i] + radio_tubo*(N[i,2]*np.cos(th)+B[i,2]*np.sin(th)))
 
-    Xcyl=np.array(Xcyl)
-    Ycyl=np.array(Ycyl)
-    Zcyl=np.array(Zcyl)
+    Xcyl = np.array(Xcyl)
+    Ycyl = np.array(Ycyl)
+    Zcyl = np.array(Zcyl)
 
     # =========================
-    # ANIMACION
+    # ANIMACION (ROTACIÓN CLARA)
     # =========================
     frames=[]
     n_frames=360
 
     for k in range(n_frames):
 
-        theta = k*0.18   # ✅ ROTACIÓN CLARA (ANTES ERA MUY SUAVE)
+        theta = k * 0.25   # ✅ ROTACIÓN FUERTE (visible)
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN REAL (SIN DESPLAZAR PERFIL)
+        # ✅ ROTACIÓN REAL
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
@@ -831,20 +832,17 @@ if len(df) > 1:
         Yc = Yoff[crit]
         Zc = Zoff[crit]
 
-        size = 5 + 5*puls
-        opacity = 0.4 + 0.5*puls
-
         frames.append(go.Frame(data=[
 
-            # tubing
+            # ✅ TUBO BIEN VISIBLE
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=1.4, color='gray', opacity=0.45),
+                marker=dict(size=2, color='gray', opacity=0.55),
                 showlegend=False
             ),
 
-            # varilla
+            # ✅ VARILLA (CLARA)
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
@@ -852,13 +850,17 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            # contacto
+            # ✅ CONTACTO
             go.Scatter3d(
                 x=Xc,
                 y=Yc,
                 z=Zc,
                 mode='markers',
-                marker=dict(size=size, color='red', opacity=opacity),
+                marker=dict(
+                    size=6 + 4*puls,
+                    color='red',
+                    opacity=0.4 + 0.5*puls
+                ),
                 name="Contacto"
             )
 
@@ -866,26 +868,31 @@ if len(df) > 1:
 
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # ✅ VISTA OPTIMIZADA (MÁXIMA DESVIACIÓN + NO CORTA)
+    # =========================
+    # ✅ VISTA BUENA (MÁXIMA DESVIACIÓN)
+    # =========================
     fig.update_layout(
 
-        height=850,  # ✅ evita corte abajo
+        height=900,
 
         scene=dict(
             aspectmode='data',
             camera=dict(
-                eye=dict(x=-2.5, y=1.5, z=1.8)  # ✅ muestra desviación real
-            )
+                eye=dict(x=-3.0, y=1.8, z=1.6)  # ✅ muestra desviación REAL
+            ),
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            zaxis=dict(visible=False)
         ),
 
-        margin=dict(l=0, r=0, t=40, b=0),  # ✅ evita recorte inferior
+        margin=dict(l=0, r=0, t=50, b=0),
 
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,{"frame":{"duration":70}}]),
+                     args=[None,{"frame":{"duration":60}}]),
                 dict(label="⏸ Stop",
                      method="animate",
                      args=[[None],{"mode":"immediate"}])
