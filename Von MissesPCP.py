@@ -632,8 +632,11 @@ X = [0]*len(df)
 Y = [0]*len(df)
 Z = [0]*len(df)
 
+
 inc = inc if 'inc' in locals() else [0]
-for i in range(1, len(inc or [0])):
+
+for i in range(1, len(inc)):
+
     dz = df["md"][i] - df["md"][i-1]
 
     X[i] = X[i-1] + np.sin(inc[i]) * np.cos(az[i]) * dz
