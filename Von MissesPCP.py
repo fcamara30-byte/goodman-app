@@ -896,7 +896,7 @@ scene=dict(
 aspectmode='data',
 
     camera=dict(
-        eye=dict(x=5, y=0.3, z=0.8)   # ✅ MÁS DE COSTADO
+        eye=dict(x=5, y=0.3, z=1.2)   # ✅ MÁS DE COSTADO
     ),
 
     zaxis=dict(
