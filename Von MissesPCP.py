@@ -674,23 +674,33 @@ with colG:
     # tabla derecha
 with colT:
 
-      if len(df) > 1 and "Recomendación" in df.columns:
 
-        st.markdown("### Resumen de Centralización")
 
-        df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+    if len(df) > 1:
 
-        total_tramos = len(df_centralizados)
-        st.write(f"**Varillas centralizadas:** {total_tramos}")
+        st.markdown("### Centralización")
+        st.dataframe(...)
 
-        grupos = df_centralizados.groupby("Recomendación")
+        st.markdown("<br><br><br>", unsafe_allow_html=True)  # 👈 ESTE ES EL TRUCO
 
-        for tipo, grupo in grupos:
-            cantidad = len(grupo)
-            md_min = grupo["md"].min()
-            md_max = grupo["md"].max()
+        # ✅ RESUMEN ABAJO (hueco)
+        if "Recomendación" in df.columns:
 
-            st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+            st.markdown("### Resumen de Centralización")
+
+            df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+
+            total_tramos = len(df_centralizados)
+            st.write(f"**Varillas centralizadas:** {total_tramos}")
+
+            grupos = df_centralizados.groupby("Recomendación")
+
+            for tipo, grupo in grupos:
+                cantidad = len(grupo)
+                md_min = grupo["md"].min()
+                md_max = grupo["md"].max()
+
+                st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
 
         st.markdown("### Centralización")
 
