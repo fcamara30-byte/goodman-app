@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL (LIMPIA + ROTACIÓN CORRECTA + VISTA FIJA)
+# ✅ ANIMACIÓN FINAL CORREGIDA (NO CORTA / ROTA BIEN / TUBO VISIBLE)
 # ===============================
 
 import plotly.graph_objects as go
@@ -762,7 +762,7 @@ if len(df) > 1:
     Zn = Z
 
     # =========================
-    # BASE LOCAL ESTABLE (SIN NUDO)
+    # BASE LOCAL (ESTABLE)
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
@@ -787,15 +787,14 @@ if len(df) > 1:
     # =========================
     # PARAMETROS
     # =========================
-    radio_varilla = 0.7     # ✅ ajuste fino → no vibra
-    radio_tubo = 2.2        # ✅ tubing más real
-
+    radio_varilla = 0.8
+    radio_tubo = 2.5
     crit = DLS > 3
 
     # =========================
-    # TUBING (CILINDRO MÁS DEFINIDO)
+    # TUBING (VISIBLE)
     # =========================
-    theta_cyl = np.linspace(0,2*np.pi,8)
+    theta_cyl = np.linspace(0,2*np.pi,12)
 
     Xcyl=[];Ycyl=[];Zcyl=[]
     for i in range(len(Xn)):
@@ -809,31 +808,30 @@ if len(df) > 1:
     Zcyl=np.array(Zcyl)
 
     # =========================
-    # ANIMACIÓN
+    # ANIMACION
     # =========================
     frames=[]
     n_frames=360
 
     for k in range(n_frames):
 
-        theta = k*0.15   # ✅ giro real (más evidente)
+        theta = k*0.18   # ✅ ROTACIÓN CLARA (ANTES ERA MUY SUAVE)
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN LIMPIA (sobre eje)
+        # ✅ ROTACIÓN REAL (SIN DESPLAZAR PERFIL)
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO
         puls = (np.cos(theta)+1)/2
 
         Xc = Xoff[crit]
         Yc = Yoff[crit]
         Zc = Zoff[crit]
 
-        size = 5 + 4*puls
+        size = 5 + 5*puls
         opacity = 0.4 + 0.5*puls
 
         frames.append(go.Frame(data=[
@@ -842,7 +840,7 @@ if len(df) > 1:
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=1.2, color='gray', opacity=0.35),
+                marker=dict(size=1.4, color='gray', opacity=0.45),
                 showlegend=False
             ),
 
@@ -868,24 +866,26 @@ if len(df) > 1:
 
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # ✅ VISTA FIJA OPTIMIZADA (NO MÁS SLIDERS)
+    # ✅ VISTA OPTIMIZADA (MÁXIMA DESVIACIÓN + NO CORTA)
     fig.update_layout(
 
-        height=800,
+        height=850,  # ✅ evita corte abajo
 
         scene=dict(
             aspectmode='data',
             camera=dict(
-                eye=dict(x=1.8, y=1.6, z=1.4)  # ✅ vista óptima (tipo gráfico original)
+                eye=dict(x=-2.5, y=1.5, z=1.8)  # ✅ muestra desviación real
             )
         ),
+
+        margin=dict(l=0, r=0, t=40, b=0),  # ✅ evita recorte inferior
 
         updatemenus=[{
             "type":"buttons",
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None,{"frame":{"duration":80}}]),
+                     args=[None,{"frame":{"duration":70}}]),
                 dict(label="⏸ Stop",
                      method="animate",
                      args=[[None],{"mode":"immediate"}])
