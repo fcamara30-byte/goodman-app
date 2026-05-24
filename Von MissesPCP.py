@@ -742,34 +742,170 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ AJUSTE FINAL (ESCALA + POSICIÓN SOLO)
+# ✅ ANIMACIÓN FINAL OPTIMIZADA (COMPLETA)
 # ===============================
 
-# ✅ ESCALA CORREGIDA (0 arriba, negativo hacia abajo)
-Zc = -np.abs(Z - Z.min())
+import plotly.graph_objects as go
+import numpy as np
 
-# =========================
-# ✅ SOLO CAMBIAR ESTO EN TU LAYOUT
-# =========================
+if len(df) > 1:
 
-fig.update_layout(
-
-    height=1200,
-
-    scene=dict(
-        aspectmode='data',
-        camera=dict(eye=dict(x=-5.5, y=3.5, z=2.5)),
-        zaxis=dict(
-            title="Profundidad",
-            autorange="reversed"
-        )
-    ),
-
-    # ✅ SUBE EL GRÁFICO FUERTE (clave)
-    margin=dict(
-        l=0,
-        r=0,
-        t=0,
-        b=150   # 👈 empuja el gráfico HACIA ARRIBA (acerca al footer)
+    st.markdown(
+        "<h3 style='margin-top:2px;margin-bottom:2px'>Interacción varilla–tubing</h3>",
+        unsafe_allow_html=True
     )
-)
+
+    X = df["X"].values
+    Y = df["Y"].values
+    Z = df["Z"].values
+    DLS = df["DLS"].values
+
+    # ✅ CENTRADO + PROFUNDIDAD (0 → negativo)
+    Xc = X - np.mean(X)
+    Yc = Y - np.mean(Y)
+    Zc = -np.abs(Z - Z.min())
+
+    # =========================
+    # BASE LOCAL
+    # =========================
+    dx = np.gradient(Xc)
+    dy = np.gradient(Yc)
+    dz = np.gradient(Zc)
+
+    T = np.vstack([dx,dy,dz]).T
+    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
+
+    N = np.zeros_like(T)
+    N[0] = np.array([1,0,0])
+
+    for i in range(1,len(T)):
+        v = N[i-1]
+        t = T[i]
+        v = v - np.dot(v,t)*t
+        if np.linalg.norm(v) < 1e-6:
+            v = np.cross(t, np.array([0,1,0]))
+        N[i] = v/(np.linalg.norm(v)+1e-6)
+
+    B = np.cross(T,N)
+
+    # =========================
+    # GEOMETRÍA
+    # =========================
+    radio_varilla = 4
+    radio_tubo = radio_varilla * 3
+
+    # =========================
+    # SEMÁFORO
+    # =========================
+    col_map=[]
+    for d in DLS:
+        if d<=1.9: col_map.append("green")
+        elif d<=3: col_map.append("yellow")
+        elif d<=6: col_map.append("orange")
+        else: col_map.append("red")
+    col_map=np.array(col_map)
+    crit = col_map=="red"
+
+    # =========================
+    # TUBING CONTORNO (FINO)
+    # =========================
+    tube=[]
+    for ang in np.linspace(0,2*np.pi,10):
+        Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
+        Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
+        Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
+
+        tube.append(go.Scatter3d(
+            x=Xt,y=Yt,z=Zt,
+            mode='lines',
+            line=dict(color='blue',width=1),
+            opacity=0.5,
+            showlegend=False
+        ))
+
+    # =========================
+    # ANIMACIÓN (OPTIMIZADA)
+    # =========================
+    frames=[]
+    n_frames=180   # ✅ menos frames = menos carga
+
+    for k in range(n_frames):
+
+        theta = k*0.25
+
+        cos_t=np.cos(theta)
+        sin_t=np.sin(theta)
+
+        # ✅ ROTACIÓN COMPLETA
+        Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
+        Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
+        Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+
+        puls = 0.5 + 0.5*np.cos(theta*2)
+
+        frames.append(go.Frame(data = tube + [
+
+            # VARILLA (ACERO)
+            go.Scatter3d(
+                x=Xr,y=Yr,z=Zr,
+                mode='lines',
+                line=dict(color='silver',width=10),
+                showlegend=False
+            ),
+
+            # NO CRÍTICOS
+            go.Scatter3d(
+                x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
+                mode='markers',
+                marker=dict(size=4,color=col_map[~crit]),
+                showlegend=False
+            ),
+
+            # CRÍTICOS PULSO
+            go.Scatter3d(
+                x=Xr[crit],y=Yr[crit],z=Zr[crit],
+                mode='markers',
+                marker=dict(size=7,color='red',opacity=puls),
+                showlegend=False
+            )
+
+        ]))
+
+    # =========================
+    # FIGURA INICIAL (ESTÁTICA)
+    # =========================
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
+
+        height=1150,
+
+        scene=dict(
+            aspectmode='data',
+            camera=dict(eye=dict(x=-5,y=3,z=2)),
+            zaxis=dict(
+                title="Profundidad",
+                autorange="reversed"
+            )
+        ),
+
+        margin=dict(l=0,r=0,t=0,b=180),  # ✅ sube el gráfico hacia el footer
+
+        # ✅ CONTROLES ABAJO
+        updatemenus=[{
+            "type":"buttons",
+            "direction":"left",
+            "x":0.4,
+            "y":-0.08,   # 👈 debajo del gráfico
+            "buttons":[
+                dict(label="▶ Play",
+                     method="animate",
+                     args=[None,{"frame":{"duration":80}}]),
+                dict(label="⏸ Stop",
+                     method="animate",
+                     args=[[None],{"mode":"immediate"}])
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
