@@ -631,12 +631,12 @@ with colR:
   colG, colS, colT = st.columns([3.8,1.6,3])
 
     # sliders
-    with colS:
+with colS:
         elev = st.slider("Vista elevación", 0, 90, 25)
         azim = st.slider("Vista azimut", 0, 360, 45)
 
     # gráfico
-    with colG:
+with colG:
         if len(df) > 1:
             fig = plt.figure(figsize=(4,6))
             ax = fig.add_subplot(111, projection='3d')
