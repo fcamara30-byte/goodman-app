@@ -117,6 +117,14 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<style>
+.stApp {
+    background-color: #f4f6f8;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("TUBOS APOLO PCP-DESIGN 🌎")
 
 visitas = contador_visitas()
@@ -214,7 +222,7 @@ if "BOMBAS" not in globals():
    
     with c1:
         nombre_pozo = st.text_input("Nombre/Nome Pozo/Poço")
-        profundidad = st.number_input("Profundidad/Produção Bba (m)",600,step=100)
+        profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
         # ✅ selección de bomba
         prod = st.number_input("Producción (m³/d)",5.0)
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
