@@ -423,12 +423,15 @@ fs=YS/von
 
 col_modo, _ = st.columns([1,3])
 
+
 with col_modo:
-   modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"], key="modo_pozo")
+    modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"], key="modo_pozo")
 
+if modo != "Desviado":
+    df = pd.DataFrame()
 
-df=pd.DataFrame()
-torque_final=torque
+torque_final = torque
+
 
 
 # =========================# ========================= FRICCIÓN REAL CON CURVATURA (MODELO VIGA)
