@@ -896,7 +896,7 @@ scene=dict(
 aspectmode='data',
 
     camera=dict(
-        eye=dict(x=3, y=0.2, z=1.8)   # ✅ MÁS DE COSTADO
+        eye=dict(x=3, y=0.2, z=1.8),   # ✅ MÁS DE COSTADO
         projection=dict(type="perspective")   # ✅ NUEVO
     ),
 
