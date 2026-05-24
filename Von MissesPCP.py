@@ -1000,27 +1000,23 @@ if len(df) > 1:
                 showlegend=False
             ),
 
-            go.Scatter3d(
-                x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
-                mode='markers',
-                
+ 
+go.Scatter3d(
+    x=Xr[~crit], 
+    y=Yr[~crit], 
+    z=Zr[~crit],
+    mode='markers',
+    marker=dict(
+        size=4,
+        color=df["DLS_plot"][~crit],
+        colorscale="RdYlGn_r",
+        cmin=0,
+        cmax=10,
+        colorbar=dict(title="DLS")
+    ),
+    showlegend=False
+),
 
-            marker=dict(
-                size=df["DLS_plot"][~crit],    size=4,
-                colorscale="RdYlGn_r",
-                cmin=0,
-                cmax=10,
-                colorbar=dict(title="DLS")
-           ),
-
-
-
-                  cmin=0,
-                  cmax=10,
-                  colorbar=dict(title="DLS")
-              ),
-
-                showlegend=False
             ),
 
             go.Scatter3d(
