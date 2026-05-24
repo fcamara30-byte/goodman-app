@@ -1090,8 +1090,8 @@ if len(df) > 1:
 
         updatemenus=[{
             "type":"buttons",
-            "x":0.35,
-            "y":0.3,
+            "x":0.1,
+            "y":0.5,
             "buttons":[
                 dict(label="Play ▶",
                      method="animate",
@@ -1101,7 +1101,7 @@ if len(df) > 1:
                          "mode": "immediate"
                      }]),
 
-                dict(label="⏸",
+                dict(label="Stop⏸",
                      method="animate",
                      args=[[None], {"mode":"immediate"}])
             ]
