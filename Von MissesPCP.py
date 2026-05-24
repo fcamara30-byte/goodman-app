@@ -1046,16 +1046,12 @@ if len(df) > 1:
                 showlegend=False
             )
 
-        ]))
+        ])
 
     # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    fig.update_layout(
-        height=450,
-        scene=dict(
-        aspectratio=dict(x=7, y=6, z=1),
-        
+
         
         camera=dict(
             eye=dict(x=1.8, y=1.8, z=0.9)
