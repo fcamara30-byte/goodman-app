@@ -741,4 +741,140 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
+# ===============================
+# ✅ ANIMACIÓN FINAL (VISIBLE + REAL)
+# ===============================
 
+import plotly.graph_objects as go
+import numpy as np
+
+if len(df) > 1:
+
+    st.markdown("### Simulación varilla dentro del tubing")
+
+    X = df["X"].values
+    Y = df["Y"].values
+    Z = df["Z"].values
+    DLS = df["DLS"].values
+
+    # =========================
+    # ESCALA
+    # =========================
+    scale = max(np.ptp(X), np.ptp(Y)) or 1
+
+    Xn = X / scale * 100
+    Yn = Y / scale * 100
+    Zn = Z / abs(np.ptp(Z)) * 300
+
+    # =========================
+    # BASE LOCAL
+    # =========================
+    dx = np.gradient(Xn)
+    dy = np.gradient(Yn)
+    dz = np.gradient(Zn)
+
+    T = np.vstack([dx,dy,dz]).T
+    T = T/(np.linalg.norm(T,axis=1)[:,None] + 1e-6)
+
+    N = np.zeros_like(T)
+    N[:,0] = -T[:,1]
+    N[:,1] = T[:,0]
+
+    B = np.cross(T, N)
+
+    # =========================
+    # PARAMETROS
+    # =========================
+    radio_varilla = 5
+    radio_tubo = 9
+
+    crit = DLS > 3   # 👈 bajamos umbral → se ve más
+
+    frames = []
+    n_frames = 260   # ~20 seg
+
+    for k in range(n_frames):
+
+        theta = k * 0.12
+
+        cos_t = np.cos(theta)
+        sin_t = np.sin(theta)
+
+        # ✅ VARILLA REAL
+        Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
+        Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
+        Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
+
+        # ✅ CONTACTO MÁS VISIBLE
+        contacto = (cos_t > 0.85) & crit
+
+        frames.append(go.Frame(data=[
+
+            # 🔵 TUBING (VISIBLE)
+            go.Scatter3d(
+                x=Xn, y=Yn, z=Zn,
+                mode='lines',
+                line=dict(color='black', width=15),
+                opacity=0.15,
+                showlegend=False
+            ),
+
+            # 🟢 VARILLA
+            go.Scatter3d(
+                x=Xoff, y=Yoff, z=Zoff,
+                mode='lines',
+                line=dict(color='green', width=6),
+                showlegend=False
+            ),
+
+            # 🔴 CONTACTO CLARO
+            go.Scatter3d(
+                x=Xoff[contacto],
+                y=Yoff[contacto],
+                z=Zoff[contacto],
+                mode='markers',
+                marker=dict(size=10, color='red'),
+                name="Contacto"
+            )
+
+        ]))
+
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    fig.update_layout(
+
+        height=750,
+
+        scene=dict(
+            aspectmode='manual',
+            aspectratio=dict(x=1, y=1, z=3),
+
+            camera=dict(
+                eye=dict(x=2, y=2, z=2)  # 👈 evita corte
+            )
+        ),
+
+        updatemenus=[{
+            "type": "buttons",
+            "buttons": [
+
+                dict(
+                    label="▶ Play",
+                    method="animate",
+                    args=[None, {
+                        "frame": {"duration": 75, "redraw": True},
+                        "transition": {"duration": 0},
+                        "fromcurrent": True
+                    }]
+                ),
+
+                dict(
+                    label="⏸ Stop",
+                    method="animate",
+                    args=[[None], {"mode": "immediate"}]
+                )
+            ]
+        }]
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
