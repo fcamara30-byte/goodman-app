@@ -625,66 +625,46 @@ X = [0]*len(df)
 Y = [0]*len(df)
 Z = [0]*len(df)
 
-for i in range(1,len(inc)):
-       dz = df["md"][i] - df["md"][i-1]
 
-       X[i] = X[i-1] + np.sin(inc[i])*np.cos(az[i])*dz
-       Y[i] = Y[i-1] + np.sin(inc[i])*np.sin(az[i])*dz
-       Z[i] = Z[i-1] - np.cos(inc[i])*dz
+for i in range(1, len(inc)):
+    dz = df["md"][i] - df["md"][i-1]
 
-       df["X"] = X
-       df["Y"] = Y
-       df["Z"] = Z
+    X[i] = X[i-1] + np.sin(inc[i]) * np.cos(az[i]) * dz
+    Y[i] = Y[i-1] + np.sin(inc[i]) * np.sin(az[i]) * dz
+    Z[i] = Z[i-1] - np.cos(inc[i]) * dz
 
-       # ✅ ESTE ES TU CAMBIO (correcto)
-       df["Z"] = -df["md"]
+# ✅ AFUERA DEL LOOP
+df["X"] = X
+df["Y"] = Y
+df["Z"] = -df["md"]
+
 
 
         # =====================
         # ✅ RECOMENDACIÓN POR DLS
         # =====================
-       colores=[]
-       rec=[]
 
-       
+colores = []
+rec = []
+
 for _, row in df.iterrows():
     dls_val = row["DLS"]
 
     if dls_val <= 1.9:
         colores.append("green")
         rec.append("sin centralizadores")
-
     elif dls_val <= 3:
         colores.append("yellow")
         rec.append("2 centralizadores")
-
     elif dls_val <= 6:
         colores.append("orange")
         rec.append("3 centralizadores")
-
     else:
         colores.append("red")
         rec.append("Más de 3 cent o Black Mamba")
 
-       for dls_val in df["DLS"]:
+df["Recomendación"] = rec
 
-            if dls_val <= 1.9:
-                colores.append("green")
-                rec.append("sin centralizadores")
-
-            elif dls_val <= 3:
-                colores.append("yellow")
-                rec.append("2 centralizadores ")
-
-            elif dls_val <= 6:
-                colores.append("orange")
-                rec.append("3 centralizadores ")
-
-            else:
-                colores.append("red")
-                rec.append("Más de 3 cent o Black Mamba")
-
-                df["Recomendación"]=rec
                 df["md"] = df["md"].round(0).astype(int)
 if len(df) > 1:
 
