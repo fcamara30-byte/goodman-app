@@ -165,8 +165,8 @@ if "BOMBAS" not in globals():
     "NTZ 400*120ST78": 78.0,
     "NTZ 400*150ST78": 78.0,
 }
-``
-    }
+
+   
     with c1:
         nombre_pozo = st.text_input("Nombre Pozo")
         profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
