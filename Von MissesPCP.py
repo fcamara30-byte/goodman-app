@@ -928,7 +928,7 @@ if len(df) > 1:
     )
 
     
-st.markdown("""
+      st.markdown("""
 <style>
 .block-container {
     padding-top: 0.5rem;
