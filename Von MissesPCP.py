@@ -1051,7 +1051,7 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
     fig.update_layout(
-        height=650,
+        height=450,
         scene=dict(
         aspectratio=dict(x=7, y=6, z=1),
         
@@ -1108,7 +1108,7 @@ if len(df) > 1:
 }
 
 div[data-testid="stPlotlyChart"] {
-    margin-top: -19px;
+    margin-top: -15px;
 }
 </style>
 """, unsafe_allow_html=True)
