@@ -891,13 +891,19 @@ fig.update_layout(
 
         uirevision="keep",
 
-        scene=dict(
-            aspectmode='data',
 
-            zaxis=dict(
-                title="Profundidad"
-            )
-        ),
+scene=dict(
+    aspectmode='data',
+
+    camera=dict(
+        eye=dict(x=2.5, y=2.0, z=1.2)   # ✅ MÁS DE COSTADO
+    ),
+
+    zaxis=dict(
+        title="Profundidad"
+    )
+)
+
 
         margin=dict(l=0, r=0, t=0, b=0),
 
