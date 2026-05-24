@@ -910,7 +910,7 @@ if len(df) > 1:
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.18,
+            "y":0.2,
             "buttons":[
                 dict(label="▶",
                      method="animate",
