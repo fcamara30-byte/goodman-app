@@ -941,7 +941,7 @@ if len(df) > 1:
     Yc = Y - np.mean(Y)
 
     # 👇 esto es lo correcto para survey
-    
+    Zc = Z 
 
     # ===============================
     # BASE LOCAL
