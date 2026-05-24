@@ -897,10 +897,11 @@ if len(df) > 1:
                 eye=dict(x=-2.2, y=1.6, z=2.2)
             ),
 
-            zaxis=dict(
-                title="Profundidad",
-                autorange="reversed"
-            )
+
+zaxis=dict(
+    title="Profundidad"
+)
+
         ),
 
         margin=dict(l=0, r=0, t=0, b=0),
