@@ -900,7 +900,7 @@ fig.update_layout(
             autorange="reversed"
         )
 
-    ),  # ✅ cierra scene
+    ),
 
     margin=dict(l=0, r=0, t=0, b=0),
 
@@ -911,14 +911,16 @@ fig.update_layout(
         "buttons":[
             dict(label="▶",
                  method="animate",
-                 args=[None,{"frame":{"duration":80}}]),
+                 args=[None, {"frame":{"duration":80}}]),
+
             dict(label="⏸",
                  method="animate",
-                 args=[[None],{"mode":"immediate"}])
+                 args=[[None], {"mode":"immediate"}])
         ]
     }]
 
-)  # ✅ cierra update_layout
+)
+
 
 
 
