@@ -1055,7 +1055,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=750,
+        height=900,
         uirevision="keep",
 
 
@@ -1063,7 +1063,7 @@ if len(df) > 1:
           aspectmode='cube',
 
           camera=dict(
-          eye=dict(x=2.5, y=2.0, z=0.4),
+          eye=dict(x=2, y=2.0, z=0.2),
           center=dict(x=0, y=0, z=-0.3)
     ),
 
@@ -1105,7 +1105,7 @@ if len(df) > 1:
 }
 
 div[data-testid="stPlotlyChart"] {
-    margin-top: -20px;
+    margin-top: -10px;
 }
 </style>
 """, unsafe_allow_html=True)
