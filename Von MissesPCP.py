@@ -532,7 +532,7 @@ def generar_pdf():
     c.setFont("Helvetica", 7)
 
     if len(df) > 1 and "Recomendación" in df.columns:
-        for in range(len(df)):   # ✅ ahora muestra TODA la tabla
+        for i in range(len(df)):   # ✅ ahora muestra TODA la tabla
 
             row = df.iloc[i]
             txt = f"{row['md']:.0f} | {row['DLS']:.1f} | {row['Recomendación']}"
