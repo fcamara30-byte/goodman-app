@@ -1030,7 +1030,7 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=610,
+        height=550,
         uirevision="keep",
 
         scene=dict(
@@ -1072,7 +1072,7 @@ if len(df) > 1:
 }
 
 div[data-testid="stPlotlyChart"] {
-    margin-top: -18px;
+    margin-top: -19px;
 }
 </style>
 """, unsafe_allow_html=True)
