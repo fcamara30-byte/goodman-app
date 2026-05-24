@@ -957,7 +957,10 @@ st.download_button(
 
 
 
-st.plotly_chart(fig, use_container_width=True)
+if len(df) > 1:
+    st.plotly_chart(fig, use_container_width=True)
+else:
+    st.info("Modo vertical: sin trayectoria 3D")
 
 # ===============================
 
