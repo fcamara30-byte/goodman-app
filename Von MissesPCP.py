@@ -1097,7 +1097,7 @@ scene=dict(
             "x":0.02,
             "y":1.15,
             "buttons":[
-                dict(label="Play▶",
+                dict(label="▶",
                      method="animate",
                      args=[None, {
                          "frame": {"duration":80},
