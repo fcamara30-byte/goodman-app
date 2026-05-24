@@ -911,7 +911,7 @@ if len(df) > 1:
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.2,
+            "y":0.3,
             "buttons":[
                 dict(label="▶",
                      method="animate",
@@ -927,7 +927,18 @@ if len(df) > 1:
             ]
         }]
     )
+    st.markdown("""
+<style>
+.block-container {
+    padding-top: 0rem;
+}
 
+div[data-testid="stPlotlyChart"] {
+    margin-top: -40px;
+}
+</style>
+""", unsafe_allow_html=True)
+``
     st.plotly_chart(fig, use_container_width=True)
 
 # ===============================
