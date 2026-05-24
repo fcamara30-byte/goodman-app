@@ -741,8 +741,20 @@ color_class = "metric-red" if uso > 100 else ""
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
+# ===============================# ================= VISTA (compartidos)
 # ===============================
-# ✅ ANIMACIÓN FINAL (SIN NUDO + TUBING MEJORADO)
+
+col_view1, col_view2 = st.columns(2)
+
+with col_view1:
+    elev = st.slider("Elevación", 0, 90, 25, key="anim_elev")
+
+with col_view2:
+    azim = st.slider("Azimut", 0, 360, 45, key="anim_azim")
+
+
+# ===============================
+# ✅ ANIMACIÓN (GEOMETRÍA CONSISTENTE)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,20 +762,17 @@ import numpy as np
 
 if len(df) > 1:
 
-    st.markdown("### Simulación varilla dentro del tubing")
-
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ESCALA
-    scale = max(np.ptp(X), np.ptp(Y)) or 1
-    Xn = X/scale*100
-    Yn = Y/scale*100
-    Zn = Z/abs(np.ptp(Z))*350
+    # 🔴 MISMA ESCALA QUE TU GRAFICO ORIGINAL
+    Xn = X
+    Yn = Y
+    Zn = Z
 
-    # BASE LOCAL (SIN GIRO BRUSCO)
+    # BASE LOCAL (sin distorsión)
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
@@ -771,115 +780,112 @@ if len(df) > 1:
     T = np.vstack([dx,dy,dz]).T
     T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
-    # ✅ paralelo transport (evita nudo)
     N = np.zeros_like(T)
     N[0] = np.array([1,0,0])
 
     for i in range(1,len(T)):
         v = N[i-1]
         t = T[i]
-
         v = v - np.dot(v,t)*t
-        n = np.linalg.norm(v)
-
-        if n < 1e-6:
+        if np.linalg.norm(v) < 1e-6:
             v = np.cross(t, np.array([0,0,1]))
-
         N[i] = v / (np.linalg.norm(v)+1e-6)
 
-    B = np.cross(T, N)
+    B = np.cross(T,N)
 
-    radio_varilla = 3.5
-    radio_tubo = 8.5
+    radio_varilla = 0.8
+    radio_tubo = 2.0
 
     crit = DLS > 3
 
     # =========================
-    # TUBING (MÁS OSCURO Y LIMPIO)
+    # CILINDRO LIMPIO
     # =========================
-    theta_cyl = np.linspace(0, 2*np.pi, 12)
+    theta_cyl = np.linspace(0, 2*np.pi, 10)
 
-    Xcyl=[];Ycyl=[];Zcyl=[]
+    Xcyl=[]; Ycyl=[]; Zcyl=[]
     for i in range(len(Xn)):
         for th in theta_cyl:
             Xcyl.append(Xn[i] + radio_tubo*(N[i,0]*np.cos(th)+B[i,0]*np.sin(th)))
             Ycyl.append(Yn[i] + radio_tubo*(N[i,1]*np.cos(th)+B[i,1]*np.sin(th)))
             Zcyl.append(Zn[i] + radio_tubo*(N[i,2]*np.cos(th)+B[i,2]*np.sin(th)))
 
-    Xcyl = np.array(Xcyl)
-    Ycyl = np.array(Ycyl)
-    Zcyl = np.array(Zcyl)
+    Xcyl=np.array(Xcyl)
+    Ycyl=np.array(Ycyl)
+    Zcyl=np.array(Zcyl)
 
     # =========================
-    # ANIMACION
+    # ANIMACIÓN
     # =========================
     frames=[]
     n_frames=360
 
     for k in range(n_frames):
 
-        theta = k*0.07
+        theta = k*0.1
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN LIMPIA
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO
-        puls = (np.cos(theta + np.linspace(0,3,len(Xn)))+1)/2
+        puls = (cos_t+1)/2
 
         Xc = Xoff[crit]
         Yc = Yoff[crit]
         Zc = Zoff[crit]
 
-        size = 6 + 5*np.mean(puls)
-        opacity = 0.35 + 0.6*np.mean(puls)
+        size = 5 + 5*puls
+        opacity = 0.3 + 0.5*puls
 
         frames.append(go.Frame(data=[
 
-            # ✅ TUBO MÁS DEFINIDO
+            # tubing
             go.Scatter3d(
                 x=Xcyl, y=Ycyl, z=Zcyl,
                 mode='markers',
-                marker=dict(size=1.5, color='gray', opacity=0.18),
+                marker=dict(size=1.2, color='gray', opacity=0.25),
                 showlegend=False
             ),
 
-            # ✅ VARILLA LIMPIA (SIN RESORTE)
+            # varilla
             go.Scatter3d(
                 x=Xoff, y=Yoff, z=Zoff,
                 mode='lines',
-                line=dict(color='green', width=6),
+                line=dict(color='green', width=5),
                 showlegend=False
             ),
 
-            # ✅ CONTACTO
+            # contacto
             go.Scatter3d(
                 x=Xc,
                 y=Yc,
                 z=Zc,
                 mode='markers',
-                marker=dict(
-                    size=size,
-                    color='red',
-                    opacity=opacity
-                ),
+                marker=dict(size=size, color='red', opacity=opacity),
                 name="Contacto"
             )
 
         ]))
 
-    fig=go.Figure(data=frames[0].data, frames=frames)
+    fig = go.Figure(data=frames[0].data, frames=frames)
+
+    # ✅ MISMA ORIENTACIÓN QUE MPL
+    cam = dict(
+        eye=dict(
+            x=np.cos(np.radians(azim))*np.cos(np.radians(elev))*3,
+            y=np.sin(np.radians(azim))*np.cos(np.radians(elev))*3,
+            z=np.sin(np.radians(elev))*3
+        )
+    )
 
     fig.update_layout(
-        height=820,
+        height=800,
         scene=dict(
-            aspectmode='manual',
-            aspectratio=dict(x=1,y=1,z=3),
-            camera=dict(eye=dict(x=2.2,y=2.0,z=2.0))
+            aspectmode='data',
+            camera=cam
         ),
         updatemenus=[{
             "type":"buttons",
@@ -888,7 +894,7 @@ if len(df) > 1:
                      method="animate",
                      args=[None,{
                          "frame":{"duration":80,"redraw":True},
-                         "transition":{"duration":30},
+                         "transition":{"duration":20},
                          "fromcurrent":True
                      }]),
                 dict(label="⏸ Stop",
@@ -899,3 +905,4 @@ if len(df) > 1:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
