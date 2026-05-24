@@ -1004,7 +1004,7 @@ for k in range(n_frames):
         go.Scatter3d(
             x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
             mode='markers',
-            marker=dict(size=4,color=col_map[~crit]),   ✅ ESTE ES EL CLAVE
+            marker=dict(size=4,color=col_map[~crit]),   
             showlegend=False
         ),
 
