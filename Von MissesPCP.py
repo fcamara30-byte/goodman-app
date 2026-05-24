@@ -901,7 +901,7 @@ scene=dict(
 
     zaxis=dict(
         title="Profundidad"
-    )
+    ),
 )
 
 
