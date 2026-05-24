@@ -1,7 +1,47 @@
 
 import streamlit as st
 import streamlit.components.v1 as components
-import math
+import math# =====================
+# NTZ 400 ST COMPLETO (4")
+# =====================
+BOMBAS_400_ST = {
+
+    # 33 m3/d
+    "NTZ 400*065ST33": 33.0,
+    "NTZ 400*090ST33": 33.0,
+    "NTZ 400*120ST33": 33.0,
+    "NTZ 400*150ST33": 33.0,
+    "NTZ 400*180ST33": 33.0,
+    "NTZ 400*200ST33": 33.0,
+    "NTZ 400*240ST33": 33.0,
+
+    # 40 m3/d
+    "NTZ 400*100ST40": 40.0,
+    "NTZ 400*120ST40": 40.0,
+    "NTZ 400*150ST40": 40.0,
+    "NTZ 400*180ST40": 40.0,
+    "NTZ 400*200ST40": 40.0,
+
+    # 50 m3/d
+    "NTZ 400*060ST50": 50.0,
+    "NTZ 400*090ST50": 50.0,
+    "NTZ 400*120ST50": 50.0,
+    "NTZ 400*150ST50": 50.0,
+    "NTZ 400*180ST50": 50.0,
+
+    # 62 m3/d
+    "NTZ 400*060ST62": 62.0,
+    "NTZ 400*090ST62": 62.0,
+    "NTZ 400*120ST62": 62.0,
+    "NTZ 400*150ST62": 62.0,
+
+    # 78 m3/d
+    "NTZ 400*060ST78": 78.0,
+    "NTZ 400*090ST78": 78.0,
+    "NTZ 400*120ST78": 78.0,
+    "NTZ 400*150ST78": 78.0,
+}
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -1032,7 +1072,7 @@ if len(df) > 1:
 }
 
 div[data-testid="stPlotlyChart"] {
-    margin-top: -10px;
+    margin-top: -18px;
 }
 </style>
 """, unsafe_allow_html=True)
