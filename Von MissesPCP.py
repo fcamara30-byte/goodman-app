@@ -1004,14 +1004,14 @@ if len(df) > 1:
                 x=Xr[~crit],y=Yr[~crit],z=Zr[~crit],
                 mode='markers',
                 
-marker=dict(
-    size=4,
-    color=df["DLS"][~crit],
-    colorscale="RdYlGn_r",
-    cmin=0,
-    cmax=10,
-    colorbar=dict(title="DLS")
-)
+              marker=dict(
+                  size=4,
+                  color=df["DLS"][~crit],
+                  colorscale="RdYlGn_r",
+                  cmin=0,
+                  cmax=10,
+                  colorbar=dict(title="DLS")
+              )
 
                 showlegend=False
             ),
