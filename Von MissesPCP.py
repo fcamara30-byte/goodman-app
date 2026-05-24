@@ -691,7 +691,7 @@ with colT:
             md_max = grupo["md"].max()
 
             st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
-``
+
         st.markdown("### Centralización")
 
         st.dataframe(
