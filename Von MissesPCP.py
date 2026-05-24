@@ -456,7 +456,7 @@ def generar_pdf():
                 t.set_fontsize(3)
 
         ax.tick_params(labelsize=2)
-        for in range(len(df)-1):
+        for i in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
                     df["Y"].iloc[i:i+2],
                     df["Z"].iloc[i:i+2],
