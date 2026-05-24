@@ -1094,10 +1094,10 @@ scene=dict(
 
         updatemenus=[{
             "type":"buttons",
-            "x":0.35,
-            "y":0.3,
+            "x":0.02,
+            "y":1.15,
             "buttons":[
-                dict(label="▶",
+                dict(label="Play▶",
                      method="animate",
                      args=[None, {
                          "frame": {"duration":80},
