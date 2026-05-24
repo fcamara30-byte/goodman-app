@@ -738,27 +738,27 @@ with c5:
 # 🔴 lógica color rojo si >100
 color_class = "metric-red" if uso > 100 else ""
 
+# ===============================
+# ✅ VERSION FINAL LIMPIA (CORRIGE TODO LO QUE==============# ✅ VERSION FINAL LIMPIA (CORRIGE TODO LO QUE ESTÁ MAL)
+
 import plotly.graph_objects as go
 import numpy as np
 
-# ===============================
-# ✅ CSS REAL (EL QUE FALTABA)
-# ===============================
+# ✅ MATAR TODOS LOS ESPACIOS SUPERIORES DE STREAMLIT
 st.markdown("""
 <style>
 .block-container {
-    padding-top: 0.1rem;
+    padding-top: 0rem;
     padding-bottom: 0rem;
 }
+header {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
 if len(df) > 1:
 
-    st.markdown(
-        "<h3 style='margin:0'>Interacción varilla–tubing</h3>",
-        unsafe_allow_html=True
-    )
+    # ✅ TITULO TOTALMENTE PEGADO
+    st.markdown("<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>", unsafe_allow_html=True)
 
     # ===============================
     # DATA
@@ -769,16 +769,16 @@ if len(df) > 1:
     DLS = df["DLS"].values
 
     # ===============================
-    # ✅ PERFIL CORRECTO (COMO TU SURVEY)
+    # ✅ PERFIL CORRECTO (REAL)
     # ===============================
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
 
-    # 👇 CLAVE: profundidad NEGATIVA desde superficie
+    # 👇 esto es lo correcto para survey
     Zc = -(Z - Z.min())
 
     # ===============================
-    # BASE LOCAL (sin tocar)
+    # BASE LOCAL
     # ===============================
     dx = np.gradient(Xc)
     dy = np.gradient(Yc)
@@ -815,11 +815,11 @@ if len(df) > 1:
         elif d<=3: col_map.append("yellow")
         elif d<=6: col_map.append("orange")
         else: col_map.append("red")
-    col_map = np.array(col_map)
-    crit = col_map == "red"
+    col_map=np.array(col_map)
+    crit = col_map=="red"
 
     # ===============================
-    # TUBING (líneas finas)
+    # TUBING
     # ===============================
     tube=[]
     for ang in np.linspace(0,2*np.pi,8):
@@ -835,13 +835,12 @@ if len(df) > 1:
         ))
 
     # ===============================
-    # ✅ ANIMACIÓN (NO TOCADA)
+    # ANIMACIÓN (NO TOCADA)
     # ===============================
     frames=[]
     n_frames=140
 
     for k in range(n_frames):
-
         theta = k*0.35
 
         cos_t=np.cos(theta)
@@ -878,31 +877,32 @@ if len(df) > 1:
 
         ]))
 
+    # ===============================
+    # FIGURA
+    # ===============================
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    # ===============================
-    # ✅ LAYOUT CORRECTO (AQUÍ ESTABA EL PROBLEMA)
-    # ===============================
     fig.update_layout(
 
-        height=1000,   # ✅ Alto real (NO exagerado)
+        # ✅ CLAVE: REDUCIR ALTURA → elimina hueco
+        height=750,
 
         scene=dict(
             aspectmode='data',
             camera=dict(eye=dict(x=-5,y=3,z=2)),
 
-            # ✅ PROFUNDIDAD CORRECTA
+            # ✅ survey correcto
             zaxis=dict(title="Profundidad")
         ),
 
-        # ✅ SIN ESPACIOS FANTASMA
+        # ✅ SIN MÁRGENES → NO HAY ESPACIO FANTASMA
         margin=dict(l=0,r=0,t=0,b=0),
 
-        # ✅ CONTROLES CERCA (pero no flotando)
+        # ✅ CONTROLES PEGADOS
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.08,
+            "y":0.12,
             "buttons":[
                 dict(label="▶",
                      method="animate",
@@ -915,6 +915,7 @@ if len(df) > 1:
     )
 
     st.plotly_chart(fig, use_container_width=True)
+
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
