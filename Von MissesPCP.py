@@ -629,26 +629,33 @@ with c5:
 
 with colR:
 
+    # ✅ FILA SUPERIOR (hueco)
+    colTop, = st.columns([1])
 
-    st.markdown("### Resumen de Centralización")
+    # ✅ RESUMEN EN EL HUECO
+    with colTop:
 
-    df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
+        if len(df) > 1 and "Recomendación" in df.columns:
 
-    total_tramos = len(df_centralizados)
-    st.write(f"**Varillas centralizadas:** {total_tramos}")
+            st.markdown("### Resumen de Centralización")
 
-    grupos = df_centralizados.groupby("Recomendación")
+            df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
 
-    for tipo, grupo in grupos:
+            total_tramos = len(df_centralizados)
+            st.write(f"**Varillas centralizadas:** {total_tramos}")
 
-        cantidad = len(grupo)
-        md_min = grupo["md"].min()
-        md_max = grupo["md"].max()
+            grupos = df_centralizados.groupby("Recomendación")
 
-        st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+            for tipo, grupo in grupos:
+                cantidad = len(grupo)
+                md_min = grupo["md"].min()
+                md_max = grupo["md"].max()
 
-   
-colG, colS, colT = st.columns([3.8,1.6,3])
+                st.write(f"{tipo} | {cantidad} tramos | {md_min:.0f} → {md_max:.0f} m")
+
+
+    # ✅ FILA NORMAL (NO TOCAR NADA)
+    colG, colS, colT = st.columns([3.8,1.6,3])
 
     # sliders
 with colS:
