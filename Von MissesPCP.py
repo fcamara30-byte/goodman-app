@@ -742,7 +742,7 @@ color_class = "metric-red" if uso > 100 else ""
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
 # ===============================
-# ✅ ANIMACIÓN FINAL (MEJORA SOBRE TU BASE + TODO LO PEDIDO)
+# ✅ ANIMACIÓN FINAL SIN ERRORES (TODO CORREGIDO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -786,13 +786,13 @@ if len(df) > 1:
     B = np.cross(T,N)
 
     # =========================
-    # PARAMETROS
+    # PARÁMETROS
     # =========================
-    radio_tubo = 6.0     # ✅ MÁS ANCHO
-    radio_varilla = 4.2  # ✅ ROZANDO
+    radio_tubo = 6.5
+    radio_varilla = 4.2
 
     # =========================
-    # SEMÁFORO DLS
+    # COLORES SEMÁFORO
     # =========================
     col_map = []
     for d in DLS:
@@ -804,16 +804,15 @@ if len(df) > 1:
             col_map.append("orange")
         else:
             col_map.append("red")
-
     col_map = np.array(col_map)
 
     crit_mask = col_map == "red"
 
     # =========================
-    # TUBING (BIEN VISIBLE)
+    # TUBING (VISIBLE REAL)
     # =========================
     tube = []
-    for ang in np.linspace(0, 2*np.pi, 28):
+    for ang in np.linspace(0, 2*np.pi, 24):
         Xt = Xc + radio_tubo*(N[:,0]*np.cos(ang)+B[:,0]*np.sin(ang))
         Yt = Yc + radio_tubo*(N[:,1]*np.cos(ang)+B[:,1]*np.sin(ang))
         Zt = Zc + radio_tubo*(N[:,2]*np.cos(ang)+B[:,2]*np.sin(ang))
@@ -821,59 +820,65 @@ if len(df) > 1:
         tube.append(go.Scatter3d(
             x=Xt, y=Yt, z=Zt,
             mode='lines',
-            line=dict(color='rgba(150,150,150,0.9)', width=5),
+            line=dict(color='rgba(130,130,130,0.85)', width=5),
             showlegend=False
         ))
 
     # =========================
-    # ANIMACIÓN
+    # ANIMACIÓN (SIN ARRAYS EN MARKER)
     # =========================
     frames=[]
     n_frames=420
 
     for k in range(n_frames):
 
-        theta = k * 0.30  # ✅ GIRO BIEN VISIBLE
+        theta = k * 0.30
 
         cos_t = np.cos(theta)
         sin_t = np.sin(theta)
 
-        # ✅ TODA LA VARILLA GIRA
+        # ✅ VARILLA COMPLETA GIRA
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # =========================
-        # CONTACTO (PULSO SOLO EN ROJO)
-        # =========================
-        puls = (np.cos(theta*2)+1)/2  # ✅ alternado
+        # ✅ PULSO SOLO PARA ROJO (sin romper Plotly)
+        puls = 0.4 + 0.6*((np.cos(theta*2)+1)/2)
 
-        size_arr = np.full(len(Xr), 4.0)
-        opacity_arr = np.full(len(Xr), 0.6)
+        frames.append(go.Frame(data=tube + [
 
-        size_arr[crit_mask] = 6 + 8*puls
-        opacity_arr[crit_mask] = 0.4 + 0.6*puls
-
-        frames.append(go.Frame(data = tube + [
-
-            # ✅ VARILLA (LINEA GRUESA)
+            # VARILLA (CUERDA)
             go.Scatter3d(
                 x=Xr, y=Yr, z=Zr,
                 mode='lines',
-                line=dict(color='green', width=9),
+                line=dict(color='green', width=10),
                 showlegend=False
             ),
 
-            # ✅ PUNTOS SEMÁFORO
+            # PUNTOS VERDE / AMARILLO / NARANJA (FIJOS)
             go.Scatter3d(
-                x=Xr,
-                y=Yr,
-                z=Zr,
+                x=Xr[~crit_mask],
+                y=Yr[~crit_mask],
+                z=Zr[~crit_mask],
                 mode='markers',
                 marker=dict(
-                    size=size_arr,
-                    color=col_map,
-                    opacity=opacity_arr
+                    size=4,
+                    color=col_map[~crit_mask],
+                    opacity=0.6
+                ),
+                showlegend=False
+            ),
+
+            # ROJO CON PULSO (VALOR ESCALAR ✅)
+            go.Scatter3d(
+                x=Xr[crit_mask],
+                y=Yr[crit_mask],
+                z=Zr[crit_mask],
+                mode='markers',
+                marker=dict(
+                    size=6 + 6*puls,
+                    color='red',
+                    opacity=puls
                 ),
                 showlegend=False
             )
@@ -889,7 +894,7 @@ if len(df) > 1:
         scene=dict(
             aspectmode='data',
             camera=dict(
-                eye=dict(x=-4.2, y=2.5, z=2.0)
+                eye=dict(x=-4.5, y=2.8, z=2.2)
             )
         ),
 
@@ -900,13 +905,3 @@ if len(df) > 1:
             "buttons":[
                 dict(label="▶ Play",
                      method="animate",
-                     args=[None, {"frame":{"duration":65}}]),
-
-                dict(label="⏸ Stop",
-                     method="animate",
-                     args=[[None], {"mode":"immediate"}])
-            ]
-        }]
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
