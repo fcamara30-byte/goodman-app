@@ -592,7 +592,7 @@ if modo=="Desviado" and text:
         df = pd.DataFrame(data, columns=["md","inc","az"])
 
 
-    if len(df)>1:
+    if 'df' in locals() and len(df) > 1:
 
         step=7.62
         md_new=np.arange(df["md"].min(),df["md"].max()+step,step)
