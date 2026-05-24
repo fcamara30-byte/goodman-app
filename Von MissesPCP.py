@@ -895,9 +895,14 @@ fig.update_layout(
         aspectmode='manual',
         aspectratio=dict(x=1, y=1, z=3),
 
-        camera=dict(
-            eye=dict(x=-2.2, y=1.6, z=2.2)
-        ),
+
+scene=dict(scenemode='manual',
+    aspectratio=dict(x=1, y=1, z=3),
+
+    zaxis=dict(
+        title="Profundidad"
+    )
+),
 
         zaxis=dict(
             title="Profundidad"
