@@ -740,9 +740,8 @@ color_class = "metric-red" if uso > 100 else ""
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
 # ===============================
-# ✅ ANIMACIÓN FINAL ESTABLE (SIN ERRORES + ROTACIÓN REAL + TUBO CLARO)
+# ✅ ANIMACIÓN FINAL AJUSTADA (TODO CORREGIDO)
 # ===============================
 
 import plotly.graph_objects as go
@@ -750,6 +749,7 @@ import numpy as np
 
 if len(df) > 1:
 
+    # ✅ MENOS ESPACIO CON EL TÍTULO
     st.markdown("### Interacción varilla–tubing")
 
     X = df["X"].values
@@ -757,138 +757,105 @@ if len(df) > 1:
     Z = df["Z"].values
     DLS = df["DLS"].values
 
-    # ✅ CENTRADO SUAVE (sin distorsión)
+    # ✅ CENTRADO SUAVE
     Xn = X - np.mean(X)
     Yn = Y - np.mean(Y)
     Zn = Z - np.mean(Z)
 
     # =========================
-    # BASE LOCAL ESTABLE
+    # BASE LOCAL (ESTABLE)
     # =========================
     dx = np.gradient(Xn)
     dy = np.gradient(Yn)
     dz = np.gradient(Zn)
 
     T = np.vstack([dx,dy,dz]).T
-    T = T / (np.linalg.norm(T, axis=1)[:, None] + 1e-6)
+    T = T/(np.linalg.norm(T,axis=1)[:,None]+1e-6)
 
     N = np.zeros_like(T)
-    N[0] = np.array([1, 0, 0])
+    N[0] = np.array([1,0,0])
 
-    for i in range(1, len(T)):
+    for i in range(1,len(T)):
         v = N[i-1]
         t = T[i]
-        v = v - np.dot(v, t) * t
+        v = v - np.dot(v,t)*t
         if np.linalg.norm(v) < 1e-6:
-            v = np.cross(t, np.array([0, 1, 0]))
-        N[i] = v / (np.linalg.norm(v) + 1e-6)
+            v = np.cross(t, np.array([0,1,0]))
+        N[i] = v/(np.linalg.norm(v)+1e-6)
 
-    B = np.cross(T, N)
+    B = np.cross(T,N)
 
     # =========================
-    # GEOMETRÍA FÍSICA
+    # PARAMETROS (OPTIMIZADOS)
     # =========================
-    radio_tubo = 3.5
-    radio_varilla = 3.2   # 👈 CASI TOCANDO → EFECTO REAL
+    radio_tubo = 5.0      # ✅ MÁS GRANDE → visible
+    radio_varilla = 4.6   # ✅ CASI IGUAL → roza
 
     crit = DLS > 3
 
     # =========================
-    # TUBING (SEGMENTS LIMPIOS)
+    # TUBING (BIEN VISIBLE)
     # =========================
     tube_lines = []
-    for angle in np.linspace(0, 2*np.pi, 10):
-        Xc = Xn + radio_tubo*(N[:,0]*np.cos(angle)+B[:,0]*np.sin(angle))
-        Yc = Yn + radio_tubo*(N[:,1]*np.cos(angle)+B[:,1]*np.sin(angle))
-        Zc = Zn + radio_tubo*(N[:,2]*np.cos(angle)+B[:,2]*np.sin(angle))
+    angulos = np.linspace(0, 2*np.pi, 14)
+
+    for ang in angulos:
+        Xc = Xn + radio_tubo*(N[:,0]*np.cos(ang) + B[:,0]*np.sin(ang))
+        Yc = Yn + radio_tubo*(N[:,1]*np.cos(ang) + B[:,1]*np.sin(ang))
+        Zc = Zn + radio_tubo*(N[:,2]*np.cos(ang) + B[:,2]*np.sin(ang))
 
         tube_lines.append(
             go.Scatter3d(
                 x=Xc, y=Yc, z=Zc,
                 mode='lines',
-                line=dict(color='gray', width=2),
-                opacity=0.4,
+                line=dict(color='gray', width=3),
+                opacity=0.5,
                 showlegend=False
             )
         )
 
     # =========================
-    # ANIMACIÓN (ROTACIÓN REAL)
+    # ANIMACION (ROTACIÓN FUERTE)
     # =========================
-    frames = []
-    n_frames = 360
+    frames=[]
+    n_frames=420   # ✅ ~30 segundos
 
     for k in range(n_frames):
 
-        theta = k * 0.12
+        theta = k * 0.22   # ✅ ROTACIÓN MUCHO MÁS VISIBLE
 
-        cos_t = np.cos(theta)
-        sin_t = np.sin(theta)
+        cos_t=np.cos(theta)
+        sin_t=np.sin(theta)
 
-        # ✅ ROTA TODO EL EJE
+        # ✅ TODA LA CUERDA ROTA
         Xoff = Xn + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yoff = Yn + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zoff = Zn + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        # ✅ CONTACTO SUAVE (sin arrays problemáticos)
-        intensidad = (cos_t + 1) / 2
+        # ✅ CONTACTO REAL (EN TODA LA VARILLA)
+        contacto = np.clip(DLS/np.max(DLS+1e-6),0,1)
+        puls = (np.cos(theta)+1)/2
+
+        size = 4 + 8*(contacto*puls)
+        opacity = 0.3 + 0.7*(contacto*puls)
 
         frames.append(go.Frame(data=tube_lines + [
 
+            # ✅ VARILLA GIRANDO
             go.Scatter3d(
                 x=Xoff,
                 y=Yoff,
                 z=Zoff,
                 mode='lines',
-                line=dict(color='green', width=6),
+                line=dict(color='green', width=7),
                 showlegend=False
             ),
 
+            # ✅ CONTACTO COMPLETO
             go.Scatter3d(
-                x=Xoff[crit],
-                y=Yoff[crit],
-                z=Zoff[crit],
+                x=Xoff,
+                y=Yoff,
+                z=Zoff,
                 mode='markers',
                 marker=dict(
-                    size=6 + 5*intensidad,
-                    color='red',
-                    opacity=0.4 + 0.5*intensidad
-                ),
-                name="Contacto"
-            )
 
-        ]))
-
-    fig = go.Figure(data=frames[0].data, frames=frames)
-
-    fig.update_layout(
-
-        height=950,
-
-        scene=dict(
-            aspectmode='data',
-            camera=dict(
-                eye=dict(x=-4.0, y=2.5, z=2.0)
-            ),
-
-            xaxis=dict(visible=True),
-            yaxis=dict(visible=True),
-            zaxis=dict(visible=True)
-        ),
-
-        margin=dict(l=0, r=0, t=50, b=80),  # ✅ SUBE EL GRÁFICO
-
-        updatemenus=[{
-            "type": "buttons",
-            "buttons": [
-                dict(label="▶ Play",
-                     method="animate",
-                     args=[None, {"frame": {"duration": 80}}]),
-                dict(label="⏸ Stop",
-                     method="animate",
-                     args=[[None], {"mode": "immediate"}])
-            ]
-        }]
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
