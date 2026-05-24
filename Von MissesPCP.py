@@ -1093,7 +1093,7 @@ if len(df) > 1:
             "x":0.35,
             "y":0.3,
             "buttons":[
-                dict(label="▶",
+                dict(label="Play ▶",
                      method="animate",
                      args=[None, {
                          "frame": {"duration":80},
