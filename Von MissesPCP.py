@@ -1076,8 +1076,7 @@ scene=dict(
         center=dict(x=0, y=0, z=-0.3)
     ),
 
-    xaxis=dict(range=[Xc.min(), Xc.max()]),
-    yaxis=dict(range=[Yc.min(), Yc.max()]),
+
 
     zaxis=dict(
         title="Profundidad",
