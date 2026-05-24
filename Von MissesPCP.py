@@ -629,7 +629,11 @@ if modo=="Desviado" and text:
             Y.append(Y[-1]+np.sin(inc[i])*np.sin(az[i])*dz)
             Z.append(Z[-1]-np.cos(inc[i])*dz)
 
-        df["X"]=X;df["Y"]=Y;df["Z"]=Z
+        
+           df["X"]=X
+           df["Y"]=Y
+           df["Z"] = -df["md"] 
+
 
         # =====================
         # ✅ RECOMENDACIÓN POR DLS
