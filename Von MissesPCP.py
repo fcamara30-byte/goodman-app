@@ -43,6 +43,13 @@ BOMBAS_400_ST = {
 }
 
 import pandas as pd
+
+
+df = pd.DataFrame()   # ✅ SIEMPRE existe
+inc = []
+az = []
+colores = []
+
 import numpy as np
 import matplotlib.pyplot as plt
 import os   # ✅ ESTE FALTABA
