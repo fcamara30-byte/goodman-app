@@ -643,8 +643,8 @@ df["Z"] = -df["md"]
         # =====================
         # ✅ RECOMENDACIÓN POR DLS
         # =====================
- colores=[]
- rec=[]
+colores=[]
+rec=[]
 
         for dls_val in df["DLS"]:
 
