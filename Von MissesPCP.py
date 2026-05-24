@@ -213,8 +213,8 @@ if "BOMBAS" not in globals():
 
    
     with c1:
-        nombre_pozo = st.text_input("Nombre Pozo")
-        profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
+        nombre_pozo = st.text_input("Nombre/Nome Pozo/Poço")
+        profundidad = st.number_input("Profundidad/Produção Bba (m)",600,step=100)
         # ✅ selección de bomba
         prod = st.number_input("Producción (m³/d)",5.0)
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
@@ -227,12 +227,12 @@ if "BOMBAS" not in globals():
         st.write(f"RPM sugerida: {rpm_sugerida:.0f}")
 
         # ✅ input manual (EL REAL QUE USA EL MODELO)
-        rpm = st.number_input("RPM operación", value=int(rpm_sugerida), step=10)
+        rpm = st.number_input("RPM oper", value=int(rpm_sugerida), step=10)
 
 
 
         
-        pres_linea = st.number_input("Presión línea (kg/cm²)", value=1.0,    step=2.0
+        pres_linea = st.number_input("Presión/Pressão línea (kg/cm²)", value=1.0,    step=2.0
 )
   
         
@@ -286,12 +286,13 @@ if "BOMBAS" not in globals():
      
         
         solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
-        rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
-        fric_bomba = st.number_input("Fricción Bomba (lb·ft)", value=20.0, step=5.0)
+        rod = st.selectbox("Varilla-Haste",["7/8","1","1 1/8"])
+        
         material = st.selectbox("Acero/Aço",
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSX75","HA96"]
         )
-
+        fric_bomba = st.number_input("Fricción Bomba (lb·ft)", value=20.0, step=5.0)
+        
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
 YIELD={"DA 78":100,"HS97":120,"Alpha CS":110,"Alpha HS":135,"D New":95,"DSX75":110,"HA96":115}
 # =========================
