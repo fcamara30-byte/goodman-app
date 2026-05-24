@@ -47,11 +47,11 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 .metric-box {
-    padding: 6px 10px;   /* ↓ hace la caja más baja */
+    padding: 2px 8px;   /* ↓ hace la caja más baja */
     border-radius: 8px;
     background-color: #f5f5f5;
     text-align: center;
-    margin-bottom: 4px;  /* ↓ reduce el espacio entre cajas */
+    margin-bottom: 2px;  /* ↓ reduce el espacio entre cajas */
 }
 
 
