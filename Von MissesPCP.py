@@ -934,7 +934,7 @@ st.markdown("""
     padding-top: 0.5rem;
 }
 div[data-testid="stPlotlyChart"] {
-    margin-top: -100px;
+    margin-top: -120px;
 }
 </style>
 """, unsafe_allow_html=True)
