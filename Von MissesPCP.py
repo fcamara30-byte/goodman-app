@@ -144,9 +144,15 @@ if "BOMBAS" not in globals():
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
         Q100 = BOMBAS[bomba_sel]
         # ✅ cálculo de RPM automático
-        rpm = (prod / Q100) * 100
 
-        st.write(f"RPM sugerida: {rpm:.0f}")
+# ✅ cálculo de RPM sugerida
+rpm_sugerida = (prod / Q100) * 100
+
+st.write(f"RPM sugerida: {rpm_sugerida:.0f}")
+
+# ✅ input manual (EL REAL QUE USA EL MODELO)
+rpm = st.number_input("RPM operación", value=int(rpm_sugerida), step=10)
+
 
 
         
