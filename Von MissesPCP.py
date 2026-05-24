@@ -1076,9 +1076,9 @@ if len(df) > 1:
 
        camera=dict(
        eye=dict(x=2.5, y=2.0, z=0.7),
-       center=dict(x=0, y=0, z=-0.3),
+       center=dict(x=0, y=0, z=-0.3)
+ ),
 )
-
 
             zaxis=dict(title="Profundidad")
         ),
