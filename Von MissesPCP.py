@@ -742,13 +742,13 @@ color_class = "metric-red" if uso > 100 else ""
 
 
 # ===============================
-# ✅ CÓDIGO FINAL DEFINITIVO CORREGIDO
+# ✅ VERSIÓN FINAL CORREGIDA (LAYOUT + PERFIL + COMPACTO)
 # ===============================
 
 import plotly.graph_objects as go
 import numpy as np
 
-# ✅ reduce padding global streamlit (clave real)
+# ✅ QUITAR ESPACIOS STREAMLIT (CLAVE REAL)
 st.markdown("""
 <style>
 .block-container {
@@ -760,7 +760,7 @@ st.markdown("""
 
 if len(df) > 1:
 
-    # ✅ título ultra compacto
+    # ✅ TÍTULO PEGADO
     st.markdown(
         "<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h3>",
         unsafe_allow_html=True
@@ -775,11 +775,11 @@ if len(df) > 1:
     DLS = df["DLS"].values
 
     # ===============================
-    # ✅ PERFIL CORRECTO (IGUAL AL EJEMPLO)
+    # ✅ PERFIL CORRECTO (SURVEY REAL)
     # ===============================
     Xc = X - np.mean(X)
     Yc = Y - np.mean(Y)
-    Zc = Z   # ✅ NO INVERTIR NI RESTAR → YA VIENE CORRECTO
+    Zc = Z   # ✅ NO tocar, el invert lo hace el eje
 
     # ===============================
     # BASE LOCAL
@@ -823,7 +823,7 @@ if len(df) > 1:
     crit = col_map=="red"
 
     # ===============================
-    # TUBING CONTORNO (FINO)
+    # TUBING CONTORNO
     # ===============================
     tube=[]
     for ang in np.linspace(0, 2*np.pi, 8):
@@ -846,12 +846,11 @@ if len(df) > 1:
 
     for k in range(n_frames):
 
-        theta=k*0.35
+        theta = k * 0.35
 
         cos_t=np.cos(theta)
         sin_t=np.sin(theta)
 
-        # ✅ ROTACIÓN COMPLETA
         Xr = Xc + radio_varilla*(N[:,0]*cos_t + B[:,0]*sin_t)
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
@@ -890,30 +889,27 @@ if len(df) > 1:
 
     fig.update_layout(
 
-        height=1050,
+        height=1100,
 
         scene=dict(
             aspectmode='data',
             camera=dict(eye=dict(x=-5,y=3,z=2)),
 
-            # ✅ PERFIL COMO TU IMAGEN
+            # ✅ INVERTIR SOLO EL EJE (esto es lo correcto)
             zaxis=dict(
                 title="Profundidad",
                 autorange="reversed"
             )
         ),
 
-        # ✅ ESTO ES LO QUE TE FALTABA (CLAVE REAL)
-        margin=dict(l=0, r=0, t=0, b=0),
+        # ✅ CLAVE: SIN ESPACIOS FANTASMA
+        margin=dict(l=0,r=0,t=0,b=0),
 
-        # ✅ SUBE visualmente forzando dominio
-        scene_domain=dict(x=[0,1], y=[0.25,1]),
-
-        # ✅ CONTROLES PEGADOS
+        # ✅ CONTROLES PEGADOS AL GRÁFICO
         updatemenus=[{
             "type":"buttons",
             "x":0.35,
-            "y":0.25,
+            "y":0.05,
             "buttons":[
                 dict(label="▶",
                      method="animate",
@@ -926,7 +922,6 @@ if len(df) > 1:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
