@@ -942,10 +942,5 @@ div[data-testid="stPlotlyChart"] {
 """, unsafe_allow_html=True)
 
 st.plotly_chart(fig, use_container_width=True)
-
-# ===============================
-
-
-
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
 
