@@ -288,7 +288,7 @@ if "BOMBAS" not in globals():
         solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
         rod = st.selectbox("Varilla",["7/8","1","1 1/8"])
         fric_bomba = st.number_input("Fricción Bomba (lb·ft)", value=20.0, step=5.0)
-        material = st.selectbox("Material",
+        material = st.selectbox("Acero/Aço",
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSX75","HA96"]
         )
 
