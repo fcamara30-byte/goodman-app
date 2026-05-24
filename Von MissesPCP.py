@@ -727,7 +727,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
 # =========================
 # MÉTRICAS
 # =========================
-st.markdown("---")
+
 # =========================
 # MÉTRICAS VISUALES PRO
 # =========================
