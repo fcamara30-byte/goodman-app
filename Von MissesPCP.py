@@ -1051,11 +1051,7 @@ if len(df) > 1:
     # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-
-
-    
-
-   
+  
 
     fig.update_layout(
 
@@ -1076,7 +1072,7 @@ if len(df) > 1:
           autorange="reversed"
     ),
  
-)
+),
 
 
 
