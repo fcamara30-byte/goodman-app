@@ -935,9 +935,11 @@ st.markdown("""
     padding-top: 0rem;
 }
 
-div[data-testid="stPlotlyChart"] {
-    margin-top: -200px;   /* 👈 sube el gráfico */
+
+div[data-testid="stPlotlyChart"] {div[data-testid="stPlot margin-top: -40px;  /* ✅ ajuste suave */
 }
+
+
 </style>
 """, unsafe_allow_html=True)
 
