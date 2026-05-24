@@ -944,7 +944,7 @@ div[data-testid="stPlotlyChart"] {
 
     fig.write_html("animacion.html")
     
-# ✅ leer archivo# ✅ open("animacion.html", "r", encoding="utf-8") as f:
+with open("animacion.html", "r", encoding="utf-8") as f:
     html_bytes = f.read()
 
 # ✅ botón descarga
