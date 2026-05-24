@@ -1052,8 +1052,8 @@ if len(df) > 1:
             aspectmode='data',
 
             camera=dict(
-                eye=dict(x=0.5, y=1.7, z=1.2),
-                projection=dict(type="orthographic")
+                eye=dict(x=0.5, y=1.8, z=1.2),
+                projection=dict(type="perspective")
             ),
 
             zaxis=dict(title="Profundidad")
