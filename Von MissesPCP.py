@@ -1239,8 +1239,8 @@ fig.update_layout(
 )
 
 
-        height=900,
-        uirevision="keep",
+            height=900,
+            uirevision="keep",
 
 
         scene=dict(
