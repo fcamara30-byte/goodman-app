@@ -515,6 +515,68 @@ F = Wr + L  # carga total real
 sigma=(F/A)/6894757
 tau=((torque*1.35582*r)/J)/6894757
 von=math.sqrt(sigma**2+3*tau**2)
+# =========================
+# RESULTADOS + GRAFICO
+# =========================
+
+
+# subir todo
+st.markdown("<div style='margin-top:-450px'></div>", unsafe_allow_html=True)
+
+# columna central
+colC = st.columns([1,2,1])
+
+with colC[1]:
+
+    # primera fila
+    c1,c2,c3 = st.columns(3)
+
+    with c1:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Axial (ksi)</div>
+            <div class="metric-value">{sigma:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c2:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Torsión (ksi)</div>
+            <div class="metric-value">{tau:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c3:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Von Mises (ksi)</div>
+            <div class="metric-value">{von:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # segunda fila
+    c4, c5 = st.columns(2)
+
+    with c4:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Efect. Road Load (%)</div>
+            <div class="metric-value">{uso:.1f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c5:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Torque (lb-ft)</div>
+            <div class="metric-value">{torque_final:.1f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+
+
 
 YS=YIELD[material]
 uso=von/YS*100
@@ -833,64 +895,6 @@ else:
 
 
 
-# =========================
-# RESULTADOS + GRAFICO
-# =========================
-
-
-# subir todo
-st.markdown("<div style='margin-top:-450px'></div>", unsafe_allow_html=True)
-
-# columna central
-colC = st.columns([1,2,1])
-
-with colC[1]:
-
-    # primera fila
-    c1,c2,c3 = st.columns(3)
-
-    with c1:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Axial (ksi)</div>
-            <div class="metric-value">{sigma:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Torsión (ksi)</div>
-            <div class="metric-value">{tau:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c3:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Von Mises (ksi)</div>
-            <div class="metric-value">{von:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # segunda fila
-    c4, c5 = st.columns(2)
-
-    with c4:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Efect. Road Load (%)</div>
-            <div class="metric-value">{uso:.1f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c5:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Torque (lb-ft)</div>
-            <div class="metric-value">{torque_final:.1f}</div>
-        </div>
-        """, unsafe_allow_html=True)
 
 
     # =========================
