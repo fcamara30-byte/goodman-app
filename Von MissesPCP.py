@@ -106,7 +106,6 @@ st.markdown(f"""
     justify-content:center;
     gap:10px;
     margin-top:10px;
-">
 st.markdown(f"""
 <div style="display:flex; justify-content:center; gap:5px; margin-top:10px;">
 
@@ -126,22 +125,7 @@ st.markdown(f"""
     </div>
 
 </div>
-
-<div style="display:flex; justify-content:center; gap:5px; margin-top:4px;">
-
-    <div class="metric-box">
-        <div class="metric-title">Road Load (%)</div>
-        <div class="metric-value">{uso:.1f}</div>
-    </div>
-
-    <div class="metric-box">
-        <div class="metric-title">Torque (lb-ft)</div>
-        <div class="metric-value">{torque_final:.1f}</div>
-    </div>
-
-</div>
 """, unsafe_allow_html=True)
-
 
 
 
