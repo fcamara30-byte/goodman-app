@@ -251,7 +251,7 @@ if "BOMBAS" not in globals():
         nombre_pozo = st.text_input("Nombre/Nome Pozo/Poço")
         profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
         # ✅ selección de bomba
-        prod = st.number_input("Producción (m³/d)", value=10.0, step=10.0
+        prod = st.number_input("Producción (m³/d)", value=10.0, step=10.0)
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
         Q100 = BOMBAS[bomba_sel]
 
