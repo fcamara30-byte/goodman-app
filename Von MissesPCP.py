@@ -108,12 +108,7 @@ st.markdown(f"""
     margin-top:10px;
 ">
 st.markdown(f"""
-<div style="
-    display:flex;
-    justify-content:center;
-    gap:6px;
-    margin-top:10px;
-">
+<div style="display:flex; justify-content:center; gap:5px; margin-top:10px;">
 
     <div class="metric-box">
         <div class="metric-title">Axial (ksi)</div>
@@ -132,12 +127,7 @@ st.markdown(f"""
 
 </div>
 
-<div style="
-    display:flex;
-    justify-content:center;
-    gap:6px;
-    margin-top:4px;
-">
+<div style="display:flex; justify-content:center; gap:5px; margin-top:4px;">
 
     <div class="metric-box">
         <div class="metric-title">Road Load (%)</div>
@@ -151,7 +141,6 @@ st.markdown(f"""
 
 </div>
 """, unsafe_allow_html=True)
-
 
 
 
