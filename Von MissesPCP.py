@@ -435,8 +435,21 @@ torque = (5252 * pot_c) / rpm_eff
 
 torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
 
-factor_d = (d / 0.0254)  # relativo a 1"
+
+# diámetro en metros
+d = RODS[rod]["d"] * 0.0254
+
+# factor relativo
+factor_d = d / 0.0254   # relativo a varilla de 1"
+
+# torque
+torque = (5252 * pot_c) / rpm_eff
+
+torque *= (1 + viscosidad/1000) * (1 + solidos/100) * 1.07
+
+# ✅ corregido con diámetro
 torque += (fric_bomba + 20) * factor_d
+
 
 
 d=RODS[rod]["d"]*0.0254
