@@ -427,6 +427,7 @@ pot_c = pot_h / eficiencia
 
 rpm_eff = max(rpm, 5)
 torque = (5252 * pot_c) / rpm_eff
+torque_final = torque
 
 torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
 torque += fric_bomba +20 # ✅ fricción bomba
