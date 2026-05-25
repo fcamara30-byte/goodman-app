@@ -1260,7 +1260,7 @@ fig.update_layout(
                  args=[[None], {"mode": "immediate"}])
         ]
     }]
-)
+
 
 scene=dict(
           aspectmode='cube',
