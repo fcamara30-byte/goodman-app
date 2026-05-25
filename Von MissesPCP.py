@@ -1065,9 +1065,10 @@ if len(df) > 1:
     # ===============================
     # DIMENSIONES
     # ===============================
-    radio_varilla = 4
-    radio_tubo = radio_varilla * 3
+escala = max(abs(Xc).max(), abs(Yc).max(), abs(Zc).max())
 
+radio_varilla = escala * 0.002   # 👈 tamaño chico relativo
+radio_tubo   = radio_varilla * 2.5
     # ===============================
     # SEMÁFORO
     # ===============================
