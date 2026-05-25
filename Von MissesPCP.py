@@ -1199,6 +1199,35 @@ if len(df) > 1:
   
 
     fig.update_layout(
+fig.update_layout(
+
+    ...
+
+    annotations=[
+        dict(
+            x=0.02,
+            y=0.15,
+            xref="paper",
+            yref="paper",
+            text="""
+🟢 <b>&lt; 2°/100ft</b><br>
+🟡 <b>2 – 3°/100ft</b><br>
+🟠 <b>3 – 6°/100ft</b><br>
+🔴 <b>&gt; 6°/100ft</b>
+""",
+            showarrow=False,
+            align="left",
+            font=dict(
+                family="Segoe UI",
+                size=12,
+                color="#444"
+            ),
+            bgcolor="rgba(255,255,255,0.85)",
+            bordercolor="#cccccc",
+            borderwidth=1
+        )
+    ]
+)
 
         height=900,
         uirevision="keep",
