@@ -279,13 +279,13 @@ if "BOMBAS" not in globals():
   
         
 
-nivel = st.number_input(
-    "Nivel dinámico (m)",
-    min_value=0,
-    max_value=int(profundidad),
-    value=int(profundidad),
-    step=20,
-    format="%d"
+        nivel = st.number_input(
+        "Nivel dinámico (m)",
+          min_value=0,
+          max_value=int(profundidad),
+          value=int(profundidad),
+          step=20,
+          format="%d"
 )
 
 
