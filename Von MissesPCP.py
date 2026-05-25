@@ -648,9 +648,7 @@ with col_text:
         if st.button("Test Perfil"):
             st.session_state["perfil_texto"] = demo_text
 
-    # ✅ TEXT BOX
-    with col_input:
-        text = st.text_area(
+   
 
 
 
