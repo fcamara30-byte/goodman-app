@@ -268,7 +268,7 @@ if "BOMBAS" not in globals():
         
         # ✅ CAUDAL REAL (bien ubicado)
         Q_cap = Q100 * (rpm / 100)
-        Q_real = min(prod, Q_cap)
+        Q_real = min(prod, Q_cap) / 86400
 
 
 
@@ -418,7 +418,7 @@ pres_entrada = (sumergencia * densidad) / 10000
 pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
 
 
-pot_h = Q_real * pres_total * 0.0014
+pot_h = Q_real * pres_total * 0.014
 
 pot_c = pot_h / eficiencia
 
