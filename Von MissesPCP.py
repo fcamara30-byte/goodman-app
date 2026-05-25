@@ -106,25 +106,27 @@ st.markdown(f"""
     justify-content:center;
     gap:10px;
     margin-top:10px;
-st.markdown(f"""
-<div style="display:flex; justify-content:center; gap:5px; margin-top:10px;">
+st.markdown("""
+<style>
+.metric-box {
+    padding: 6px 10px;
+    border-radius: 10px;
+    background-color: #fff4cc;
+    text-align: center;
+    border: 1px solid #f0d98a;
+}
 
-    <div class="metric-box">
-        <div class="metric-title">Axial (ksi)</div>
-        <div class="metric-value">{sigma:.2f}</div>
-    </div>
+.metric-title {
+    font-size: 12px;
+    color: #666;
+}
 
-    <div class="metric-box">
-        <div class="metric-title">Torsión (ksi)</div>
-        <div class="metric-value">{tau:.2f}</div>
-    </div>
-
-    <div class="metric-box">
-        <div class="metric-title">Von Mises (ksi)</div>
-        <div class="metric-value">{von:.2f}</div>
-    </div>
-
-</div>
+.metric-value {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1f3b5c;
+}
+</style>
 """, unsafe_allow_html=True)
 
 
