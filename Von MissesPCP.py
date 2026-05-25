@@ -652,19 +652,7 @@ with col_text:
 884	42	220
 953	42	220"""
 
-    # ✅ ESTILO BOTÓN AZUL FRANCIA
-    st.markdown("""
-    <style>
-    div.stButton > button {
-        background-color: #1f4fbf;
-        color: white;
-        border-radius: 10px;
-        height: 55px;
-        font-weight: bold;
-        width: 100%;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+
 
 st.markdown("""
 <style>
