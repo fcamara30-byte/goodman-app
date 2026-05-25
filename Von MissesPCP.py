@@ -418,7 +418,7 @@ pres_entrada = (sumergencia * densidad) / 10000
 pres_total = pres_linea + pres_nivel + dp_fric
 
 
-pot_h = Q_real * pres_total * 0.0014
+pot_h = Q_real * pres_total * 0.0018
 
 pot_c = pot_h / eficiencia
 
