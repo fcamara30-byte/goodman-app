@@ -606,9 +606,7 @@ col_text, _ = st.columns([1,3])
 
 with col_text:
 
-    col_input, col_btn = st.columns([4,1])
-
-    # ✅ PERFIL DEMO (FORMATO EXCEL REAL)
+    # ✅ PERFIL DEMO (FORMATO EXCEL - TAB REAL)
     demo_text = """5\t0\t0
 260\t0\t222
 263\t2\t222
@@ -651,15 +649,15 @@ with col_text:
 884\t42\t220
 953\t42\t220"""
 
-    # ✅ ESTILO BOTÓN AZUL FRANCIA
+    # ✅ CSS BOTÓN AZUL FRANCIA
     st.markdown("""
     <style>
     div.stButton > button {
         background-color: #1f4fbf !important;
         color: white !important;
         border-radius: 8px;
-        width: 150px;
-        height: 38px;
+        width: 160px;
+        height: 40px;
         font-size: 14px;
         font-weight: 600;
         white-space: nowrap;
@@ -667,25 +665,30 @@ with col_text:
         align-items: center;
         justify-content: center;
         border: none;
+        margin-top: 28px;  /* 👈 alinea con textbox */
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # ✅ BOTÓN
+    # ✅ TITULO EN NEGRITA
+    st.markdown("**Pegar aquí abajo el perfil: MD-Inc-Az**")
+
+    # ✅ LAYOUT: CUADRO + BOTÓN AL COSTADO
+    col_box, col_btn = st.columns([4,1])
+
+    # ✅ CUADRO DE TEXTO
+    with col_box:
+        text = st.text_area(
+            "",
+            height=220,
+            key="perfil_texto"
+        )
+
+    # ✅ BOTÓN A LA DERECHA
     with col_btn:
         if st.button("Test Perfil"):
             st.session_state["perfil_texto"] = demo_text
-
-    # ✅ TEXTO + INPUT
-    with col_input:
-
-        st.markdown("**Pegar aquí abajo el perfil: MD-Inc-Az**")
-
-        text = st.text_area(
-            "",
-            height=200,
-            key="perfil_texto"
-        )
+``
 
 
 
