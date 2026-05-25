@@ -1,4 +1,3 @@
-
 import streamlit as st
 
 import streamlit.components.v1 as components
@@ -607,42 +606,7 @@ def generar_pdf():
 col_text, _ = st.columns([1,3])
 
 with col_text:
-
-    col_input, col_btn = st.columns([4,1])
-
-    demo_text = """5\t0\t0
-5 0 0
-181 0,5 0
-383 0,5 27
-552 0,5 111
-722 0,5 92
-884 1,5 75
-901 1,5 27
-929 1,75 140
-967 6,25 132
-1004 5,25 183
-1042 12,25 207
-1089 12 201
-1117 12 196
-1136 12,25 196
-1174 12,75 196
-1211 12,5 197
-1253 11,5 197
-1287 10,5 202
-1401 10,5 202
-
-
-    with col_btn:
-        if st.button("Demo de Perfil"):
-            st.session_state["perfil_texto"] = demo_text
-
-    with col_input:
-        text = st.text_area(
-            "Pegar aquí abajo el perfil: MD-Inc-Az",
-            height=200,
-            key="perfil_texto"
-        )
-
+    text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
 
 if modo=="Desviado" and text:
 
@@ -822,12 +786,12 @@ else:
 c1,c2,c3=st.columns(3)
 
 with c1:
-st.markdown(f"""
-<div class="metric-box">
-    <div class="metric-title">Axial (ksi)</div>
-    <div class="metric-value">{sigma:.2f}</div>
-</div>
-""", unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Axial (ksi)</div>
+        <div class="metric-value">{sigma:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 with c2:
     st.markdown(f"""
@@ -1230,4 +1194,5 @@ else:
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
 
