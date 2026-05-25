@@ -1198,10 +1198,19 @@ if len(df) > 1:
 
   
 
-    fig.update_layout(
+fig.update_layout(
 
+    height=900,
+    uirevision="keep",
 
-  
+    scene=dict(
+        aspectmode='cube',
+
+        camera=dict(
+            eye=dict(x=0.5, y=3.0, z=0.2),
+            center=dict(x=0, y=0, z=0.1)
+        ),
+    ),
 
     annotations=[
         dict(
@@ -1228,6 +1237,7 @@ if len(df) > 1:
         )
     ]
 )
+
 
         height=900,
         uirevision="keep",
