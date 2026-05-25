@@ -606,7 +606,7 @@ col_text, _ = st.columns([1,3])
 
 with col_text:
 
-    # ✅ PERFIL DEMO (FORMATO EXCEL - TAB REAL)
+    # ✅ PERFIL DEMO (TAB REAL)
     demo_text = """5\t0\t0
 260\t0\t222
 263\t2\t222
@@ -649,7 +649,11 @@ with col_text:
 884\t42\t220
 953\t42\t220"""
 
-    # ✅ CSS BOTÓN AZUL FRANCIA
+    # ✅ FUNCIÓN (evita error StreamlitAPIException)
+    def cargar_demo():
+        st.session_state["perfil_texto"] = demo_text
+
+    # ✅ CSS FINAL
     st.markdown("""
     <style>
     div.stButton > button {
@@ -665,33 +669,33 @@ with col_text:
         align-items: center;
         justify-content: center;
         border: none;
-        margin-top: 28px;  /* 👈 alinea con textbox */
+        margin-top: 25px;
+    }
+
+    /* 👇 baja el título (acercarlo al cuadro) */
+    .titulo-perfil {
+        margin-bottom: -10px;
     }
     </style>
     """, unsafe_allow_html=True)
 
-    # ✅ TITULO EN NEGRITA
-    st.markdown("**Pegar aquí abajo el perfil: MD-Inc-Az**")
+    # ✅ TÍTULO (más cerca del cuadro)
+    st.markdown('<div class="titulo-perfil"><b>Pegar aquí abajo el perfil: MD-Inc-Az</b></div>', unsafe_allow_html=True)
 
-    # ✅ LAYOUT: CUADRO + BOTÓN AL COSTADO
+    # ✅ LAYOUT CUADRO + BOTÓN
     col_box, col_btn = st.columns([4,1])
 
-    # ✅ CUADRO DE TEXTO
+    # ✅ CUADRO
     with col_box:
         text = st.text_area(
             "",
-            height=220,
+            height=230,
             key="perfil_texto"
         )
 
-    # ✅ BOTÓN A LA DERECHA
+    # ✅ BOTÓN
     with col_btn:
-        if st.button("Test Perfil"):
-            st.session_state["perfil_texto"] = demo_text
-
-
-
-
+        st.button("Test Perfil", on_click=cargar_demo)
 
 
 
