@@ -288,7 +288,7 @@ nivel = st.number_input(
     max_value=int(profundidad),
     value=int(profundidad),
     step=20
-)
+),
 
 )
 
