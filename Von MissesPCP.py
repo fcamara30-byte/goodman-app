@@ -786,7 +786,7 @@ else:
 
 
 # subir todo
-st.markdown("<div style='margin-top:-150px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='margin-top:-450px'></div>", unsafe_allow_html=True)
 
 # columna central
 colC = st.columns([1,2,1])
