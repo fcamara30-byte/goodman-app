@@ -654,7 +654,7 @@ with col_text:
             height=200,
             key="perfil_texto"
         )
-``
+
 
 if modo=="Desviado" and text:
 
