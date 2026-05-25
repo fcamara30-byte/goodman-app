@@ -100,26 +100,50 @@ div[data-testid="stNumberInput"] {width: 140px;}
 
 st.markdown("""
 <style>
-.metric-box {
-    padding: 3px 5px;
-    width: 140px;              /* 👈 fijo → evita que se separen */
-    margin: 0 auto;            /* 👈 sin espacio vertical extra */
-    border-radius: 8px;
-    background-color: #fff4cc;
-    text-align: center;
-    border: 1px solid #f0d98a;
-}
+st.markdown(f"""
+<div style="
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+">
 
-.metric-title {
-    font-size: 10px;
-    color: #666;
-}
+    <div class="metric-box">
+        <div class="metric-title">Axial (ksi)</div>
+        <div class="metric-value">{sigma:.2f}</div>
+    </div>
 
-.metric-value {
-    font-size: 18px;
-    font-weight: bold;
-    color: #1f3b5c;
-}
+    <div class="metric-box">
+        <div class="metric-title">Torsión (ksi)</div>
+        <div class="metric-value">{tau:.2f}</div>
+    </div>
+
+    <div class="metric-box">
+        <div class="metric-title">Von Mises (ksi)</div>
+        <div class="metric-value">{von:.2f}</div>
+    </div>
+
+</div>
+
+<div style="
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-top:6px;
+">
+
+    <div class="metric-box">
+        <div class="metric-title">Road Load (%)</div>
+        <div class="metric-value">{uso:.1f}</div>
+    </div>
+
+    <div class="metric-box">
+        <div class="metric-title">Torque (lb-ft)</div>
+        <div class="metric-value">{torque_final:.1f}</div>
+    </div>
+
+</div>
+""", unsafe_allow_html=True)
 
 
 .metric-red {
