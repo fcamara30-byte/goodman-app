@@ -1160,7 +1160,10 @@ if len(df) > 1:
         Yr = Yc + radio_varilla*(N[:,1]*cos_t + B[:,1]*sin_t)
         Zr = Zc + radio_varilla*(N[:,2]*cos_t + B[:,2]*sin_t)
 
-        puls = 0.5 + 0.5*np.cos(theta*2)
+        
+        puls = 0.3 + 0.7*np.cos(theta*3)
+        puls = np.clip(puls, 0.2, 1
+
 
         frames.append(go.Frame(data=tube+[
 
