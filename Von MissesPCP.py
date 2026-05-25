@@ -1234,14 +1234,14 @@ fig.update_layout(
             bgcolor="rgba(255,255,255,0.85)",
             bordercolor="#cccccc",
             borderwidth=1
-        )
-    ]
-)
+
 
 
             height=900,
             uirevision="keep",
-
+        )
+    ]
+)
 
         scene=dict(
           aspectmode='cube',
