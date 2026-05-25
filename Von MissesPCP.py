@@ -434,7 +434,10 @@ rpm_eff = max(rpm, 5)
 torque = (5252 * pot_c) / rpm_eff
 
 torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
-torque += fric_bomba +20 # ✅ fricción bomba
+
+factor_d = (d / 0.0254)  # relativo a 1"
+torque += (fric_bomba + 20) * factor_d
+
 
 d=RODS[rod]["d"]*0.0254
 A=math.pi*d**2/4
