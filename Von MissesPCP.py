@@ -101,9 +101,9 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 .metric-box {
-    padding: 3px 6px;        /* 👈 más chico */
-    max-width: 160px;        /* 👈 -10% ancho */
-    margin: 2px auto;        /* 👈 menos espacio entre cajas */
+    padding: 3px 5px;
+    width: 140px;              /* 👈 fijo → evita que se separen */
+    margin: 0 auto;            /* 👈 sin espacio vertical extra */
     border-radius: 8px;
     background-color: #fff4cc;
     text-align: center;
@@ -111,16 +111,15 @@ st.markdown("""
 }
 
 .metric-title {
-    font-size: 10px;         /* 👈 más compacto */
+    font-size: 10px;
     color: #666;
 }
 
 .metric-value {
-    font-size: 18px;         /* 👈 -10% tamaño */
+    font-size: 18px;
     font-weight: bold;
     color: #1f3b5c;
 }
-``
 
 
 .metric-red {
