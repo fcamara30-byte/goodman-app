@@ -683,7 +683,7 @@ with col_text:
 
         text = st.text_area(
             "",
-            height=200,
+            height=240,
             key="perfil_texto"
         )
 
