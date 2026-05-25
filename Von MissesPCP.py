@@ -515,13 +515,16 @@ F = Wr + L  # carga total real
 sigma=(F/A)/6894757
 tau=((torque*1.35582*r)/J)/6894757
 von=math.sqrt(sigma**2+3*tau**2)
+
+YS=YIELD[material]
+uso=von/YS*100
+fs=YS/von
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
 
 
-# subir todo
-st.markdown("<div style='margin-top:-450px'></div>", unsafe_allow_html=True)
+
 
 # columna central
 colC = st.columns([1,2,1])
@@ -578,9 +581,7 @@ with colC[1]:
 
 
 
-YS=YIELD[material]
-uso=von/YS*100
-fs=YS/von
+
 
 # =========================
 # TRAYECTORIA
