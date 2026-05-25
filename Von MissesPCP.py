@@ -101,25 +101,26 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 .metric-box {
-    padding: 4px 8px;
-    max-width: 180px;
-    margin: 4px;
-    border-radius: 10px;
-    background-color: #fff4cc;   /* 👈 amarillo suave */
+    padding: 3px 6px;        /* 👈 más chico */
+    max-width: 160px;        /* 👈 -10% ancho */
+    margin: 2px auto;        /* 👈 menos espacio entre cajas */
+    border-radius: 8px;
+    background-color: #fff4cc;
     text-align: center;
     border: 1px solid #f0d98a;
 }
 
 .metric-title {
-    font-size: 11px;
+    font-size: 10px;         /* 👈 más compacto */
     color: #666;
 }
 
 .metric-value {
-    font-size: 20px;
+    font-size: 18px;         /* 👈 -10% tamaño */
     font-weight: bold;
     color: #1f3b5c;
 }
+``
 
 
 .metric-red {
