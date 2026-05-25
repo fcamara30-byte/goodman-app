@@ -610,7 +610,7 @@ with col_text:
     col_input, col_btn = st.columns([4,1])
 
     # ✅ PERFIL DEMO BIEN FORMADO
-    demo_text = """5 0 0
+demo_text = """5 0 0
 181 0,5 0
 383 0,5 27
 552 0,5 111
@@ -629,6 +629,7 @@ with col_text:
 1253 11,5 197
 1287 10,5 202
 1401 10,5 202"""
+
 
     # ✅ BOTÓN AZUL FRANCIA
     with col_btn:
