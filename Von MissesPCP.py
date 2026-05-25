@@ -666,10 +666,24 @@ with col_text:
     </style>
     """, unsafe_allow_html=True)
 
-    # ✅ BOTÓN
-    with col_btn:
-        if st.button("Test Perfil"):
-            st.session_state["perfil_texto"] = demo_text
+st.markdown("""
+<style>
+div.stButton > button {
+    background-color: #1f4fbf;
+    color: white;
+    border-radius: 10px;
+    height: 40px;
+    width: 140px;              /* 👈 más ancho */
+    font-weight: 600;
+    font-size: 14px;           /* 👈 tamaño justo */
+    white-space: nowrap;       /* 👈 NO corta en 2 líneas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
     # ✅ TEXT BOX
     with col_input:
