@@ -1215,6 +1215,7 @@ fig.update_layout(
 
     margin=dict(l=0, r=0, t=0, b=0),
 
+    # ✅ LEYENDA DENTRO DEL GRÁFICO
     annotations=[
         dict(
             x=0.02,
@@ -1240,6 +1241,7 @@ fig.update_layout(
         )
     ],
 
+    # ✅ BOTONES PLAY / STOP
     updatemenus=[{
         "type": "buttons",
         "x": 0.1,
@@ -1265,6 +1267,7 @@ fig.update_layout(
         ]
     }]
 )
+
 
 
 
