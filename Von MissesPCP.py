@@ -101,24 +101,27 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 .metric-box {
-    padding: 1px 5px;   /* ↓ hace la caja más baja */
-    border-radius: 8px;
-    background-color: #f5f5f5;
+    padding: 2px 4px;                 /* 👈 más chica (~15%) */
+    border-radius: 6px;
+    background-color: #f7e7a9;        /* 👈 dorado claro */
     text-align: center;
-    margin-bottom: 2px;  /* ↓ reduce el espacio entre cajas */
+    margin-bottom: 1px;               /* 👈 más juntas vertical */
+    margin-left: 2px;
+    margin-right: 2px;                /* 👈 más juntas horizontal */
+    border: 1px solid #e5cc70;
 }
 
-
 .metric-title {
-    font-size: 12px;
-    color: #666;
+    font-size: 11px;                  /* 👈 un poco más chico */
+    color: #5a5a5a;
 }
 
 .metric-value {
-    font-size: 24px;
+    font-size: 20px;                  /* 👈 compacto */
     font-weight: bold;
     color: #1f3b5c;
 }
+
 
 .metric-red {
     color: #ff1a1a;
