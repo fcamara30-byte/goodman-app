@@ -117,13 +117,29 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+
 st.markdown("""
-<style>
-.stApp {
-    background-color: #e6eef8;
-}
-</style>
+<h1 style="
+    font-family: 'Segoe UI', sans-serif;
+    font-weight: 600;
+    font-size: 40px;
+    color: #1f3b5c;
+    letter-spacing: 1px;
+    margin-bottom: 0;
+">
+TUBOS APOLO
+</h1>
+
+<p style="
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 18px;
+    color: #6c7a89;
+    margin-top: -10px;
+">
+PCP Design 🌎
+</p>
 """, unsafe_allow_html=True)
+
 
 st.title("TUBOS APOLO PCP-DESIGN 🌎")
 
