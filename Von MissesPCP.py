@@ -1236,20 +1236,10 @@ fig.update_layout(
             borderwidth=1,
 
 
-
-            height=900,
-            uirevision="keep",
         )
     ]
 )
 
-          scene=dict(
-          aspectmode='cube',
-
-          camera=dict(
-          eye=dict(x=0.5, y=3.0, z=0.2),
-          center=dict(x=0, y=0, z=0.1)
-    ),
 
           zaxis=dict(
           title="Profundidad",
