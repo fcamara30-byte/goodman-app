@@ -1162,7 +1162,7 @@ if len(df) > 1:
 
         
         puls = 0.3 + 0.7*np.cos(theta*3)
-        puls = np.clip(puls, 0.2, 1
+        puls = np.clip(puls, 0.2, 1)
 
 
         frames.append(go.Frame(data=tube+[
