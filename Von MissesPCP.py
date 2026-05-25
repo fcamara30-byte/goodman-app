@@ -602,80 +602,91 @@ def generar_pdf():
 
     return file_path
 
-
-col_text, _ = st.columns([1,3])
-
-with col_text:
-
-    col_input, col_btn = st.columns([4,1])
-st.markdown("**Pegar aquí abajo el perfil: MD-Inc-Az**")
-    # ✅ PERFIL DEMO (FORMATO EXCEL REAL → TAB)
-    demo_text = """5	0	0
-260	0	222
-263	2	222
-272	3	215,5
-281	4	208,5
-290	5	203,5
-299	6,5	199
-308	8	200,5
-316	9,5	202
-325	10,75	203
-332	12	204,5
-360	13,25	210
-379	13,5	217,5
-399	13,5	218
-408	13,5	215
-426	13,5	212,5
-437	13,75	214
-446	14	217,5
-455	14,25	217,5
-464	14,75	217
-480	15,25	218,5
-489	15,5	220,5
-498	16	220,5
-516	16,75	220
-533	17,5	221,5
-546	20,5	223
-564	23	221
-574	24,5	219,5
-592	28	220
-628	36	221
-664	42	221,5
-681	45	220
-701	47,5	218,5
-712	48	218
-729	48,5	219
-747	47,25	219
-765	46	219,5
-801	43,75	221
-846	42,25	220,5
-884	42	220
-953	42	220"""
-
 col_text, _ = st.columns([1,3])
 
 with col_text:
 
     col_input, col_btn = st.columns([4,1])
 
+    # ✅ PERFIL DEMO (FORMATO EXCEL REAL)
+    demo_text = """5\t0\t0
+260\t0\t222
+263\t2\t222
+272\t3\t215,5
+281\t4\t208,5
+290\t5\t203,5
+299\t6,5\t199
+308\t8\t200,5
+316\t9,5\t202
+325\t10,75\t203
+332\t12\t204,5
+360\t13,25\t210
+379\t13,5\t217,5
+399\t13,5\t218
+408\t13,5\t215
+426\t13,5\t212,5
+437\t13,75\t214
+446\t14\t217,5
+455\t14,25\t217,5
+464\t14,75\t217
+480\t15,25\t218,5
+489\t15,5\t220,5
+498\t16\t220,5
+516\t16,75\t220
+533\t17,5\t221,5
+546\t20,5\t223
+564\t23\t221
+574\t24,5\t219,5
+592\t28\t220
+628\t36\t221
+664\t42\t221,5
+681\t45\t220
+701\t47,5\t218,5
+712\t48\t218
+729\t48,5\t219
+747\t47,25\t219
+765\t46\t219,5
+801\t43,75\t221
+846\t42,25\t220,5
+884\t42\t220
+953\t42\t220"""
 
-st.markdown("""
-<style>
-div.stButton > button {
-    background-color: #1f4fbf !important;  /* azul Francia */
-    color: white !important;
-    border-radius: 8px;
-    width: 150px;              /* ancho suficiente */
-    height: 38px;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;       /* NO cortar texto */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>
-""", unsafe_allow_html=True)
+    # ✅ ESTILO BOTÓN AZUL FRANCIA
+    st.markdown("""
+    <style>
+    div.stButton > button {
+        background-color: #1f4fbf !important;
+        color: white !important;
+        border-radius: 8px;
+        width: 150px;
+        height: 38px;
+        font-size: 14px;
+        font-weight: 600;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # ✅ BOTÓN
+    with col_btn:
+        if st.button("Test Perfil"):
+            st.session_state["perfil_texto"] = demo_text
+
+    # ✅ TEXTO + INPUT
+    with col_input:
+
+        st.markdown("**Pegar aquí abajo el perfil: MD-Inc-Az**")
+
+        text = st.text_area(
+            "",
+            height=200,
+            key="perfil_texto"
+        )
+
 
 
 
