@@ -136,7 +136,7 @@ st.markdown("""
     letter-spacing: 1px;
     margin-bottom: 0;
 ">
-TUBOS APOLO
+10-Rod
 </h1>
 
 <p style="
