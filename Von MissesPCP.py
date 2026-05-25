@@ -1196,7 +1196,6 @@ if len(df) > 1:
     # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-  
 fig.update_layout(
 
     height=900,
@@ -1238,7 +1237,7 @@ fig.update_layout(
             ),
             bgcolor="rgba(255,255,255,0.85)",
             bordercolor="#cccccc",
-            borderwidth=1,
+            borderwidth=1
         )
     ],
 
@@ -1247,6 +1246,7 @@ fig.update_layout(
         "x": 0.1,
         "y": 0.75,
         "buttons": [
+
             dict(label="Play ▶",
                  method="animate",
                  args=[None, {
@@ -1257,9 +1257,11 @@ fig.update_layout(
 
             dict(label="Stop⏸",
                  method="animate",
-                 args=[[None], {"mode": "immediate"}]),
+                 args=[[None], {"mode": "immediate"}])
         ]
     }]
+
+)
 
 
 scene=dict(
