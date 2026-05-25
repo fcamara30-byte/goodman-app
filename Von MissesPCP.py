@@ -251,7 +251,7 @@ if "BOMBAS" not in globals():
         nombre_pozo = st.text_input("Nombre/Nome Pozo/Poço")
         profundidad = st.number_input("Profundidad Bba (m)",600,step=100)
         # ✅ selección de bomba
-        prod = st.number_input("Producción (m³/d)",5.0)
+        prod = st.number_input("Producción (m³/d)", value=10.0, step=10.0
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
         Q100 = BOMBAS[bomba_sel]
 
@@ -281,10 +281,15 @@ if "BOMBAS" not in globals():
 
 
         
-        nivel = st.number_input("Nivel dinámico (m)",
-          min_value=0.0, max_value=float(profundidad),  # ✅ no puede superar profundidad
-            value=float(profundidad),      # ✅ default = profundidad
-               step=50.0
+
+nivel = st.number_input(
+    "Nivel dinámico (m)",
+    min_value=0,
+    max_value=int(profundidad),
+    value=int(profundidad),
+    step=20
+)
+
 )
 
         densidad = st.number_input("Densidad (kg/m³)",800.0,step=100.0)
