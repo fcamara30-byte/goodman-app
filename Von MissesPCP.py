@@ -474,7 +474,7 @@ col_modo, _ = st.columns([1,3])
 
 
 with col_modo:
-    modo = st.selectbox("Modo de pozo", ["Vertical","Desviado"], key="modo_pozo")
+    modo = st.selectbox("Modo de pozo", ["Desviado","Vertical"], key="modo_pozo")
 
 if modo != "Desviado":
     df = pd.DataFrame()
