@@ -1295,7 +1295,7 @@ with open("animacion.html", "r", encoding="utf-8") as f:
 
 # ✅ botón descarga
 st.download_button(
-    label="⬇ Descargar animación",
+    label="⬇ Download Media Graph",
     data=html_bytes,
     file_name="animacion.html",
     mime="text/html"
