@@ -103,7 +103,7 @@ st.markdown("""
 .metric-box {
     padding: 2px 4px;                 /* 👈 más chica (~15%) */
     border-radius: 6px;
-    background-color: #f7e7a9;        /* 👈 dorado claro */
+    background-color: #cfe3ff;        /* 👈 dorado claro */
     text-align: center;
     margin-bottom: 1px;               /* 👈 más juntas vertical */
     margin-left: 2px;
