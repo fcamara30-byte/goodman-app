@@ -695,7 +695,7 @@ with col_text:
 
     # ✅ BOTÓN
     with col_btn:
-        st.button("Test Perfil", on_click=cargar_demo)
+        st.button("Demo", on_click=cargar_demo)
 
 
 
