@@ -822,12 +822,12 @@ else:
 c1,c2,c3=st.columns(3)
 
 with c1:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Axial (ksi)</div>
-        <div class="metric-value">{sigma:.2f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown(f"""
+<div class="metric-box">
+    <div class="metric-title">Axial (ksi)</div>
+    <div class="metric-value">{sigma:.2f}</div>
+</div>
+""", unsafe_allow_html=True)
 
 with c2:
     st.markdown(f"""
