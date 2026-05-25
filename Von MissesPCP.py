@@ -342,7 +342,7 @@ if "BOMBAS" not in globals():
 
      
         
-        solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
+        solidos = st.number_input("Solid content (%)",1.0,step=1.0)
         rod = st.selectbox("Sucker Rod Diameter",["7/8","1","1 1/8"])
         
         material = st.selectbox("Rod Grade",
@@ -711,7 +711,7 @@ with col_text:
     """, unsafe_allow_html=True)
 
     # ✅ TÍTULO (más cerca del cuadro)
-    st.markdown('<div class="titulo-perfil"><b>Pegar aquí abajo el perfil: MD-Inc-Az</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-perfil"><b>Copy and paste Survey below: MD-Inc-Az</b></div>', unsafe_allow_html=True)
 
     # ✅ LAYOUT CUADRO + BOTÓN
     col_box, col_btn = st.columns([4,1])
@@ -1008,7 +1008,7 @@ with colT:
 
     if len(df) > 1:
 
-        st.markdown("### Centralización")
+        st.markdown("### Guiding Proposal")
 
         st.dataframe(
             df[["md","DLS","Recomendación"]]
@@ -1032,7 +1032,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
 
     df.columns = df.columns.str.strip()
 
-    st.markdown("### Recomendación de Centralización y Efecto de Interacción cupla Tubing")
+    st.markdown("### Guiding Proposal and Rod Wearing Graph simulation")
 
     df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
 
