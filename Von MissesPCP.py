@@ -1286,7 +1286,22 @@ else:
 
 
 
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+st.markdown("""
+<style>
+.footer-text {
+    color: #444444;                 /* ✅ gris oscuro */
+    font-size: 14px;
+    font-family: 'Segoe UI', sans-serif;
+    margin-top: -20px;              /* ✅ lo sube */
+    margin-left: 10px;
+}
+</style>
+
+<div class="footer-text">
+Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26
+</div>
+""", unsafe_allow_html=True)
+``
 
 
 
