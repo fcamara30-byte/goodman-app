@@ -606,7 +606,55 @@ def generar_pdf():
 col_text, _ = st.columns([1,3])
 
 with col_text:
-    text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
+
+    col_input, col_btn = st.columns([4,1])
+
+    # ✅ PERFIL DEMO BIEN FORMADO
+    demo_text = """5 0 0
+181 0,5 0
+383 0,5 27
+552 0,5 111
+722 0,5 92
+884 1,5 75
+901 1,5 27
+929 1,75 140
+967 6,25 132
+1004 5,25 183
+1042 12,25 207
+1089 12 201
+1117 12 196
+1136 12,25 196
+1174 12,75 196
+1211 12,5 197
+1253 11,5 197
+1287 10,5 202
+1401 10,5 202"""
+
+    # ✅ BOTÓN AZUL FRANCIA
+    with col_btn:
+        st.markdown("""
+        <style>
+        div.stButton > button {
+            background-color: #1f4fbf;
+            color: white;
+            border-radius: 8px;
+            height: 50px;
+            font-weight: bold;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        if st.button("Test Perfil"):
+            st.session_state["perfil_texto"] = demo_text
+
+    # ✅ TEXT BOX
+    with col_input:
+        text = st.text_area(
+            "Pegar aquí abajo el perfil: MD-Inc-Az",
+            height=200,
+            key="perfil_texto"
+        )
+``
 
 if modo=="Desviado" and text:
 
