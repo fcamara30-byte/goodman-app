@@ -107,6 +107,13 @@ st.markdown(f"""
     gap:10px;
     margin-top:10px;
 ">
+st.markdown(f"""
+<div style="
+    display:flex;
+    justify-content:center;
+    gap:6px;
+    margin-top:10px;
+">
 
     <div class="metric-box">
         <div class="metric-title">Axial (ksi)</div>
@@ -128,8 +135,8 @@ st.markdown(f"""
 <div style="
     display:flex;
     justify-content:center;
-    gap:10px;
-    margin-top:6px;
+    gap:6px;
+    margin-top:4px;
 ">
 
     <div class="metric-box">
@@ -144,6 +151,10 @@ st.markdown(f"""
 
 </div>
 """, unsafe_allow_html=True)
+
+
+
+
 
 
 .metric-red {
