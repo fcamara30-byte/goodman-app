@@ -1199,7 +1199,7 @@ if len(df) > 1:
   
 
     fig.update_layout(
-fig.update_layout(
+
 
   
 
