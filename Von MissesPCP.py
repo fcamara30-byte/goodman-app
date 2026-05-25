@@ -458,7 +458,7 @@ F = Wr + L  # carga total real
 
 
 sigma=(F/A)/6894757
-tau=((torque*1.35582*r)/J)/6894757
+tau=((torque_final*1.35582*r)/J)/6894757
 von=math.sqrt(sigma**2+3*tau**2)
 
 YS=YIELD[material]
