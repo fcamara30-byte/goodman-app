@@ -100,21 +100,14 @@ div[data-testid="stNumberInput"] {width: 140px;}
 
 st.markdown("""
 <style>
-st.markdown(f"""
-
-    display:flex;
-    justify-content:center;
-    
-   
-st.markdown("""
-<style>
 .metric-box {
-    padding: 6px 10px;
-    border-radius: 10px;
-    background-color: #fff4cc;
+    padding: 1px 5px;   /* ↓ hace la caja más baja */
+    border-radius: 8px;
+    background-color: #f5f5f5;
     text-align: center;
-    border: 1px solid #f0d98a;
+    margin-bottom: 2px;  /* ↓ reduce el espacio entre cajas */
 }
+
 
 .metric-title {
     font-size: 12px;
@@ -122,15 +115,10 @@ st.markdown("""
 }
 
 .metric-value {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: bold;
     color: #1f3b5c;
 }
-</style>
-""", unsafe_allow_html=True)
-
-
-
 
 .metric-red {
     color: #ff1a1a;
@@ -317,6 +305,7 @@ if "BOMBAS" not in globals():
          "2 7/8": 0.062
 }
 
+       
 
 
 
@@ -435,7 +424,6 @@ pot_c = pot_h / eficiencia
 
 rpm_eff = max(rpm, 5)
 torque = (5252 * pot_c) / rpm_eff
-torque_final = torque
 
 torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
 torque += fric_bomba +20 # ✅ fricción bomba
@@ -467,86 +455,13 @@ Wr = peso * profundidad  # peso sarta
 F = Wr + L  # carga total real
 
 
-try:
-    sigma=(F/A)/6894757
-    tau=((torque*1.35582*r)/J)/6894757
-    von=math.sqrt(sigma**2+3*tau**2)
+sigma=(F/A)/6894757
+tau=((torque*1.35582*r)/J)/6894757
+von=math.sqrt(sigma**2+3*tau**2)
 
-    YS=YIELD[material]
-    uso=von/YS*100
-    fs=YS/von
-
-except:
-    sigma = 0
-    tau = 0
-    von = 0
-    uso = 0
-    torque_final = 0
-
-# =========================
-# RESULTADOS + GRAFICO
-# =========================
-# =========================
-# ✅ METRICAS PRO (ALINEADAS + COMPACTAS)
-# =========================
-
-colC = st.columns([1.3, 3, 1])   # 👈 empuja un poco a la derecha
-
-with colC[1]:
-
-    # fila superior
-    c1, c2, c3 = st.columns(3, gap="small")
-
-    with c1:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Axial (ksi)</div>
-            <div class="metric-value">{sigma:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c2:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Torsión (ksi)</div>
-            <div class="metric-value">{tau:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c3:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Von Mises (ksi)</div>
-            <div class="metric-value">{von:.2f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # espacio vertical controlado
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-    # fila inferior bien alineada
-    c4, c5 = st.columns(2, gap="small")
-
-    with c4:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Efect. Road Load (%)</div>
-            <div class="metric-value">{uso:.1f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with c5:
-        st.markdown(f"""
-        <div class="metric-box">
-            <div class="metric-title">Torque (lb-ft)</div>
-            <div class="metric-value">{torque_final:.1f}</div>
-        </div>
-        """, unsafe_allow_html=True)
-
-
-
-
-
+YS=YIELD[material]
+uso=von/YS*100
+fs=YS/von
 
 # =========================
 # TRAYECTORIA
@@ -861,6 +776,58 @@ else:
 
 
 
+# =========================
+# RESULTADOS + GRAFICO
+# =========================
+
+
+c1,c2,c3=st.columns(3)
+
+with c1:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Axial (ksi)</div>
+        <div class="metric-value">{sigma:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c2:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Torsión (ksi)</div>
+        <div class="metric-value">{tau:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Von Mises (ksi)</div>
+        <div class="metric-value">{von:.2f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+c4, c5 = st.columns(2)
+
+# 🔴 lógica color rojo si >100
+color_class = "metric-red" if uso > 100 else ""
+
+with c4:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Efect. Road Load (%)</div>
+        <div class="metric-value {color_class}">{uso:.1f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with c5:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Torque (lb-ft)</div>
+        <div class="metric-value">{torque_final:.1f}</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
     # =========================
@@ -1225,5 +1192,4 @@ else:
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
-
 
