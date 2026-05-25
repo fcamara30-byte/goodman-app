@@ -257,10 +257,10 @@ if "BOMBAS" not in globals():
    
     with c1:
         nombre_pozo = st.text_input("Well Name")
-        profundidad = st.number_input("Profundidad Bba (m)",600,step=100)                                   
+        profundidad = st.number_input("Pump Seat (m)",600,step=100)                                   
                                  
         # ✅ selección de bomba
-        prod = st.number_input("Producción (m³/d)", value=10.0, step=10.0)
+        prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
         bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
         Q100 = BOMBAS[bomba_sel]
 
@@ -283,13 +283,13 @@ if "BOMBAS" not in globals():
 
 
         
-        pres_linea = st.number_input("Presión/Pressão línea (kg/cm²)", value=1.0,    step=2.0
+        pres_linea = st.number_input("Tubing Head Pressure (kg/cm²)", value=1.0,    step=2.0
 )
   
         
 
         nivel = st.number_input(
-        "Nivel dinámico (m)",
+        "Fluid Level (m)",
           min_value=0,
           max_value=int(profundidad),
           value=int(profundidad),
@@ -302,18 +302,18 @@ if "BOMBAS" not in globals():
 
 
 
-        densidad = st.number_input("Densidad (kg/m³)",800.0,step=100.0)
-        eficiencia = st.number_input("Eficiencia (-)",0.83)
+        densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
+        eficiencia = st.number_input("Efficiency (-)",0.83)
 
     with c2:
-        viscosidad = st.number_input("Viscosidad (cP)",1,step=40)
+        viscosidad = st.number_input("Viscosity (cP)",1,step=40)
         
     # ✅ SUMERGENCIA (ACA)
-        sumergencia = st.number_input("Sumergencia (m)", value=50.0,step=10.0)
+        sumergencia = st.number_input("Submergence TVD (m)", value=50.0,step=10.0)
         
         tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
 
-        liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"], key="liner")
+        liner = st.selectbox("Tubing liner", ["No liner", "With liner"], key="liner")
 
         # ✅ diccionario (esto NO es input, es dato)
         D_TBG = {
