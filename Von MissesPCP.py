@@ -101,7 +101,11 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 .metric-box {
-    padding: 1px 5px;   /* ↓ hace la caja más baja */
+    
+    padding: 2px 8px;
+    max-width: 250px;
+    margin: auto;
+
     border-radius: 8px;
     background-color: #f5f5f5;
     text-align: center;
@@ -781,53 +785,59 @@ else:
 # =========================
 
 
-c1,c2,c3=st.columns(3)
+# subir todo
+st.markdown("<div style='margin-top:-150px'></div>", unsafe_allow_html=True)
 
-with c1:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Axial (ksi)</div>
-        <div class="metric-value">{sigma:.2f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+# columna central
+colC = st.columns([1,2,1])
 
-with c2:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Torsión (ksi)</div>
-        <div class="metric-value">{tau:.2f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+with colC[1]:
 
-with c3:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Von Mises (ksi)</div>
-        <div class="metric-value">{von:.2f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # primera fila
+    c1,c2,c3 = st.columns(3)
 
+    with c1:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Axial (ksi)</div>
+            <div class="metric-value">{sigma:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-c4, c5 = st.columns(2)
+    with c2:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Torsión (ksi)</div>
+            <div class="metric-value">{tau:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-# 🔴 lógica color rojo si >100
-color_class = "metric-red" if uso > 100 else ""
+    with c3:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Von Mises (ksi)</div>
+            <div class="metric-value">{von:.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-with c4:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Efect. Road Load (%)</div>
-        <div class="metric-value {color_class}">{uso:.1f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    # segunda fila
+    c4, c5 = st.columns(2)
 
-with c5:
-    st.markdown(f"""
-    <div class="metric-box">
-        <div class="metric-title">Torque (lb-ft)</div>
-        <div class="metric-value">{torque_final:.1f}</div>
-    </div>
-    """, unsafe_allow_html=True)
+    with c4:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Efect. Road Load (%)</div>
+            <div class="metric-value">{uso:.1f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with c5:
+        st.markdown(f"""
+        <div class="metric-box">
+            <div class="metric-title">Torque (lb-ft)</div>
+            <div class="metric-value">{torque_final:.1f}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 
     # =========================
