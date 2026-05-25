@@ -688,7 +688,7 @@ with col_text:
     with col_btn:
         if st.button("Test Perfil"):
             st.session_state["perfil_texto"] = demo_text
-``
+
 
 
 
