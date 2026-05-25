@@ -343,12 +343,12 @@ if "BOMBAS" not in globals():
      
         
         solidos = st.number_input("Sólidos (%)",1.0,step=1.0)
-        rod = st.selectbox("Varilla-Haste",["7/8","1","1 1/8"])
+        rod = st.selectbox("Sucker Rod Diameter",["7/8","1","1 1/8"])
         
-        material = st.selectbox("Acero/Aço",
+        material = st.selectbox("Rod Grade",
             ["DA 78","HS97","Alpha CS","Alpha HS","D New","DSX75","HA96"]
         )
-        fric_bomba = st.number_input("Fricción Bomba (lb·ft)", value=20.0, step=5.0)
+        fric_bomba = st.number_input("Pump Friction (lb·ft)", value=20.0, step=5.0)
         
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
 YIELD={"DA 78":100,"HS97":120,"Alpha CS":110,"Alpha HS":135,"D New":95,"DSX75":110,"HA96":115}
@@ -505,7 +505,7 @@ col_modo, _ = st.columns([1,3])
 
 
 with col_modo:
-    modo = st.selectbox("Modo de pozo", ["Desviado","Vertical"], key="modo_pozo")
+    modo = st.selectbox("Survey", ["Desviado","Vertical"], key="modo_pozo")
 
 if modo != "Desviado":
     df = pd.DataFrame()
