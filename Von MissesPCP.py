@@ -392,7 +392,10 @@ pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
 
 
 pot_h = Q_real * pres_total * 0.0014
-pot_c=pot_h/eficiencia
+
+eta_eff = eficiencia * (0.5 + 0.5 * rpm / 100)
+pot_c = pot_h / eta_eff
+
 
 
 rpm_eff = max(rpm, 5)
