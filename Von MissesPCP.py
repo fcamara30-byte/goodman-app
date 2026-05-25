@@ -3,6 +3,15 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
+
+# ✅ FONDO GLOBAL (poner primero de todos los estilos)
+st.markdown("""
+<style>
+html, body, .stApp {
+    background: #e6eef8 !important;
+}
+</style>
+""", unsafe_allow_html=True)
 # NTZ 400 ST COMPLETO (4")
 # =====================
 BOMBAS_400_ST = {
