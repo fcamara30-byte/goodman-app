@@ -602,64 +602,11 @@ def generar_pdf():
 
     return file_path
 
+
 col_text, _ = st.columns([1,3])
 
 with col_text:
-
-    col_input, col_btn = st.columns([4,1])
-
-    # ✅ PERFIL DEMO (FORMATO EXCEL REAL → TAB)
-    demo_text = """5\t0\t0
-181\t0,5\t0
-383\t0,5\t27
-552\t0,5\t111
-722\t0,5\t92
-884\t1,5\t75
-901\t1,5\t27
-929\t1,75\t140
-967\t6,25\t132
-1004\t5,25\t183
-1042\t12,25\t207
-1089\t12\t201
-1117\t12\t196
-1136\t12,25\t196
-1174\t12,75\t196
-1211\t12,5\t197
-1253\t11,5\t197
-1287\t10,5\t202
-1401\t10,5\t202"""
-
-    # ✅ ESTILO BOTÓN AZUL FRANCIA
-    st.markdown("""
-    <style>
-    div.stButton > button {
-        background-color: #1f4fbf;
-        color: white;
-        border-radius: 10px;
-        height: 55px;
-        font-weight: bold;
-        width: 100%;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-    # ✅ BOTÓN
-    with col_btn:
-        if st.button("Test Perfil"):
-            st.session_state["perfil_texto"] = demo_text
-
-   
-
-
-
-    # ✅ TEXT BOX
-    with col_input:
-        text = st.text_area(
-            "Pegar aquí abajo el perfil: MD-Inc-Az",
-            height=200,
-            key="perfil_texto"
-        )
-
+    text = st.text_area("Pegar aquí abajo el perfil: MD-Inc-Az", height=200)
 
 if modo=="Desviado" and text:
 
@@ -1247,5 +1194,6 @@ else:
 
 
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
 
 
