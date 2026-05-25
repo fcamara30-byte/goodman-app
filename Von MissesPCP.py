@@ -1243,7 +1243,7 @@ fig.update_layout(
     ]
 )
 
-        scene=dict(
+          scene=dict(
           aspectmode='cube',
 
           camera=dict(
