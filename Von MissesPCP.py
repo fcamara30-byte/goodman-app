@@ -101,7 +101,7 @@ div[data-testid="stNumberInput"] {width: 140px;}
 st.markdown("""
 <style>
 st.markdown(f"""
-<div style="
+
     display:flex;
     justify-content:center;
     gap:10px;
