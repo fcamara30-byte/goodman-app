@@ -907,7 +907,7 @@ if len(df) > 1 and "Recomendación" in df.columns:
 
     df.columns = df.columns.str.strip()
 
-    st.markdown("### Resumen de Centralización")
+    st.markdown("### Recomendación de Centralización y Efecto de Interacción cupla Tubing")
 
     df_centralizados = df[~df["Recomendación"].str.lower().str.contains("bajo|sin")]
 
@@ -968,9 +968,7 @@ header {visibility: hidden;}
 
 if len(df) > 1:
 
-    # ✅ TITULO TOTALMENTE PEGADO
-    st.markdown("<h3 style='margin:0;padding:0'>Interacción varilla–tubing</h4>", unsafe_allow_html=True)
-    st.markdown("<div style='margin-top:-80px'></div>", unsafe_allow_html=True)
+
    
     # ===============================
     # DATA
