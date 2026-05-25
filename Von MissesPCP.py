@@ -652,27 +652,23 @@ with col_text:
 884	42	220
 953	42	220"""
 
+col_text, _ = st.columns([1,3])
 
+with col_text:
 
-st.markdown("""
-<style>
-div.stButton > button {
-    background-color: #1f4fbf;
-    color: white;
-    border-radius: 10px;
-    height: 40px;
-    width: 140px;              /* 👈 más ancho */
-    font-weight: 600;
-    font-size: 14px;           /* 👈 tamaño justo */
-    white-space: nowrap;       /* 👈 NO corta en 2 líneas */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>
-""", unsafe_allow_html=True)
+    col_input, col_btn = st.columns([4,1])
 
+    demo_text = """5\t0\t0
+260\t0\t222
+263\t2\t222
+272\t3\t215,5
+281\t4\t208,5
+290\t5\t203,5"""
 
+    # ✅ BOTÓN
+    with col_btn:
+        if st.button("Test Perfil"):
+            st.session_state["perfil_texto"] = demo_text
 
     # ✅ TEXT BOX
     with col_input:
@@ -681,6 +677,8 @@ div.stButton > button {
             height=200,
             key="perfil_texto"
         )
+
+
 
 
 
