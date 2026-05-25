@@ -105,7 +105,7 @@ st.markdown(f"""
     display:flex;
     justify-content:center;
     
-    margin-top:10px;
+   
 st.markdown("""
 <style>
 .metric-box {
