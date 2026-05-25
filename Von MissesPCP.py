@@ -1184,8 +1184,11 @@ if len(df) > 1:
             go.Scatter3d(
                 x=Xr[crit],y=Yr[crit],z=Zr[crit],
                 mode='markers',
-                marker=dict(size=7,color='red',opacity=puls),
-                showlegend=False
+                marker=dict(size=6 + 4*puls,   # 👈 cambia tamaño dinámico
+                color='red',
+                opacity=puls
+)
+
             )
 
         ]))
