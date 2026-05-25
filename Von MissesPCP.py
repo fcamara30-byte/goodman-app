@@ -1280,7 +1280,7 @@ scene=dict(
 
 
 
-        margin=dict(l=0, r=0, t=0, b=0),
+ margin=dict(l=0, r=0, t=0, b=0),
 
         updatemenus=[{
             "type":"buttons",
