@@ -512,13 +512,22 @@ Wr = peso * profundidad  # peso sarta
 F = Wr + L  # carga total real
 
 
-sigma=(F/A)/6894757
-tau=((torque*1.35582*r)/J)/6894757
-von=math.sqrt(sigma**2+3*tau**2)
+try:
+    sigma=(F/A)/6894757
+    tau=((torque*1.35582*r)/J)/6894757
+    von=math.sqrt(sigma**2+3*tau**2)
 
-YS=YIELD[material]
-uso=von/YS*100
-fs=YS/von
+    YS=YIELD[material]
+    uso=von/YS*100
+    fs=YS/von
+
+except:
+    sigma = 0
+    tau = 0
+    von = 0
+    uso = 0
+    torque_final = 0
+
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
