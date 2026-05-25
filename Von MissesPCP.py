@@ -1197,7 +1197,6 @@ if len(df) > 1:
     fig = go.Figure(data=frames[0].data, frames=frames)
 
 fig.update_layout(
-
     height=900,
     uirevision="keep",
 
@@ -1247,21 +1246,26 @@ fig.update_layout(
         "y": 0.75,
         "buttons": [
 
-            dict(label="Play ▶",
-                 method="animate",
-                 args=[None, {
-                     "frame": {"duration": 80},
-                     "fromcurrent": True,
-                     "mode": "immediate"
-                 }]),
+            dict(
+                label="Play ▶",
+                method="animate",
+                args=[None, {
+                    "frame": {"duration": 80},
+                    "fromcurrent": True,
+                    "mode": "immediate"
+                }]
+            ),
 
-            dict(label="Stop⏸",
-                 method="animate",
-                 args=[[None], {"mode": "immediate"}])
+            dict(
+                label="Stop⏸",
+                method="animate",
+                args=[[None], {"mode": "immediate"}]
+            )
+
         ]
     }]
-
 )
+
 
 
 scene=dict(
