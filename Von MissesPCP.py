@@ -478,17 +478,16 @@ except:
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
+# =========================
+# ✅ METRICAS PRO (ALINEADAS + COMPACTAS)
+# =========================
 
-
-
-
-# columna central
-colC = st.columns([1,2,1])
+colC = st.columns([1.3, 3, 1])   # 👈 empuja un poco a la derecha
 
 with colC[1]:
 
-    # primera fila
-    c1,c2,c3 = st.columns(3)
+    # fila superior
+    c1, c2, c3 = st.columns(3, gap="small")
 
     with c1:
         st.markdown(f"""
@@ -514,8 +513,11 @@ with colC[1]:
         </div>
         """, unsafe_allow_html=True)
 
-    # segunda fila
-    c4, c5 = st.columns(2)
+    # espacio vertical controlado
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+    # fila inferior bien alineada
+    c4, c5 = st.columns(2, gap="small")
 
     with c4:
         st.markdown(f"""
@@ -532,7 +534,6 @@ with colC[1]:
             <div class="metric-value">{torque_final:.1f}</div>
         </div>
         """, unsafe_allow_html=True)
-
 
 
 
