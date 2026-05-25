@@ -1257,7 +1257,7 @@ fig.update_layout(
 
             dict(label="Stop⏸",
                  method="animate",
-                 args=[[None], {"mode": "immediate"}])
+                 args=[[None], {"mode": "immediate"}]),
         ]
     }]
 
