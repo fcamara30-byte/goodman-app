@@ -313,7 +313,7 @@ if "BOMBAS" not in globals():
         
         tbg = st.selectbox("Tubing (in)", ["4", "3 1/2", "2 7/8"])
 
-        liner = st.selectbox("Tubing liner", ["No liner", "With liner"], key="liner")
+        liner = st.selectbox("Tubing liner", ["Sin liner", "Con liner"], key="liner")
 
         # ✅ diccionario (esto NO es input, es dato)
         D_TBG = {
