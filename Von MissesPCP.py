@@ -149,8 +149,16 @@ st.markdown("""
 ">
 PCP Design 🌎
 </p>
-""", unsafe_allow_html=True)
 
+<p style="
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+    color: #999999;
+    margin-top: -10px;
+">
+Versión Beta
+</p>
+""", unsafe_allow_html=True)
 
 
 
