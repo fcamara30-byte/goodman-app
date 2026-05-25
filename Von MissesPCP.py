@@ -415,10 +415,10 @@ dp_fric = dp_fric / 98066
 pres_nivel = (nivel * densidad) / 10000
 pres_entrada = (sumergencia * densidad) / 10000
 
-pres_total = pres_linea + pres_nivel + dp_fric
+pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
 
 
-pot_h = Q_real * pres_total * 0.0018
+pot_h = Q_real * pres_total * 0.0014
 
 pot_c = pot_h / eficiencia
 
