@@ -104,7 +104,7 @@ st.markdown(f"""
 
     display:flex;
     justify-content:center;
-    gap:10px;
+    
     margin-top:10px;
 st.markdown("""
 <style>
