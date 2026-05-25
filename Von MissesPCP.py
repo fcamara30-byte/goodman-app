@@ -1298,7 +1298,7 @@ st.markdown("""
 </style>
 
 <div class="footer-text">
-Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26
+Desarrollado por Fcam & Eng.Pro-Apolo-Apex. SP-Brazil May-26
 </div>
 """, unsafe_allow_html=True)
 
