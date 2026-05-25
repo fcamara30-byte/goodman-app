@@ -1196,82 +1196,15 @@ if len(df) > 1:
     # ✅ FIGURA TAMBIÉN ADENTRO
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-fig.update_layout(
-    height=900,
-    uirevision="keep",
+  
 
-    scene=dict(
-        aspectmode='cube',
+    fig.update_layout(
 
-        camera=dict(
-            eye=dict(x=0.5, y=3.0, z=0.2),
-            center=dict(x=0, y=0, z=0.1)
-        ),
-
-        zaxis=dict(
-            title="Profundidad"
-        )
-    ),
-
-    margin=dict(l=0, r=0, t=0, b=0),
-
-    # ✅ LEYENDA DENTRO DEL GRÁFICO
-    annotations=[
-        dict(
-            x=0.02,
-            y=0.15,
-            xref="paper",
-            yref="paper",
-            text="""
-🟢 <b>&lt; 2°/100ft</b><br>
-🟡 <b>2 – 3°/100ft</b><br>
-🟠 <b>3 – 6°/100ft</b><br>
-🔴 <b>&gt; 6°/100ft</b>
-""",
-            showarrow=False,
-            align="left",
-            font=dict(
-                family="Segoe UI",
-                size=12,
-                color="#444"
-            ),
-            bgcolor="rgba(255,255,255,0.85)",
-            bordercolor="#cccccc",
-            borderwidth=1
-        )
-    ],
-
-    # ✅ BOTONES PLAY / STOP
-    updatemenus=[{
-        "type": "buttons",
-        "x": 0.1,
-        "y": 0.75,
-        "buttons": [
-
-            dict(
-                label="Play ▶",
-                method="animate",
-                args=[None, {
-                    "frame": {"duration": 80},
-                    "fromcurrent": True,
-                    "mode": "immediate"
-                }]
-            ),
-
-            dict(
-                label="Stop⏸",
-                method="animate",
-                args=[[None], {"mode": "immediate"}]
-            )
-
-        ]
-    }]
-)
+        height=900,
+        uirevision="keep",
 
 
-
-
-scene=dict(
+        scene=dict(
           aspectmode='cube',
 
           camera=dict(
@@ -1289,7 +1222,7 @@ scene=dict(
 
 
 
- margin=dict(l=0, r=0, t=0, b=0),
+        margin=dict(l=0, r=0, t=0, b=0),
 
         updatemenus=[{
             "type":"buttons",
