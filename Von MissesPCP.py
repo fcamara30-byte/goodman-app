@@ -685,6 +685,7 @@ div.stButton > button {
 """, unsafe_allow_html=True)
 
 
+
     # ✅ TEXT BOX
     with col_input:
         text = st.text_area(
@@ -692,6 +693,7 @@ div.stButton > button {
             height=200,
             key="perfil_texto"
         )
+
 
 
 if modo=="Desviado" and text:
