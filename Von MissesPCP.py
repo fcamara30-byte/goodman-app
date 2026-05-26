@@ -3,14 +3,32 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math# =====================
 
-# ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
 <style>
+
+/* fondo general */
 html, body, .stApp {
     background: #e6eef8 !important;
 }
+
+/* 🔴 contenedor del gráfico matplotlib */
+div[data-testid="stPyplot"] {
+    background-color: transparent !important;
+}
+
+/* 🔴 contenedor padre (el que estás viendo) */
+div[data-testid="stElementContainer"] {
+    background-color: transparent !important;
+}
+
+/* canvas interno */
+div[data-testid="stPyplot"] canvas {
+    background-color: transparent !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
+
 st.markdown("""
 <style>
 /* fondo general */
