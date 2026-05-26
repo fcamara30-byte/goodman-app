@@ -1229,26 +1229,38 @@ if len(df) > 1:
 
   
 
-    fig.update_layout(
+fig.update_layout(
+    height=900,
+    uirevision="keep",
 
-        height=900,
-        uirevision="keep",
+    scene=dict(
+        aspectmode='cube',
 
+        # ✅ CAMBIO DE COLOR DE FONDO
+        bgcolor='black',
 
-        scene=dict(
-          aspectmode='cube',
+        xaxis=dict(
+            backgroundcolor='black',
+            gridcolor='gray',
+            showbackground=True
+        ),
+        yaxis=dict(
+            backgroundcolor='black',
+            gridcolor='gray',
+            showbackground=True
+        ),
+        zaxis=dict(
+            backgroundcolor='black',
+            gridcolor='gray',
+            showbackground=True,
+            title="Profundidad"
+        ),
 
-          camera=dict(
-          eye=dict(x=1.8, y=2.0, z=0.2),
-          center=dict(x=0, y=0, z=0.1)
+        camera=dict(
+            eye=dict(x=1.8, y=2.0, z=0.2),
+            center=dict(x=0, y=0, z=0.1)
+        ),
     ),
-
-          zaxis=dict(
-          title="Profundidad",
-          
-    ),
-
-),
 
 
 
