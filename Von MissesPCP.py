@@ -1267,46 +1267,49 @@ if len(df) > 1:
         ]))
 
     # ✅ FIGURA TAMBIÉN ADENTRO
+if len(df) > 1:
+
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-  
+    fig.update_layout(
+        height=900,
+        uirevision="keep",
 
-fig.update_layout(
-    height=900,
-    uirevision="keep",
+        paper_bgcolor='#e6eef8',
+        plot_bgcolor='#e6eef8',
 
-    
-    paper_bgcolor='#e6eef8',   # 👈 ESTE ES EL QUE TE FALTA
-    plot_bgcolor='#e6eef8',
+        scene=dict(
+            aspectmode='cube',
+            bgcolor='#e6eef8',
 
-    scene=dict(
-        aspectmode='cube',
+            xaxis=dict(
+                backgroundcolor='#f2f5fa',
+                gridcolor='#cccccc',
+                showbackground=True
+            ),
 
-        # ✅ CAMBIO DE COLOR DE FONDO
-        bgcolor='#e6eef8',
+            yaxis=dict(
+                backgroundcolor='#f2f5fa',
+                gridcolor='#cccccc',
+                showbackground=True
+            ),
 
-        xaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True
+            zaxis=dict(
+                backgroundcolor='#f2f5fa',
+                gridcolor='#cccccc',
+                showbackground=True,
+                title="Profundidad"
+            ),
+
+            camera=dict(
+                eye=dict(x=1.8, y=2.0, z=0.2),
+                center=dict(x=0, y=0, z=0.1)
+            ),
         ),
-        yaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True
-        ),
-        zaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True,
-            title="Profundidad"
-        ),
 
-        camera=dict(
-            eye=dict(x=1.8, y=2.0, z=0.2),
-            center=dict(x=0, y=0, z=0.1)
-        ),
-    ),
+        margin=dict(l=0, r=0, t=0, b=0),
+    )
+
 
 
 
