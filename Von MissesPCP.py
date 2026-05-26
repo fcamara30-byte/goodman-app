@@ -11,35 +11,36 @@ html, body, .stApp {
     background: #e6eef8 !important;
 }
 
-/* 🔴 contenedor del gráfico matplotlib */
+/* 🔴 matplotlib container */
 div[data-testid="stPyplot"] {
-    background-color: transparent !important;
+    background: transparent !important;
 }
 
-/* 🔴 contenedor padre (el que estás viendo) */
-div[data-testid="stElementContainer"] {
-    background-color: transparent !important;
+/* 🔴 elimina padding interno */
+div[data-testid="stPyplot"] > div {
+    padding: 0px !important;
 }
 
-/* canvas interno */
+/* 🔴 elimina tarjeta Streamlit */
+div[data-testid="element-container"] {
+    background: transparent !important;
+}
+
+/* 🔴 extra capa interna */
+div[data-testid="stVerticalBlock"] {
+    background: transparent !important;
+}
+
+/* 🔴 canvas */
 div[data-testid="stPyplot"] canvas {
-    background-color: transparent !important;
+    background: transparent !important;
 }
 
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-/* fondo general */
-.stApp {
-    background-color: #e6eef8 !important;
-}
-
-/* 🔴 ESTE ES EL CLAVE */
+/* 🔴 fallback general */
 section.main > div {
-    background-color: #e6eef8 !important;
+    background: #e6eef8 !important;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
