@@ -11,6 +11,23 @@ html, body, .stApp {
 }
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* fondo general */
+.stApp {
+    background-color: #e6eef8 !important;
+}
+
+/* 🔴 ESTE ES EL CLAVE */
+section.main > div {
+    background-color: #e6eef8 !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+
+
+
 # NTZ 400 ST COMPLETO (4")
 # =====================
 BOMBAS_400_ST = {
