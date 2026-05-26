@@ -963,7 +963,7 @@ with c5:
 # =========================
 
 with colR:
-  colG, colS, colT = st.columns([3.8,1.6,3])
+  colG, colS, colT = st.columns([5,1.2,2])
 
     # sliders
 with colS:
