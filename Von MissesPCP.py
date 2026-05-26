@@ -3,44 +3,25 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math# =====================
 
+# ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
 <style>
-
-/* fondo general */
 html, body, .stApp {
     background: #e6eef8 !important;
 }
-
-/* 🔴 matplotlib container */
-div[data-testid="stPyplot"] {
-    background: transparent !important;
+</style>
+""", unsafe_allow_html=True)
+st.markdown("""
+<style>
+/* fondo general */
+.stApp {
+    background-color: #e6eef8 !important;
 }
 
-/* 🔴 elimina padding interno */
-div[data-testid="stPyplot"] > div {
-    padding: 0px !important;
-}
-
-/* 🔴 elimina tarjeta Streamlit */
-div[data-testid="element-container"] {
-    background: transparent !important;
-}
-
-/* 🔴 extra capa interna */
-div[data-testid="stVerticalBlock"] {
-    background: transparent !important;
-}
-
-/* 🔴 canvas */
-div[data-testid="stPyplot"] canvas {
-    background: transparent !important;
-}
-
-/* 🔴 fallback general */
+/* 🔴 ESTE ES EL CLAVE */
 section.main > div {
-    background: #e6eef8 !important;
+    background-color: #e6eef8 !important;
 }
-
 </style>
 """, unsafe_allow_html=True)
 
@@ -571,30 +552,28 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-       with colG:
-    
-
-        fig = plt.figure(figsize=(4,6))
-
-        # ✅ fondo transparente
-        fig.patch.set_alpha(0)
+         
+        fig = plt.figure(figsize=(4,6), facecolor='#e6eef8')
 
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_facecolor('#e6eef8')
 
-        # ✅ eje transparente
-        ax.set_facecolor((0,0,0,0))
+        
+        for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
+            for t in axis.get_ticklabels():
+                t.set_fontsize(3)
 
+        ax.tick_params(labelsize=2)
         for i in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
                     df["Y"].iloc[i:i+2],
                     df["Z"].iloc[i:i+2],
                     color=colores[i], linewidth=2)
 
-        ax.view_init(elev=elev, azim=azim)
+        ax.set_box_aspect([1,1,4])
+        ax.tick_params(labelsize=6)
 
-        # ✅ ESTE ES EL QUE MATA EL BLOQUE
-        st.pyplot(fig, transparent=True)
-
+        fig.savefig("grafico.png", bbox_inches="tight")
         plt.close(fig)
 
     # =========================
@@ -1267,55 +1246,71 @@ if len(df) > 1:
         ]))
 
     # ✅ FIGURA TAMBIÉN ADENTRO
-if len(df) > 1:
-
     fig = go.Figure(data=frames[0].data, frames=frames)
 
-    fig.update_layout(
-        height=900,
-        uirevision="keep",
+  
 
-        paper_bgcolor='#e6eef8',
-        plot_bgcolor='#e6eef8',
+fig.update_layout(
+    height=900,
+    uirevision="keep",
 
-        scene=dict(
-            aspectmode='cube',
-            bgcolor='#e6eef8',
+    
+    paper_bgcolor='#e6eef8',   # 👈 ESTE ES EL QUE TE FALTA
+    plot_bgcolor='#e6eef8',
 
-            xaxis=dict(
-                backgroundcolor='#f2f5fa',
-                gridcolor='#cccccc',
-                showbackground=True
-            ),
+    scene=dict(
+        aspectmode='cube',
 
-            yaxis=dict(
-                backgroundcolor='#f2f5fa',
-                gridcolor='#cccccc',
-                showbackground=True
-            ),
+        # ✅ CAMBIO DE COLOR DE FONDO
+        bgcolor='#e6eef8',
 
-            zaxis=dict(
-                backgroundcolor='#f2f5fa',
-                gridcolor='#cccccc',
-                showbackground=True,
-                title="Profundidad"
-            ),
-
-            camera=dict(
-                eye=dict(x=1.8, y=2.0, z=0.2),
-                center=dict(x=0, y=0, z=0.1)
-            ),
+        xaxis=dict(
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
+            showbackground=True
+        ),
+        yaxis=dict(
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
+            showbackground=True
+        ),
+        zaxis=dict(
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
+            showbackground=True,
+            title="Profundidad"
         ),
 
+        camera=dict(
+            eye=dict(x=1.8, y=2.0, z=0.2),
+            center=dict(x=0, y=0, z=0.1)
+        ),
+    ),
+
+
+
+
         margin=dict(l=0, r=0, t=0, b=0),
+
+        updatemenus=[{
+            "type":"buttons",
+            "x":0.1,
+            "y":0.75,
+            "buttons":[
+                dict(label="Play ▶",
+                     method="animate",
+                     args=[None, {
+                         "frame": {"duration":80},
+                         "fromcurrent": True,
+                         "mode": "immediate"
+                     }]),
+
+                dict(label="Stop⏸",
+                     method="animate",
+                     args=[[None], {"mode":"immediate"}])
+            ]
+        }]
     )
-
-
-
-
-
-
-
 st.markdown("""
 <style>
 .block-container {
