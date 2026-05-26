@@ -1237,21 +1237,21 @@ fig.update_layout(
         aspectmode='cube',
 
         # ✅ CAMBIO DE COLOR DE FONDO
-        bgcolor='gray',
+        bgcolor='#e6eef8',
 
         xaxis=dict(
-            backgroundcolor='black',
-            gridcolor='gray',
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
             showbackground=True
         ),
         yaxis=dict(
-            backgroundcolor='black',
-            gridcolor='gray',
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
             showbackground=True
         ),
         zaxis=dict(
-            backgroundcolor='gray',
-            gridcolor='gray',
+            backgroundcolor='#f2f5fa',
+            gridcolor='#cccccc',
             showbackground=True,
             title="Profundidad"
         ),
