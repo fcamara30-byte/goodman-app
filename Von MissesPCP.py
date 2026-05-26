@@ -1250,6 +1250,10 @@ fig.update_layout(
     height=900,
     uirevision="keep",
 
+    
+    paper_bgcolor='#e6eef8',   # 👈 ESTE ES EL QUE TE FALTA
+    plot_bgcolor='#e6eef8',
+
     scene=dict(
         aspectmode='cube',
 
