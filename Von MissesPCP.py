@@ -11,23 +11,6 @@ html, body, .stApp {
 }
 </style>
 """, unsafe_allow_html=True)
-st.markdown("""
-<style>
-/* fondo general */
-.stApp {
-    background-color: #e6eef8 !important;
-}
-
-/* 🔴 ESTE ES EL CLAVE */
-section.main > div {
-    background-color: #e6eef8 !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-
-
-
 # NTZ 400 ST COMPLETO (4")
 # =====================
 BOMBAS_400_ST = {
@@ -552,12 +535,8 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-         
-        fig = plt.figure(figsize=(4,6), facecolor='#e6eef8')
-
+        fig = plt.figure(figsize=(5,6))
         ax = fig.add_subplot(111, projection='3d')
-        ax.set_facecolor('#e6eef8')
-
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
             for t in axis.get_ticklabels():
@@ -1250,42 +1229,26 @@ if len(df) > 1:
 
   
 
-fig.update_layout(
-    height=900,
-    uirevision="keep",
+    fig.update_layout(
 
-    
-    paper_bgcolor='#e6eef8',   # 👈 ESTE ES EL QUE TE FALTA
-    plot_bgcolor='#e6eef8',
+        height=900,
+        uirevision="keep",
 
-    scene=dict(
-        aspectmode='cube',
 
-        # ✅ CAMBIO DE COLOR DE FONDO
-        bgcolor='#e6eef8',
+        scene=dict(
+          aspectmode='cube',
 
-        xaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True
-        ),
-        yaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True
-        ),
-        zaxis=dict(
-            backgroundcolor='#f2f5fa',
-            gridcolor='#cccccc',
-            showbackground=True,
-            title="Profundidad"
-        ),
-
-        camera=dict(
-            eye=dict(x=1.8, y=2.0, z=0.2),
-            center=dict(x=0, y=0, z=0.1)
-        ),
+          camera=dict(
+          eye=dict(x=1.8, y=2.0, z=0.2),
+          center=dict(x=0, y=0, z=0.1)
     ),
+
+          zaxis=dict(
+          title="Profundidad",
+          
+    ),
+
+),
 
 
 
@@ -1311,7 +1274,7 @@ fig.update_layout(
             ]
         }]
     )
-st.markdown("""
+    st.markdown("""
 <style>
 .block-container {
     padding-top: 0rem;
@@ -1325,7 +1288,7 @@ div[data-testid="stPlotlyChart"] {
     
 
 
-fig.write_html("animacion.html")
+    fig.write_html("animacion.html")
     
 with open("animacion.html", "r", encoding="utf-8") as f:
     html_bytes = f.read()
@@ -1375,3 +1338,4 @@ st.markdown("""
 Desarrollado por Fcam & Eng.Pro-Apolo-Apex. SP-Brazil May-26
 </div>
 """, unsafe_allow_html=True)
+
