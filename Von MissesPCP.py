@@ -1315,25 +1315,7 @@ if len(df) > 1:
 
 
 
-        updatemenus=[{
-            "type":"buttons",
-            "x":0.1,
-            "y":0.75,
-            "buttons":[
-                dict(label="Play ▶",
-                     method="animate",
-                     args=[None, {
-                         "frame": {"duration":80},
-                         "fromcurrent": True,
-                         "mode": "immediate"
-                     }]),
 
-                dict(label="Stop⏸",
-                     method="animate",
-                     args=[[None], {"mode":"immediate"}])
-            ]
-        }]
-    )
 st.markdown("""
 <style>
 .block-container {
