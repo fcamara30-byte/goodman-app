@@ -552,8 +552,12 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-        fig = plt.figure(figsize=(5,6))
+         
+        fig = plt.figure(figsize=(4,6), facecolor='#e6eef8')
+
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_facecolor('#e6eef8')
+
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
             for t in axis.get_ticklabels():
