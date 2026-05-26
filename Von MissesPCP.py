@@ -1286,7 +1286,7 @@ fig.update_layout(
             ]
         }]
     )
-    st.markdown("""
+st.markdown("""
 <style>
 .block-container {
     padding-top: 0rem;
