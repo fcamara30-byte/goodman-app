@@ -552,28 +552,30 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-         
-        fig = plt.figure(figsize=(4,6), facecolor='#e6eef8')
+with colG:
+    if len(df) > 1:
+
+        fig = plt.figure(figsize=(4,6))
+
+        # ✅ fondo transparente
+        fig.patch.set_alpha(0)
 
         ax = fig.add_subplot(111, projection='3d')
-        ax.set_facecolor('#e6eef8')
 
-        
-        for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
-            for t in axis.get_ticklabels():
-                t.set_fontsize(3)
+        # ✅ eje transparente
+        ax.set_facecolor((0,0,0,0))
 
-        ax.tick_params(labelsize=2)
         for i in range(len(df)-1):
             ax.plot(df["X"].iloc[i:i+2],
                     df["Y"].iloc[i:i+2],
                     df["Z"].iloc[i:i+2],
                     color=colores[i], linewidth=2)
 
-        ax.set_box_aspect([1,1,4])
-        ax.tick_params(labelsize=6)
+        ax.view_init(elev=elev, azim=azim)
 
-        fig.savefig("grafico.png", bbox_inches="tight")
+        # ✅ ESTE ES EL QUE MATA EL BLOQUE
+        st.pyplot(fig, transparent=True)
+
         plt.close(fig)
 
     # =========================
