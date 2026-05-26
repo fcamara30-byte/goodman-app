@@ -1300,7 +1300,7 @@ div[data-testid="stPlotlyChart"] {
     
 
 
-    fig.write_html("animacion.html")
+fig.write_html("animacion.html")
     
 with open("animacion.html", "r", encoding="utf-8") as f:
     html_bytes = f.read()
