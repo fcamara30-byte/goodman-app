@@ -552,7 +552,7 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
-        with colG:
+       with colG:
     
 
         fig = plt.figure(figsize=(4,6))
