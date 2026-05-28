@@ -274,7 +274,8 @@ PPRL = Wr + Fh + 1.35 * Fd * Wr
 E=30_000_000
 Aeq=0.58
 
-kr = (Aeq * EL_total_ft * 12) * 0.65
+kr = (Aeq * E) / (L_total_ft * 12) * 0.65
+
 
 dx=0.52*S*(Fd**0.78)
 
