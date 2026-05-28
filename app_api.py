@@ -112,7 +112,7 @@ materiales={
     "HS propietario":{"uts_a":55.36,"b":0.375},
     "DSX75":{"uts_a":42.86,"b":0.375},
     "HA96":{"uts_a":50,"b":0.375},
-    "D New":{"uts_a":42.86,"b":0.375}
+    "D old":{"uts_a":30,"b":0.5625}
 }
 
 st.subheader("Material por tramo 📜")
@@ -171,7 +171,7 @@ def FS_material(mat,f):
     elif mat=="HS97": return f*0.92
     elif mat=="CS propietario": return f*0.92
     elif mat=="HS propietario": return f*0.75
-    elif mat=="D New": return f*0.90
+    elif mat=="D old": return f*0.90
     elif mat=="DSX75": return f if f < 0.73 else 1
     elif mat=="HA96": return f*0.85
     return f*0.9
