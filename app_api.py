@@ -268,27 +268,7 @@ Ap=np.pi*D**2/4
 Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
-# ======================
-# ONDA ELÁSTICA (SIMPLE)
-# ======================
 
-# velocidad de onda acero (ft/s)
-c = 16000  
-
-# tiempo de propagación
-t_delay = L_total_ft / c  
-
-# frecuencia angular
-omega = 2 * np.pi * N / 60  
-
-# desfase
-phi = omega * t_delay  
-
-# amortiguamiento
-zeta = 0.15  
-
-# factor dinámico con onda
-wave_factor = np.cos(phi) * np.exp(-zeta * phi)
 PPRL=(Wr+Fh+1.45*Fd*Wr)*0.86
 
 E=30_000_000
@@ -301,7 +281,7 @@ dx=0.52*S*(Fd**0.78)
 prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
-dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd) * wave_factor
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
 
 limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
