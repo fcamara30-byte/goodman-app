@@ -1,3 +1,5 @@
+
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -72,7 +74,7 @@ with c_slider:
 # PRODUCCIÓN BRUTA
 # ======================
 Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.84  # 
+Q_m3 = Q_bpd * 0.159 * 0.85  # 
 
 # 👇 lo ubica debajo de "Bomba"
 col1, col2, col3, col4 = st.columns(4)
@@ -112,7 +114,7 @@ materiales={
     "HS propietario":{"uts_a":55.36,"b":0.375},
     "DSX75":{"uts_a":42.86,"b":0.375},
     "HA96":{"uts_a":50,"b":0.375},
-    "D old":{"uts_a":30,"b":0.5625}
+    "D New":{"uts_a":42.86,"b":0.375}
 }
 
 st.subheader("Material por tramo 📜")
@@ -171,7 +173,7 @@ def FS_material(mat,f):
     elif mat=="HS97": return f*0.92
     elif mat=="CS propietario": return f*0.92
     elif mat=="HS propietario": return f*0.75
-    elif mat=="D old": return f*0.90
+    elif mat=="D New": return f*0.90
     elif mat=="DSX75": return f if f < 0.73 else 1
     elif mat=="HA96": return f*0.85
     return f*0.9
@@ -269,26 +271,25 @@ Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
 
-PPRL = Wr + Fh + 1.35 * Fd * Wr
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.86
 
 E=30_000_000
 Aeq=0.58
 
-kr = (Aeq * E) / (L_total_ft * 12) * 0.65
-
+kr=(Aeq*E)/(L_total_ft*12)
 
 dx=0.52*S*(Fd**0.78)
 
 prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
-dF = kr * dx * prop_L * (1 + 0.35 * prop_F) * (1 + 2.2 * Fd)
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
 
-limite = Wr * (0.50 + 0.20 * Fd)
+limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
-MPRL = MPRL_base *0.92
+MPRL = MPRL_base *0.85
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 
 # ======================
