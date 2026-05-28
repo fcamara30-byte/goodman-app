@@ -269,25 +269,25 @@ Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
+PPRL = Wr + Fh + 1.35 * Fd * Wr
 
 E=30_000_000
 Aeq=0.58
 
-kr=(Aeq*E)/(L_total_ft*12)
+kr = (Aeq * EL_total_ft * 12) * 0.65
 
 dx=0.52*S*(Fd**0.78)
 
 prop_L=(L_total_ft/6000)**0.22
 prop_F=(Fh/Wr)**0.08
 
-dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
+dF = kr * dx * prop_L * (1 + 0.5 * prop_F) * (1 + 3.5 * Fd)
 
-limite=Wr*(0.45+0.20*Fd)
+limite = Wr * (0.65 + 0.25 * Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
-MPRL = MPRL_base *0.89
+MPRL = MPRL_base *0.95
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 
 # ======================
