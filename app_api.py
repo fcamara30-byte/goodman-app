@@ -72,7 +72,7 @@ with c_slider:
 # PRODUCCIÓN BRUTA
 # ======================
 Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.85  # 
+Q_m3 = Q_bpd * 0.159 * 0.82  # 
 
 # 👇 lo ubica debajo de "Bomba"
 col1, col2, col3, col4 = st.columns(4)
@@ -269,7 +269,7 @@ Fh=0.433*G*L_total_ft*Ap
 
 Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.86
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
 
 E=30_000_000
 Aeq=0.58
@@ -287,7 +287,7 @@ limite=Wr*(0.45+0.20*Fd)
 dF=min(dF,limite)
 
 MPRL_base=max(Wr-dF,0)
-MPRL = MPRL_base *0.85
+MPRL = MPRL_base *0.89
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 
 # ======================
