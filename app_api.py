@@ -72,7 +72,7 @@ with c_slider:
 # PRODUCCIÓN BRUTA
 # ======================
 Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.82  # 
+Q_m3 = Q_bpd * 0.159 * 0.84  # 
 
 # 👇 lo ubica debajo de "Bomba"
 col1, col2, col3, col4 = st.columns(4)
