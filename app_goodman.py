@@ -221,11 +221,13 @@ col_d, col_min, col_max = st.columns([0.3, 0.3, 0.3])
 with col_d:
     diam = st.selectbox("Diámetro (in)", ["1", "7/8", "3/4"])
 
+with col_max:
+    Pmax_input = float(st.text_input("Carga máxima (lb)", value="10000"))
+
 with col_min:
     Pmin_input = float(st.text_input("Carga mínima (lb)", value="2000"))
 
-with col_max:
-    Pmax_input = float(st.text_input("Carga máxima (lb)", value="10000"))
+
 
 # áreas
 areas = {
