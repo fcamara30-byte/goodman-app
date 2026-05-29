@@ -56,7 +56,7 @@ html, body, [data-testid="stAppViewContainer"] {
 
 
 .titulo-main {
-    font-size: 42px;
+    font-size: 46px;
     font-weight: 700;
     color: #1B3A6F;
     line-height: 1.2;
@@ -64,7 +64,7 @@ html, body, [data-testid="stAppViewContainer"] {
 }
 
 .titulo-sub {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 500;
     color: #4A6FA5;
     letter-spacing: 0.3px;
