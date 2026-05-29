@@ -258,13 +258,11 @@ col_tabla, col_der = st.columns([2.7,1.8])
 
 with col_tabla:
     st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
-st.dataframe(
-    df.drop(columns=["FS"]).style.format({
-        "Sadm":"{:.0f}",
-        "Margen":"{:.0f}",
-        "%Goodman":"{:.0f}"
-    }),
-    use_container_width=False,
+st.dataframe(df.drop(columns=["FS"]).style.format({
+    "Sadm":"{:.0f}",
+    "Margen":"{:.0f}",
+    "%Goodman":"{:.0f}"
+}), use_container_width=False)
     
 )
 
