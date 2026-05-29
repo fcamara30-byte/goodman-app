@@ -41,7 +41,24 @@ st.markdown("""
 .cursiva {font-style: italic; color:#444;}
 </style>
 """, unsafe_allow_html=True)
+st.markdown("""
+<style>
+[data-testid="stDataFrame"] div {
+    font-size: 12px;
+}
 
+[data-testid="stDataFrame"] th, 
+[data-testid="stDataFrame"] td {
+    padding: 4px 6px;
+    max-width: 80px;
+    white-space: nowrap;
+}
+
+[data-testid="stDataFrame"] {
+    width: fit-content;
+}
+</style>
+""", unsafe_allow_html=True)
 
 col1, col2 = st.columns([4,1])
 
