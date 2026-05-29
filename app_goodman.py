@@ -98,11 +98,6 @@ div[data-baseweb="select"] {
 }
 
 /* ===== TABLA ===== */
-[data-testid="stDataFrame"] {
-    background-color: #FFFFFF;
-    border-radius: 10px;
-}
-
 [data-testid="stDataFrame"] th, 
 [data-testid="stDataFrame"] td {
     padding: 3px 6px;
@@ -119,7 +114,6 @@ div[data-baseweb="select"] {
 
 </style>
 """, unsafe_allow_html=True)
-
 
 col1, col2 = st.columns([4,1])
 
