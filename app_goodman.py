@@ -105,6 +105,50 @@ div[data-baseweb="select"] {
     padding: 10px;
     box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
 }
+st.markdown("""
+<style>
+
+/* FONDO */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #EDF4FB !important;
+}
+
+/* CONTENEDOR */
+.block-container {
+    background-color: transparent;
+    padding: 1.5rem 2rem;
+}
+
+/* TITULOS */
+.titulo {
+    font-size: 40px;
+    font-weight: 700;
+    color: #1B3A6F;
+}
+
+/* INPUTS */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] {
+    border-radius: 8px;
+    max-width: 180px;
+}
+
+
+
+/* TEXTO DENTRO DE INPUTS */
+div[data-baseweb="input"] input {
+    font-weight: 600;
+    color: #1B1F23;
+}
+
+/* TEXTO DENTRO DE SELECT */
+div[data-baseweb="select"] span {
+    font-weight: 600;
+    color: #1B1F23;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 </style>
 """, unsafe_allow_html=True)
