@@ -126,8 +126,33 @@ with l:
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
 
     st.markdown('<div class="subtitulo">Selector de Solicitaciones Máximas y Mínimas</div>', unsafe_allow_html=True)
-    smin_user = st.slider("Smin (ksi)",0,100,30)
-    smax_user = st.slider("Smax (ksi)",0,100,50)
+
+
+st.subheader("Selector de Cargas y Diámetro")
+
+col_d, col_min, col_max = st.columns(3)
+
+with col_d:
+    diam = st.selectbox("Diámetro (in)", ["1", "7/8", "3/4"])
+
+with col_min:
+    Pmin_input = st.number_input("Carga mínima (lb)", value=2000)
+
+with col_max:
+    Pmax_input = st.number_input("Carga máxima (lb)", value=10000)
+
+# áreas
+areas = {
+    "1": 0.786,
+    "7/8": 0.601,
+    "3/4": 0.442
+}
+
+A = areas[diam]
+
+# ✅ calcular tensiones
+Smax = Pmax_input / A / 1000
+
 
 # ======================
 # BASE
