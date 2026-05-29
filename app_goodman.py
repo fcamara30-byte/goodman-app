@@ -37,67 +37,70 @@ st.set_page_config(layout="wide")
 # ======================
 # ESTILO LIMPIO
 # ======================
+# ======================
+# ESTILO FINAL (LIMPIO)
+# ======================
 st.markdown("""
 <style>
 
-/* FONDO GENERAL */
+/* ===== FONDO GENERAL (CELESTE ELEGANTE) ===== */
 html, body, [data-testid="stAppViewContainer"] {
-    background-color: #F4F6F8 !important;
+    background-color: #EDF4FB !important;
 }
 
-/* CONTENEDOR PRINCIPAL */
-
+/* ===== CONTENEDOR (SIN BORDE GRIS) ===== */
 .block-container {
-    background-color: #FFFFFF;
+    background-color: transparent;
     padding: 1.5rem 2rem;
-    border-radius: 12px;
-
-    max-width: 1100px;
-    margin: 40px auto;
 }
 
-
-/* TITULO */
+/* ===== TITULO ===== */
 .titulo {
     font-size: 40px;
     font-weight: 700;
     color: #1B3A6F;
 }
 
-/* SUBTITULO */
+/* ===== SUBTITULO ===== */
 .subtitulo {
     font-size: 16px;
     font-weight: 600;
     color: #2F5D9A;
 }
 
-/* TEXTO CURSIVA */
+/* ===== TEXTO CURSIVA ===== */
 .cursiva {
     font-style: italic;
     color: #555;
 }
 
-/* INPUTS */
+/* ===== INPUTS ===== */
 div[data-baseweb="input"], 
 div[data-baseweb="select"] {
     border-radius: 8px;
     max-width: 180px;
 }
 
-/* SELECT MÁS CHICO */
+/* ===== SELECT MÁS COMPACTO ===== */
 div[data-baseweb="select"] {
     max-width: 140px;
 }
 
-/* TABLA */
+/* ===== TABLA (BLANCA, DISTINGUIBLE) ===== */
+[data-testid="stDataFrame"] {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+}
+
 [data-testid="stDataFrame"] th, 
 [data-testid="stDataFrame"] td {
     padding: 3px 6px;
     font-size: 12px;
 }
 
-/* RESULTADOS (metrics) */
+/* ===== METRICS ===== */
 [data-testid="stMetric"] {
+    background-color: #FFFFFF;
     border-radius: 10px;
     padding: 10px;
     box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
