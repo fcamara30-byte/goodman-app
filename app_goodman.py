@@ -265,7 +265,7 @@ st.dataframe(
         "%Goodman":"{:.0f}"
     }),
     use_container_width=False,
-    height=1
+    
 )
 
 
