@@ -147,7 +147,7 @@ with l:
 
 st.subheader("Selector de Cargas y Diámetro")
 
-col_d, col_min, col_max = st.columns([0.5, 0.5, 0.5])
+col_d, col_min, col_max = st.columns([0.3, 0.3, 0.3])
 
 with col_d:
     diam = st.selectbox("Diámetro (in)", ["1", "7/8", "3/4"])
