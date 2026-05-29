@@ -171,7 +171,7 @@ with r:
         fs = FS_material(mat,f_base)
         y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
 
-       sadm = goodman(Smin, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+        sadm = goodman(Smin, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
         margen = sadm - Smax
 
         ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
