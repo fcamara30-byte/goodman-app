@@ -261,7 +261,8 @@ with col_tabla:
     "Sadm":"{:.0f}",
     "Margen":"{:.0f}",
     "%Goodman":"{:.0f}"
-}), use_container_width=False)
+}),
+use_container_width=False)
     
 )
 
