@@ -36,49 +36,68 @@ st.set_page_config(layout="wide")
 # ======================
 st.markdown("""
 <style>
-.titulo {font-size:43px; font-weight:700; color:#0B3C8C;}
-.subtitulo {font-size:17px; font-weight:600; color:#1F4E79;}
-.cursiva {font-style: italic; color:#444;}
-</style>
-""", unsafe_allow_html=True)
-st.markdown("""
-<style>
-[data-testid="stDataFrame"] div {
-    font-size: 12px;
-}
 
-[data-testid="stDataFrame"] th, 
-[data-testid="stDataFrame"] td {
-    padding: 4px 6px;
-    max-width: 80px;
-    white-space: nowrap;
-}
-
-[data-testid="stDataFrame"] {
-    width: fit-content;
-}
-</style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<style>
-
-/* ✅ FONDO REAL (forzado) */
+/* ===== FONDO REAL ===== */
 html, body, [data-testid="stAppViewContainer"] {
     background-color: #F4F6F8 !important;
 }
 
-/* ✅ ZONA PRINCIPAL */
-.main {
-    background-color: #F4F6F8;
-}
-
-/* ✅ CARD BLANCO (contenido) */
+/* ===== CONTENEDOR PRINCIPAL ===== */
 .block-container {
     background-color: #FFFFFF;
     padding: 1.5rem 2rem;
     border-radius: 12px;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ===== TITULOS ===== */
+.titulo {
+    font-size: 40px;
+    font-weight: 700;
+    color: #1B3A6F;
+}
+
+.subtitulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2F5D9A;
+}
+
+.cursiva {
+    font-style: italic;
+    color: #555;
+}
+
+/* ===== INPUTS ===== */
+div[data-baseweb="input"], 
+div[data-baseweb="select"] {
+    background-color: #FFFFFF;
+    border-radius: 8px;
+    max-width: 180px;
+}
+
+div[data-baseweb="select"] {
+    max-width: 140px;
+}
+
+/* ===== TABLA ===== */
+[data-testid="stDataFrame"] {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+}
+
+[data-testid="stDataFrame"] th, 
+[data-testid="stDataFrame"] td {
+    padding: 3px 6px;
+    font-size: 12px;
+}
+
+/* ===== METRICS ===== */
+[data-testid="stMetric"] {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
 }
 
 </style>
