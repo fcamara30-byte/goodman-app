@@ -134,7 +134,7 @@ with col1:
 
 
 st.markdown("""
-<div class="titulo-main">10 Rod</div>
+<div class="titulo-main">10 Rod🌎</div>
 <div class="titulo-sub">Solicitaciones de Goodman y efecto de corrosión</div>
 """, unsafe_allow_html=True)
 
@@ -361,4 +361,4 @@ with col_der:
 
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
-st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26</div>', unsafe_allow_html=True)
+st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro-Apolo-Apex. SP-Brazil May-26</div>', unsafe_allow_html=True)
