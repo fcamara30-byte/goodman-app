@@ -63,18 +63,26 @@ st.markdown("""
 st.markdown("""
 <style>
 
-/* ===== FONDO GENERAL ===== */
-.stApp {
+/* ✅ FONDO REAL (forzado) */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #F4F6F8 !important;
+}
+
+/* ✅ ZONA PRINCIPAL */
+.main {
     background-color: #F4F6F8;
 }
 
-/* ===== CONTENEDORES tipo CARD ===== */
+/* ✅ CARD BLANCO (contenido) */
 .block-container {
     background-color: #FFFFFF;
     padding: 1.5rem 2rem;
     border-radius: 12px;
     box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
 }
+
+</style>
+""", unsafe_allow_html=True)
 
 /* ===== TITULOS ===== */
 .titulo {
