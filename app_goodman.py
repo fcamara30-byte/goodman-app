@@ -54,19 +54,22 @@ html, body, [data-testid="stAppViewContainer"] {
     padding: 1.5rem 2rem;
 }
 
-/* ===== TITULO ===== */
-.titulo {
-    font-size: 40px;
+
+.titulo-main {
+    font-size: 42px;
     font-weight: 700;
     color: #1B3A6F;
+    line-height: 1.2;
+    margin-bottom: 4px;
 }
 
-/* ===== SUBTITULO ===== */
-.subtitulo {
-    font-size: 16px;
-    font-weight: 600;
-    color: #2F5D9A;
+.titulo-sub {
+    font-size: 18px;
+    font-weight: 500;
+    color: #4A6FA5;
+    letter-spacing: 0.3px;
 }
+
 
 /* ===== CURSIVA ===== */
 .cursiva {
