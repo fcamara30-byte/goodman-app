@@ -267,7 +267,7 @@ Wr = Wr_air*(1-0.128*G)
 L_total_ft = L1+L78+L34
 
 Ap=np.pi*D**2/4
-Fh=0.433*G*L_total_ft*Ap
+Fh = 0.433 * G * Depth_ft * Ap
 
 Fd = (S * N) / (2600 + S * N)
 
