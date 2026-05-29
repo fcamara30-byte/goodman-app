@@ -152,7 +152,7 @@ A = areas[diam]
 
 # ✅ calcular tensiones
 Smax = Pmax_input / A / 1000
-
+Smin = Pmin_input / A / 1000
 
 # ======================
 # BASE
@@ -171,8 +171,8 @@ with r:
         fs = FS_material(mat,f_base)
         y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
 
-        sadm = goodman(smin_user, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
-        margen = sadm - smax_user
+       sadm = goodman(Smin, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+        margen = sadm - Smax
 
         ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
 
@@ -195,9 +195,9 @@ with r:
                     where=(y_clip>=x_clip),
                     color='green', alpha=0.15)
 
-    ax.scatter(smin_user, smax_user, color="red", s=90)
+    ax.scatter(Smin, Smax, color="red", s=90)
 
-    if smax_user > sadm_user:
+    if Smax > sadm_user:
         ax.text(
             0.5,0.15,
             "Seleccione otro tipo de varilla\n"
@@ -232,8 +232,10 @@ if abs(f_base - 1.0) < 1e-6:
         df = df[df["Material"]!="HS97"]
         df = pd.concat([fila, df]).reset_index(drop=True)
 
-df["%Goodman"] = ((smax_user - smin_user) /
-(df["Sadm"] - smin_user)) * 100
+
+df["%Goodman"] = ((Smax - Smin) /
+(df["Sadm"] - Smin)) * 100
+
 
 col_tabla, col_der = st.columns([2.7,1.8])
 
@@ -254,7 +256,7 @@ with col_der:
     c1.metric("FS", f"{fs_sel:.1f}")
     c2.metric("Factor base", f"{f_base:.1f}")
     c3.metric("Sadm", f"{sadm_user:.1f}")
-    c4.metric("%Goodman", f"{((smax_user-smin_user)/(sadm_user-smin_user)*100):.1f}")
+    c4.metric("%Goodman", f"{((Smax - Smin) / (sadm_user - Smin) * 100):.1f}")
 
     st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
 
