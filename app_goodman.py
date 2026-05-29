@@ -51,6 +51,23 @@ html, body, [data-testid="stAppViewContainer"] {
 }
 
 /* ===== TITULOS ===== */
+st.markdown("""
+<style>
+
+/* ===== FONDO REAL ===== */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #F4F6F8 !important;
+}
+
+/* ===== CONTENEDOR ===== */
+.block-container {
+    background-color: #FFFFFF;
+    padding: 1.5rem 2rem;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ===== TITULOS ===== */
 .titulo {
     font-size: 40px;
     font-weight: 700;
@@ -103,64 +120,6 @@ div[data-baseweb="select"] {
 </style>
 """, unsafe_allow_html=True)
 
-/* ===== TITULOS ===== */
-.titulo {
-    font-size: 40px;
-    font-weight: 700;
-    color: #1B3A6F;
-}
-
-.subtitulo {
-    font-size: 16px;
-    font-weight: 600;
-    color: #2F5D9A;
-}
-
-.cursiva {
-    font-style: italic;
-    color: #555;
-}
-
-/* ===== INPUTS MÁS COMPACTOS ===== */
-div[data-baseweb="input"], 
-div[data-baseweb="select"] {
-    background-color: #FFFFFF;
-    border-radius: 8px;
-    max-width: 180px;
-}
-
-/* SELECT más chico */
-div[data-baseweb="select"] {
-    max-width: 140px;
-}
-
-/* ===== TABLA COMPACTA ===== */
-[data-testid="stDataFrame"] {
-    background-color: #FFFFFF;
-    border-radius: 10px;
-}
-
-[data-testid="stDataFrame"] th, 
-[data-testid="stDataFrame"] td {
-    padding: 3px 6px;
-    font-size: 12px;
-}
-
-/* ===== METRICS (RESULTADOS) ===== */
-[data-testid="stMetric"] {
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    padding: 10px;
-    box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
-}
-
-/* ===== ALINEACIÓN GENERAL ===== */
-section.main > div {
-    max-width: 1200px;
-}
-
-</style>
-""", unsafe_allow_html=True)
 
 col1, col2 = st.columns([4,1])
 
