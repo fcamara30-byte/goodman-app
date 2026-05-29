@@ -48,7 +48,7 @@ html, body, [data-testid="stAppViewContainer"] {
     background-color: #EDF4FB !important;
 }
 
-/* ===== CONTENEDOR (SIN BORDE GRIS) ===== */
+/* ===== CONTENEDOR ===== */
 .block-container {
     background-color: transparent;
     padding: 1.5rem 2rem;
@@ -68,7 +68,7 @@ html, body, [data-testid="stAppViewContainer"] {
     color: #2F5D9A;
 }
 
-/* ===== TEXTO CURSIVA ===== */
+/* ===== CURSIVA ===== */
 .cursiva {
     font-style: italic;
     color: #555;
@@ -86,7 +86,19 @@ div[data-baseweb="select"] {
     max-width: 140px;
 }
 
-/* ===== TABLA (BLANCA, DISTINGUIBLE) ===== */
+/* ===== TEXTO DENTRO INPUTS (NEGRITA) ===== */
+div[data-baseweb="input"] input {
+    font-weight: 600;
+    color: #1B1F23;
+}
+
+/* ===== TEXTO DENTRO SELECT ===== */
+div[data-baseweb="select"] span {
+    font-weight: 600;
+    color: #1B1F23;
+}
+
+/* ===== TABLA ===== */
 [data-testid="stDataFrame"] {
     background-color: #FFFFFF;
     border-radius: 8px;
@@ -105,55 +117,9 @@ div[data-baseweb="select"] {
     padding: 10px;
     box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
 }
-st.markdown("""
-<style>
-
-/* FONDO */
-html, body, [data-testid="stAppViewContainer"] {
-    background-color: #EDF4FB !important;
-}
-
-/* CONTENEDOR */
-.block-container {
-    background-color: transparent;
-    padding: 1.5rem 2rem;
-}
-
-/* TITULOS */
-.titulo {
-    font-size: 40px;
-    font-weight: 700;
-    color: #1B3A6F;
-}
-
-/* INPUTS */
-div[data-baseweb="input"], 
-div[data-baseweb="select"] {
-    border-radius: 8px;
-    max-width: 180px;
-}
-
-
-
-/* TEXTO DENTRO DE INPUTS */
-div[data-baseweb="input"] input {
-    font-weight: 600;
-    color: #1B1F23;
-}
-
-/* TEXTO DENTRO DE SELECT */
-div[data-baseweb="select"] span {
-    font-weight: 600;
-    color: #1B1F23;
-}
 
 </style>
 """, unsafe_allow_html=True)
-
-</style>
-""", unsafe_allow_html=True)
-
-col1, col2 = st.columns([4,1])
 
 with col1:
     st.markdown('<div class="titulo">Selector de varillas 🌎</div>', unsafe_allow_html=True)
