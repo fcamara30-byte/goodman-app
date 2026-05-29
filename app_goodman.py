@@ -136,7 +136,7 @@ with col1:
 st.markdown("""
 <div class="titulo-main">10 Rod</div>
 <div class="titulo-sub">Solicitaciones de Goodman y efecto de corrosión</div>
-""", unsafe_allow_html=True
+""", unsafe_allow_html=True)
 
 st.caption(f"Visitas totales: {visitas}")
 
