@@ -46,12 +46,16 @@ html, body, [data-testid="stAppViewContainer"] {
 }
 
 /* CONTENEDOR PRINCIPAL */
+
 .block-container {
     background-color: #FFFFFF;
     padding: 1.5rem 2rem;
     border-radius: 12px;
-    box-shadow: 0px 4px 12px rgba(0,0,0,0.05);
+
+    max-width: 1100px;
+    margin: 40px auto;
 }
+
 
 /* TITULO */
 .titulo {
