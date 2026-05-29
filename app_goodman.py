@@ -138,7 +138,7 @@ st.markdown("""
 <div class="titulo-sub">Solicitaciones de Goodman y efecto de corrosión</div>
 """, unsafe_allow_html=True)
 
-st.caption(f"Visitas totales: {visitas}")
+st.markdown(f'<div style="text-align: right; color: #777;">Visitas totales: {visitas}</div>', unsafe_allow_html=True)
 
 # ======================
 # DATOS
