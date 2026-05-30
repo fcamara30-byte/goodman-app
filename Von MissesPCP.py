@@ -289,7 +289,13 @@ with colL:
             ["DA 78","HS97","CS Propietary","HS Propietary","D New","DSX75","HA96"]
         )
         fric_bomba = st.number_input("Pump Friction (lb·ft)", value=20.0, step=5.0)
-        
+        eta_usuario = st.number_input(
+             "Volumetric Efficiency (-)",
+              min_value=0.4,
+              max_value=1.0,
+              value=round(eta_sugerida, 3),
+              step=0.01
+)
 
 
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
@@ -379,13 +385,7 @@ pres_columna = (profundidad * densidad) / 10000
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
-eta_usuario = st.number_input(
-    "Volumetric Efficiency (-)",
-    min_value=0.4,
-    max_value=1.0,
-    value=round(eta_sugerida, 3),
-    step=0.01
-)
+
 
 Q_cap = Q_teorico * eta_usuario
 
