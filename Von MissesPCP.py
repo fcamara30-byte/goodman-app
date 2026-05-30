@@ -367,7 +367,7 @@ eta = eta_usuario
 # ✅ BUSQUEDA RPM ÓPTIMA (mínimo torque)
 # ===============================
 
-rpm_range = np.arange(40, 351, 5)
+rpm_range = np.arange(40, 501, 5)
 
 mejor_rpm = None
 mejor_torque = 1e12
