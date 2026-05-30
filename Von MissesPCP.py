@@ -128,6 +128,7 @@ st.markdown("""
 st.markdown("""
 <style>
 .titulo {
+    margin-top: -40px;
     margin-bottom: 0px;
 }
 .subtitulo {
