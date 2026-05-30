@@ -2,7 +2,7 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
-from bombas import BOMBAS
+from bombas import bombas
 # ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
 <style>
