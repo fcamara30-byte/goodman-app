@@ -204,11 +204,14 @@ with colL:
 
    
     with c1:
+        
         nombre_pozo = st.text_input("Well Name")
         profundidad = st.number_input("Pump Seat (m)",600,step=100)                                   
                                  
          # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
+        rpm_manual = st.number_input("RPM oper", value=150, step=10)
+
 
 
 
@@ -396,7 +399,7 @@ Q100_base = 200
 rpm_calc = (prod * 100) / (Q100_base * eta)
 
 # ✅ input editable dinámico
-rpm = st.number_input("RPM oper", value=int(rpm_calc), step=10)
+rpm = rpm_manual
 
 # ✅ bomba resultante REAL
 Q100_req = prod / (eta * (rpm / 100))
@@ -931,7 +934,16 @@ with c5:
     """, unsafe_allow_html=True)
 st.markdown("### Pump Requirement")
 
-st.write(f"AP {pres_total:.0f} bar – {Q100_req:.0f} m³/100 rpm")
+# ✅ recomendación REAL DE DISEÑO
+Q100_sugerido = prod / (eta * (rpm_calc / 100))
+Q100_sugerido = round(Q100_sugerido / 10) * 10
+
+st.write(f"✅ Recomendado:")
+st.write(f"AP {pres_total:.0f} bar – {Q100_sugerido:.0f} m³/100 rpm")
+st.write(f"RPM óptima: {rpm_calc:.0f}")
+
+# ✅ lo que estás usando realmente
+st.write(f"📌 Operando:")
 st.write(f"RPM: {rpm}")
 
     # =========================
