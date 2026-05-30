@@ -960,8 +960,8 @@ with c5:
 st.markdown("### Pump Requirement")
 
 # ✅ recomendación REAL DE DISEÑO
-Q100_sugerido = prod / (eta * (rpm_calc / 100))
-Q100_sugerido = round(Q100_sugerido / 10) * 10
+Q100_sugerido = Q100_optimo
+rpm_calc = rpm_optima_real
 
 colA, colB = st.columns(2)
 
