@@ -210,7 +210,6 @@ with colL:
 
 
 
-        Q_cap = Q_teorico * eta_usuario
 
         
         Q_real = prod
@@ -281,6 +280,8 @@ with colL:
         fric_bomba = st.number_input("Pump Friction (lb·ft)", value=20.0, step=5.0)
         
         eta_usuario = st.number_input(
+            
+        Q_cap = Q_teorico * eta_usuario
         "Volumetric Efficiency (-)",
         min_value=0.4,
         max_value=1.0,
