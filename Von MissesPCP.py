@@ -382,6 +382,16 @@ pres_columna = (profundidad * densidad) / 10000
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
+eta_usuario = st.number_input(
+    "Volumetric Efficiency (-)",
+    min_value=0.4,
+    max_value=1.0,
+    value=round(eta_sugerida, 3),
+    step=0.01
+)
+
+Q_cap = Q_teorico * eta_usuari
+
 pot_h = Q_real * pres_total * 0.0014
 
 pot_c = pot_h / eficiencia
