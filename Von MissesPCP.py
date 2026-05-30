@@ -977,8 +977,8 @@ bombas_ordenadas = sorted(
     key=lambda x: x[1]   # menor → mayor
 )
 
-# ✅ TOP 5
-top5 = bombas_ordenadas[:5]
+# ✅ TOP 7
+top7 = bombas_ordenadas[:7]
 
 
 # ===============================
@@ -994,22 +994,8 @@ for i, (nombre, Q, DP) in enumerate(top5):
     else:
         st.write(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
 
-# ===============================
-# ✅ OUTPUT
-# ===============================
 
-st.markdown("### 🟢 Bombas sugeridas")
 
-for i, (nombre, Q, DP) in enumerate(top5):
-
-    if i == 0:
-        st.success(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
-    else:
-        st.write(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
-
-    # =========================
-    # ✅ GRAFICO ARRIBA
-    # =========================
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
