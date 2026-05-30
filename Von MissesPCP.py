@@ -945,6 +945,50 @@ with colA:
 with colB:
     st.markdown("📌 **Operando**")
     st.write(f"RPM: {rpm}")
+    # ===============================
+# ✅ SELECCIÓN DE BOMBAS (REAL)
+# ===============================
+
+bombas_validas = []
+
+for nombre, data in bombas.items():
+
+    Q_bomba = data["Q"]
+    DP_bomba = data["DP"]
+
+    # ✅ filtro por presión
+    if DP_bomba >= pres_total:
+        bombas_validas.append((nombre, Q_bomba, DP_bomba))
+
+# ✅ SI NO HAY → fallback
+if len(bombas_validas) == 0:
+    st.warning("⚠ Ninguna bomba cumple ΔP → mostrando alternativas")
+    bombas_validas = [
+        (nombre, data["Q"], data["DP"])
+        for nombre, data in bombas.items()
+    ]
+
+# ✅ ordenar por cercanía a Q100
+bombas_ordenadas = sorted(
+    bombas_validas,
+    key=lambda x: abs(x[1] - Q100_optimo)
+)
+
+# ✅ top 5
+top5 = bombas_ordenadas[:5]
+
+# ===============================
+# ✅ OUTPUT
+# ===============================
+
+st.markdown("### 🟢 Bombas sugeridas")
+
+for i, (nombre, Q, DP) in enumerate(top5):
+
+    if i == 0:
+        st.success(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
+    else:
+        st.write(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
 
     # =========================
     # ✅ GRAFICO ARRIBA
