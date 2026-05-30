@@ -938,13 +938,16 @@ st.markdown("### Pump Requirement")
 Q100_sugerido = prod / (eta * (rpm_calc / 100))
 Q100_sugerido = round(Q100_sugerido / 10) * 10
 
-st.write(f"✅ Recomendado:")
-st.write(f"AP {pres_total:.0f} bar – {Q100_sugerido:.0f} m³/100 rpm")
-st.write(f"RPM óptima: {rpm_calc:.0f}")
+colA, colB = st.columns(2)
 
-# ✅ lo que estás usando realmente
-st.write(f"📌 Operando:")
-st.write(f"RPM: {rpm}")
+with colA:
+    st.markdown("✅ **Recomendado**")
+    st.write(f"AP {pres_total:.0f} bar – {Q100_sugerido:.0f} m³/100 rpm")
+    st.write(f"RPM óptima: {rpm_calc:.0f}")
+
+with colB:
+    st.markdown("📌 **Operando**")
+    st.write(f"RPM: {rpm}")
 
     # =========================
     # ✅ GRAFICO ARRIBA
