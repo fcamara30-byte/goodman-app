@@ -990,10 +990,29 @@ st.markdown("### 🟢 Bombas sugeridas")
 for i, (nombre, Q, DP) in enumerate(top5):
 
     if i == 0:
-        st.success(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
-    else:
-        st.write(f"{nombre}  |  {Q} m³/100rpm  |  {DP} bar")
+        st.markdown(f"""
+        <div style="
+            font-size:14px;
+            padding:6px;
+            background:#cfe8dc;
+            border-radius:6px;
+            margin-bottom:4px;
+            color:#0a5f2c;
+        ">
+        ✅ {nombre} | {Q} m³/100rpm | {DP} bar
+        </div>
+        """, unsafe_allow_html=True)
 
+    else:
+        st.markdown(f"""
+        <div style="
+            font-size:12px;
+            padding:2px;
+            margin-bottom:2px;
+        ">
+        {nombre} | {Q} m³/100rpm | {DP} bar
+        </div>
+        """, unsafe_allow_html=True)
 
 
 # =========================
