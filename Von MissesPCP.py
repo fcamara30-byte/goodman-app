@@ -810,13 +810,13 @@ for _, row in df.iterrows():
         rec.append("sin cent.")
     elif dls_val <= 3:
         colores.append("yellow")
-        rec.append("2 centralizadores")
+        rec.append("2 cent.")
     elif dls_val <= 6:
         colores.append("orange")
-        rec.append("3 centralizadores")
+        rec.append("3 cent.")
     else:
         colores.append("red")
-        rec.append("Más de 3 cent o Black Mamba")
+        rec.append(">3 cent o Mamba")
 
 df["Recomendación"] = rec
 
