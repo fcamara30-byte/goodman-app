@@ -289,7 +289,7 @@ with colL:
              "Volumetric Efficiency (-)",
              min_value=0.4,
              max_value=1.0,
-             value=0.85,
+             value=round(eta_sugerida, 3),
              step=0.01
         
     )
