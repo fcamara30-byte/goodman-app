@@ -985,7 +985,7 @@ top5 = bombas_ordenadas[:9]
 # ✅ OUTPUT
 # ===============================
 
-st.markdown("###Sugested Pumps (smallest to the biggest)")
+st.markdown("### Sugested Pumps (smallest to the biggest)")
 
 for i, (nombre, Q, DP) in enumerate(top5):
 
