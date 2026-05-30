@@ -1,5 +1,5 @@
 
-bombas_400_ST = {
+bombas= {
 
     # 33 m3/d
     "NTZ 400*065ST33": 33.0,
