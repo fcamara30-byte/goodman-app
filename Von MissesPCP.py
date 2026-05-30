@@ -55,18 +55,10 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
-div[data-testid="stNumberInput"] {width: 140px;}
+div[data-testid="stNumberInput"] {width: 130px;}
 </style>
 """, unsafe_allow_html=True)
-st.markdown("""
-<style>
-div[data-testid="stNumberInput"],
-div[data-testid="stSelectbox"],
-div[data-testid="stTextInput"] {
-    margin-bottom: 12px;   /* 👈 BAJA CADA CAMPO */
-}
-</style>
-""", unsafe_allow_html=True)
+
 
 
 
