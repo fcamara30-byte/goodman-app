@@ -95,32 +95,32 @@ st.markdown("""
 
 
 st.markdown("""
-<h1 style="
-    font-family: 'Segoe UI', sans-serif;
+<style>
+.titulo {
+    margin-bottom: 0px;
+}
+.subtitulo {
+    margin: 0;
+}
+.version {
+    margin: 0;
+}
+</style>
+
+<h1 class="titulo" style="
+    font-family: 'Segoe UI';
     font-weight: 600;
     font-size: 40px;
     color: #1f3b5c;
-    letter-spacing: 1px;
-    margin-bottom: 0;
 ">
 10-Rod
 </h1>
 
-<p style="
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 18px;
-    color: #6c7a89;
-    margin-top: -10px;
-">
+<p class="subtitulo" style="color:#6c7a89; font-size:18px;">
 PCP Design 🌎
 </p>
 
-<p style="
-    font-family: 'Segoe UI', sans-serif;
-    font-size: 14px;
-    color: #999999;
-    margin-top: -10px;
-">
+<p class="version" style="color:#999; font-size:14px;">
 Versión Beta
 </p>
 """, unsafe_allow_html=True)
