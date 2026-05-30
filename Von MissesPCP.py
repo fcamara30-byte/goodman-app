@@ -380,14 +380,13 @@ pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
 
-
-
-eta_usuario = st.number_input(
-   "Volumetric Effic (-)",
-    min_value=0.4,
-    max_value=1.0,
-    value=round(eta_sugerida, 3),
-    step=0.01
+with c1:
+    eta_usuario = st.number_input(
+     "Volumetric Effic (-)",
+      min_value=0.4,
+      max_value=1.0,
+      value=round(eta_sugerida, 3),
+      step=0.01
 )
 
 eta = eta_usuario
