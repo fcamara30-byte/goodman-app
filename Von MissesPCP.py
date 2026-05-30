@@ -207,10 +207,10 @@ with colL:
 
 
 
-          Q_cap = Q_teorico * eta_usuario
+        Q_cap = Q_teorico * eta_usuario
 
         
-          Q_real = prod
+        Q_real = prod
 
 
 
