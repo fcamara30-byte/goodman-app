@@ -178,7 +178,7 @@ components.html("""
 """, height=10)
 
 
-colL, colR = st.columns([1.2,2.8])
+colL, colR = st.columns([1.1,2.5])
 
 # =========================
 # INPUTS
