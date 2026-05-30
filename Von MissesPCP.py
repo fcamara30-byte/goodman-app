@@ -991,7 +991,7 @@ top5 = bombas_ordenadas[:18]
 
 
 if modo_fallback:
-    st.markdown("### 🔴 No pump meets the ΔP requirement")
+    st.markdown("### 🔴 ")
 else:
     st.markdown("### Suggested Pumps (Smallest to Largest)")
 
