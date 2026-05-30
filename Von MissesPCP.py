@@ -4,8 +4,14 @@ import streamlit.components.v1 as components
 import math# =====================
 
 def eficiencia_volumetrica(dp, visc):
-    eta = 0.95 * math.exp(-0.008 * dp) * math.exp(-0.002 * visc)
-    return max(0.5, min(0.95, eta))
+    k = 0.003   # calibración física (ajustable)
+
+    slip = k * (dp / max(visc, 1))
+
+    eta = 1 - slip
+
+    return max(0.6, min(0.95, eta))
+
 
 from bombas import bombas
 # ✅ FONDO GLOBAL (poner primero de todos los estilos)
