@@ -210,13 +210,7 @@ with colL:
          # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
 
-        rpm_obj = 150
 
-
-
-
-        # ✅ input editable
-        rpm = st.number_input("RPM oper", value=int(rpm_obj), step=10)
 
 
 
