@@ -261,6 +261,13 @@ with colL:
            "Sin liner": 0.9    
 }
 
+            eta_usuario = st.number_input(
+           "Volumetric Efficiency (-)",
+            min_value=0.4,
+            max_value=1.0,
+            value=round(eta_sugerida, 2),
+            step=0.01
+)
 
      
         
