@@ -807,7 +807,7 @@ for _, row in df.iterrows():
 
     if dls_val <= 1.9:
         colores.append("green")
-        rec.append("sin centralizadores")
+        rec.append("sin cent.")
     elif dls_val <= 3:
         colores.append("yellow")
         rec.append("2 centralizadores")
@@ -963,7 +963,7 @@ with colG:
            
             st.markdown("""
             <div style="margin-left:90px">
-              🟢 **< 2°/100ft** → Sin centralizadores<br>  
+              🟢 **< 2°/100ft** → sin cent.<br>  
               🟡 **2 – 3°/100ft** → 2 centralizadores<br>  
               🟠 **3 – 6°/100ft** → 3 centralizadores<br>  
               🔴 **> 6°/100ft** → +3 o Black Mamba  
