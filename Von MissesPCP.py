@@ -968,7 +968,7 @@ for nombre, data in bombas.items():
 modo_fallback = False
 if len(bombas_validas) == 0:
     modo_fallback = True 
-    st.warning("⚠ Ninguna bomba cumple ΔP → mostrando alternativas")
+    st.warning("⚠ No pump meets the ΔP requirement")
     bombas_validas = [
         (nombre, data["Q"], data["DP"])
         for nombre, data in bombas.items()
@@ -991,9 +991,9 @@ top5 = bombas_ordenadas[:18]
 
 
 if modo_fallback:
-    st.markdown("### 🔴 Bombas (NO cumplen ΔP)")
+    st.markdown("### 🔴 No pump meets the ΔP requirement")
 else:
-    st.markdown("### 🟢 Bombas sugeridas (menor → mayor)")
+    st.markdown("### Suggested Pumps (Smallest to Largest)")
 
 
 html = '<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:6px;">'
