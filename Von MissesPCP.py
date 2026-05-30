@@ -186,8 +186,11 @@ with colL:
                                  
         # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
-        bomba_sel = st.selectbox("Bomba", list(BOMBAS.keys()))
-        Q100 = BOMBAS[bomba_sel]
+
+        bomba_sel = st.selectbox("Bomba", list(bombas.keys()))
+
+        Q100 = bombas[bomba_sel]
+
 
 
         # ✅ cálculo de RPM automático
