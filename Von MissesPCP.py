@@ -207,24 +207,30 @@ with colL:
         nombre_pozo = st.text_input("Well Name")
         profundidad = st.number_input("Pump Seat (m)",600,step=100)                                   
                                  
-        # ✅ selección de bomba
+         # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
 
-        bomba_sel = st.selectbox("Bomba", list(bombas.keys()))
+        # ✅ eficiencia
+        eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
-        Q100 = bombas[bomba_sel]
+        # ✅ RPM objetivo (ideal PCP)
+        rpm_obj = 150
+ 
+        # ✅ Q requerida (clave del modelo)
+        Q100_req = prod / (eta_sugerida * (rpm_obj / 100))
 
+        # ✅ redondeo a tamaño comercial
+        Q100_req = round(Q100_req / 10) * 10
 
+        # ✅ mostrar RPM sugerida
+        st.write(f"RPM sugerida: {rpm_obj}")
 
-        # ✅ cálculo de RPM automático
+        # ✅ input editable
+        rpm = st.number_input("RPM oper", value=int(rpm_obj), step=10)
 
-        # ✅ cálculo de RPM sugerida
-        rpm_sugerida = (prod / Q100) * 100
+        # ✅ caudal teórico coherente
+        Q_teorico = Q100_req * (rpm / 100)
 
-        st.write(f"RPM sugerida: {rpm_sugerida:.0f}")
-
-        # ✅ input manual (EL REAL QUE USA EL MODELO)
-        rpm = st.number_input("RPM oper", value=int(rpm_sugerida), step=10)
         
         # ✅ CAUDAL REAL (bien ubicado)
         Q_teorico = Q100 * (rpm / 100)
