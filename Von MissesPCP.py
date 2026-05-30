@@ -360,9 +360,11 @@ with c1:
       max_value=1.0,
       value=round(eta_sugerida, 3),
       step=0.01
+      disabled=True
 )
 
 eta = eficiencia_volumetrica(pres_total, viscosidad)
+
 # ===============================
 # ✅ BUSQUEDA RPM ÓPTIMA (mínimo torque)
 # ===============================
