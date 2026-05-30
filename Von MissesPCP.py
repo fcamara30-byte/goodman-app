@@ -205,8 +205,8 @@ with colL:
 
 
     # ✅ aseguro que BOMBAS existe acá
-if "BOMBAS" not in globals():
-    BOMBAS = {
+    if "BOMBAS" not in globals():
+      BOMBAS = {
         "NTZ 278 ST 4": 4.0,
         "NTZ 278 ST 7": 7.0,
         "NTZ 278 ST 10": 10.0,
@@ -569,7 +569,7 @@ def generar_pdf():
         f"RPM: {rpm}",
         f"Prod: {prod}",
         f"P Línea: {pres_linea}",
-        f"Nivel: {nivel}",
+       
         f"Sumerg: {sumergencia}",
         f"Visc: {viscosidad}",
         f"Sólidos: {solidos}"
