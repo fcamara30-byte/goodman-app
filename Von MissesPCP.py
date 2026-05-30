@@ -978,7 +978,7 @@ bombas_ordenadas = sorted(
 )
 
 # ✅ TOP 5
-top5 = bombas_ordenadas[:15]
+top5 = bombas_ordenadas[:18]
 
 
 # ===============================
