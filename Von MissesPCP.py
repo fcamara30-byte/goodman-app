@@ -145,11 +145,11 @@ st.markdown("""
     font-size: 40px;
     color: #1f3b5c;
 ">
-10-Rod
+10-Rod 🌎
 </h1>
 
 <p class="subtitulo" style="color:#6c7a89; font-size:18px;">
-PCP Design 🌎
+PCP Design 
 </p>
 
 <p class="version" style="color:#999; font-size:14px;">
