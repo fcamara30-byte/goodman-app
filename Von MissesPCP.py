@@ -987,34 +987,27 @@ top5 = bombas_ordenadas[:12]
 
 st.markdown("### Sugested Pumps (smallest to the biggest)")
 
+
+col1, col2, col3 = st.columns(3)
+
 for i, (nombre, Q, DP) in enumerate(top5):
 
-    if i == 0:
-        st.markdown(f"""
-        <div style="
-            font-size:14px;
-            padding:6px;
-            background:#cfe8dc;
-            border-radius:6px;
-            margin-bottom:4px;
-            color:#0a5f2c;
-        ">
-        ✅ {nombre} | {Q} m³/100rpm | {DP} bar
-        </div>
-        """, unsafe_allow_html=True)
+    texto = f"{nombre} | {Q} m³/100rpm | {DP} bar"
+
+    if i % 3 == 0:
+        with col1:
+            if i == 0:
+                st.success(texto)
+            else:
+                st.write(texto)
+
+    elif i % 3 == 1:
+        with col2:
+            st.write(texto)
 
     else:
-        st.markdown(f"""
-        <div style="
-            font-size:12px;
-            padding:2px;
-            margin-bottom:2px;
-        ">
-        {nombre} | {Q} m³/100rpm | {DP} bar
-        </div>
-        """, unsafe_allow_html=True)
-
-
+        with col3:
+            st.write(texto)
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
