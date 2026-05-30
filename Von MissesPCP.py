@@ -192,10 +192,7 @@ with colL:
         # ✅ CAUDAL REAL (bien ubicado)
         Q_teorico = Q100 * (rpm / 100)
 
-         eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
-         # input editable por usuario
-         eta_usuario = st.number_input(
          "Eficiencia volumétrica",
           min_value=0.4,
           max_value=1.0,
@@ -278,6 +275,15 @@ with colL:
             ["DA 78","HS97","CS Propietary","HS Propietary","D New","DSX75","HA96"]
         )
         fric_bomba = st.number_input("Pump Friction (lb·ft)", value=20.0, step=5.0)
+        
+        eta_usuario = st.number_input(
+        "Volumetric Efficiency (-)",
+        min_value=0.4,
+        max_value=1.0,
+        value=0.85,
+        step=0.01
+    )
+
         
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
 YIELD={"DA 78":100,"HS97":120,"CS Propietary":110,"HS Propietary":135,"D New":95,"DSX75":110,"HA96":115}
