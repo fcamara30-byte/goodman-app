@@ -2,7 +2,7 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
-
+from bombas import BOMBA
 # ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
 <style>
@@ -11,45 +11,7 @@ html, body, .stApp {
 }
 </style>
 """, unsafe_allow_html=True)
-# NTZ 400 ST COMPLETO (4")
-# =====================
-BOMBAS_400_ST = {
 
-    # 33 m3/d
-    "NTZ 400*065ST33": 33.0,
-    "NTZ 400*090ST33": 33.0,
-    "NTZ 400*120ST33": 33.0,
-    "NTZ 400*150ST33": 33.0,
-    "NTZ 400*180ST33": 33.0,
-    "NTZ 400*200ST33": 33.0,
-    "NTZ 400*240ST33": 33.0,
-
-    # 40 m3/d
-    "NTZ 400*100ST40": 40.0,
-    "NTZ 400*120ST40": 40.0,
-    "NTZ 400*150ST40": 40.0,
-    "NTZ 400*180ST40": 40.0,
-    "NTZ 400*200ST40": 40.0,
-
-    # 50 m3/d
-    "NTZ 400*060ST50": 50.0,
-    "NTZ 400*090ST50": 50.0,
-    "NTZ 400*120ST50": 50.0,
-    "NTZ 400*150ST50": 50.0,
-    "NTZ 400*180ST50": 50.0,
-
-    # 62 m3/d
-    "NTZ 400*060ST62": 62.0,
-    "NTZ 400*090ST62": 62.0,
-    "NTZ 400*120ST62": 62.0,
-    "NTZ 400*150ST62": 62.0,
-
-    # 78 m3/d
-    "NTZ 400*060ST78": 78.0,
-    "NTZ 400*090ST78": 78.0,
-    "NTZ 400*120ST78": 78.0,
-    "NTZ 400*150ST78": 78.0,
-}
 
 import pandas as pd
 
@@ -204,55 +166,7 @@ with colL:
     c1,c2 = st.columns(2)
 
 
-    # ✅ aseguro que BOMBAS existe acá
-    if "BOMBAS" not in globals():
-      BOMBAS = {
-        "NTZ 278 ST 4": 4.0,
-        "NTZ 278 ST 7": 7.0,
-        "NTZ 278 ST 10": 10.0,
-        "NTZ 278 ST 14": 14.0,
-
-        "NTZ 350 ST 16.4": 16.4,
-        "NTZ 350 ST 20": 20.0,
-        "NTZ 350 ST 25": 25.0,
-        "NTZ 350 ST 33": 33.0,
-        "NTZ 350 ST 40": 40.0,
-
-   
-    "NTZ 400*065ST33": 33.0,
-    "NTZ 400*090ST33": 33.0,
-    "NTZ 400*120ST33": 33.0,
-    "NTZ 400*150ST33": 33.0,
-    "NTZ 400*180ST33": 33.0,
-    "NTZ 400*200ST33": 33.0,
-    "NTZ 400*240ST33": 33.0,
-
-    # 40 m3/d
-    "NTZ 400*100ST40": 40.0,
-    "NTZ 400*120ST40": 40.0,
-    "NTZ 400*150ST40": 40.0,
-    "NTZ 400*180ST40": 40.0,
-    "NTZ 400*200ST40": 40.0,
-
-    # 50 m3/d
-    "NTZ 400*060ST50": 50.0,
-    "NTZ 400*090ST50": 50.0,
-    "NTZ 400*120ST50": 50.0,
-    "NTZ 400*150ST50": 50.0,
-    "NTZ 400*180ST50": 50.0,
-
-    # 62 m3/d
-    "NTZ 400*060ST62": 62.0,
-    "NTZ 400*090ST62": 62.0,
-    "NTZ 400*120ST62": 62.0,
-    "NTZ 400*150ST62": 62.0,
-
-    # 78 m3/d
-    "NTZ 400*060ST78": 78.0,
-    "NTZ 400*090ST78": 78.0,
-    "NTZ 400*120ST78": 78.0,
-    "NTZ 400*150ST78": 78.0,
-}
+    
 
    
     with c1:
