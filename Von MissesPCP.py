@@ -213,8 +213,7 @@ with colL:
         rpm_obj = 150
 
 
-        # ✅ mostrar RPM sugerida
-        st.write(f"RPM sugerida: {rpm_obj}")
+
 
         # ✅ input editable
         rpm = st.number_input("RPM oper", value=int(rpm_obj), step=10)
