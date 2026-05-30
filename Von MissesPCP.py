@@ -288,14 +288,7 @@ if "BOMBAS" not in globals():
   
         
 
-        nivel = st.number_input(
-        "Fluid Level (m)",
-          min_value=0,
-          max_value=int(profundidad),
-          value=int(profundidad),
-          step=20,
-          format="%d"
-)
+
 
 
         
@@ -427,10 +420,14 @@ dp_fric = f * (profundidad / D_tbg) * (0.5 * 1000 * v**2)
 # convertir a kg/cm2
 dp_fric = dp_fric / 98066
 
-pres_nivel = (nivel * densidad) / 10000
+
 pres_entrada = (sumergencia * densidad) / 10000
 
-pres_total = pres_linea + pres_nivel + dp_fric - pres_entrada
+# presión columna tubing (desde bomba a superficie)
+pres_columna = (profundidad * densidad) / 10000
+
+# presión intake correcta
+pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 
 
 pot_h = Q_real * pres_total * 0.0014
