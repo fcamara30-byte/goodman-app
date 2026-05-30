@@ -190,8 +190,23 @@ with colL:
         rpm = st.number_input("RPM oper", value=int(rpm_sugerida), step=10)
         
         # ✅ CAUDAL REAL (bien ubicado)
-        Q_cap = Q100 * (rpm / 100)
-        Q_real = prod
+        Q_teorico = Q100 * (rpm / 100)
+
+         eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
+
+         # input editable por usuario
+         eta_usuario = st.number_input(
+         "Eficiencia volumétrica",
+          min_value=0.4,
+          max_value=1.0,
+          value=round(eta_sugerida, 2),
+          step=0.01
+)
+
+          Q_cap = Q_teorico * eta_usuario
+
+        
+          Q_real = prod
 
 
 
