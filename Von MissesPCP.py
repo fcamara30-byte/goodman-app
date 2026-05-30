@@ -2,7 +2,7 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
-from bombas import BOMBA
+from bombas import BOMBAS
 # ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
 <style>
@@ -193,11 +193,7 @@ with colL:
         Q_teorico = Q100 * (rpm / 100)
 
 
-         "Eficiencia volumétrica",
-          min_value=0.4,
-          max_value=1.0,
-          value=round(eta_sugerida, 2),
-          step=0.01
+
 )
 
           Q_cap = Q_teorico * eta_usuario
