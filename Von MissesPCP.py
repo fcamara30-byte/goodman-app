@@ -210,12 +210,7 @@ with colL:
          # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
 
-
-
-
- 
-
-
+        rpm_obj = 150
 
 
         # ✅ mostrar RPM sugerida
@@ -388,22 +383,14 @@ pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 # ✅ eficiencia correcta
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
-# ✅ usar la eficiencia que el usuario ve (mejor)
-eta = eta_usuario
-
-# ✅ calcular bomba requerida
-Q100_req = prod / (eta * (rpm / 100))
-
-# ✅ redondear
-Q100_req = round(Q100_req / 10) * 10
-
-# ✅ caudal coherente
-Q_teorico = Q100_req * (rpm / 100)
 
 
 
 
-eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
+
+
+
+
 eta_usuario = st.number_input(
    "Volumetric Effic (-)",
     min_value=0.4,
@@ -413,6 +400,12 @@ eta_usuario = st.number_input(
 
 
 )
+
+eta = eta_usuario
+
+Q100_req = prod / (eta * (rpm / 100))
+Q100_req = round(Q100_req / 10) * 10
+Q_teorico = Q100_req * (rpm / 100)
 
 
 Q_cap = Q_teorico * eta_usuario
