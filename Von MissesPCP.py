@@ -669,7 +669,7 @@ with col_text:
     """, unsafe_allow_html=True)
 
     # ✅ TÍTULO (más cerca del cuadro)
-    st.markdown('<div class="titulo-perfil"><b>Copy and paste Survey below: MD-Inc-Az</b></div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo-perfil"><b>⬇️Paste from Xls. Survey : MD-Inc-Az</b></div>', unsafe_allow_html=True)
 
     # ✅ LAYOUT CUADRO + BOTÓN
     col_box, col_btn = st.columns([4,1])
