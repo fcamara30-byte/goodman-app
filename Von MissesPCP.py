@@ -2,6 +2,11 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
+
+def eficiencia_volumetrica(dp, visc):
+    eta = 0.95 * math.exp(-0.008 * dp) * math.exp(-0.002 * visc)
+    return max(0.5, min(0.95, eta))
+
 from bombas import bombas
 # ✅ FONDO GLOBAL (poner primero de todos los estilos)
 st.markdown("""
@@ -231,7 +236,7 @@ with colL:
 
 
         densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
-        eficiencia = st.number_input("Efficiency (-)",0.83)
+        eficiencia = st.number_input("Efficiency (-)",0.9)
 
     with c2:
         viscosidad = st.number_input("Viscosity (cP)",1,step=40)
@@ -375,7 +380,7 @@ pres_columna = (profundidad * densidad) / 10000
 
 # presión intake correcta
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
-
+eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
 pot_h = Q_real * pres_total * 0.0014
 
