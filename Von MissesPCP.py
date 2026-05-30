@@ -1002,7 +1002,7 @@ for nombre, Q, DP in top5:
     html += f'<div style="font-size:12px; line-height:1.2; padding:2px;">{nombre} | {Q} m³/100rpm | {DP} bar</div>'
 
 html += "</div>"
-
+st.markdown(html, unsafe_allow_html=True)
 
 
 # =========================
