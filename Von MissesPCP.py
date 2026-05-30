@@ -964,9 +964,9 @@ with colG:
             st.markdown("""
             <div style="margin-left:90px">
               🟢 **< 2°/100ft** → sin cent.<br>  
-              🟡 **2 – 3°/100ft** → 2 centralizadores<br>  
-              🟠 **3 – 6°/100ft** → 3 centralizadores<br>  
-              🔴 **> 6°/100ft** → +3 o Black Mamba  
+              🟡 **2 – 3°/100ft** → 2 cent.<br>  
+              🟠 **3 – 6°/100ft** → 3 cent.<br>  
+              🔴 **> 6°/100ft** → +3 o Mamba  
                
             </div>
             """, unsafe_allow_html=True)
