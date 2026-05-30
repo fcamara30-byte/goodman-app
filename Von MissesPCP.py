@@ -385,26 +385,32 @@ eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
 
 
-
-
-
-
-
 eta_usuario = st.number_input(
    "Volumetric Effic (-)",
     min_value=0.4,
     max_value=1.0,
     value=round(eta_sugerida, 3),
     step=0.01
-
-
 )
 
 eta = eta_usuario
 
+# ✅ base de diseño (ajustable)
+Q100_base = 200  
+
+# ✅ RPM automática según producción
+rpm_calc = (prod * 100) / (Q100_base * eta)
+
+# ✅ input editable dinámico
+rpm = st.number_input("RPM oper", value=int(rpm_calc), step=10)
+
+# ✅ bomba resultante REAL
 Q100_req = prod / (eta * (rpm / 100))
 Q100_req = round(Q100_req / 10) * 10
+
+# ✅ caudal coherente
 Q_teorico = Q100_req * (rpm / 100)
+
 
 
 Q_cap = Q_teorico * eta_usuario
