@@ -210,17 +210,13 @@ with colL:
          # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
 
-        # ✅ eficiencia
-        eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 
-        # ✅ RPM objetivo (ideal PCP)
-        rpm_obj = 150
+
+
  
-        # ✅ Q requerida (clave del modelo)
-        Q100_req = prod / (eta_sugerida * (rpm_obj / 100))
 
-        # ✅ redondeo a tamaño comercial
-        Q100_req = round(Q100_req / 10) * 10
+
+
 
         # ✅ mostrar RPM sugerida
         st.write(f"RPM sugerida: {rpm_obj}")
@@ -228,12 +224,6 @@ with colL:
         # ✅ input editable
         rpm = st.number_input("RPM oper", value=int(rpm_obj), step=10)
 
-        # ✅ caudal teórico coherente
-        Q_teorico = Q100_req * (rpm / 100)
-
-        
-        # ✅ CAUDAL REAL (bien ubicado)
-        Q_teorico = Q100 * (rpm / 100)
 
 
 
@@ -395,6 +385,24 @@ pres_columna = (profundidad * densidad) / 10000
 
 # presión intake correcta
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
+# ✅ eficiencia correcta
+eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
+
+# ✅ usar la eficiencia que el usuario ve (mejor)
+eta = eta_usuario
+
+# ✅ calcular bomba requerida
+Q100_req = prod / (eta * (rpm / 100))
+
+# ✅ redondear
+Q100_req = round(Q100_req / 10) * 10
+
+# ✅ caudal coherente
+Q_teorico = Q100_req * (rpm / 100)
+
+
+
+
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 eta_usuario = st.number_input(
    "Volumetric Effic (-)",
@@ -929,7 +937,10 @@ with c5:
         <div class="metric-value">{torque_final:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
+st.markdown("### Pump Requirement")
 
+st.write(f"AP {pres_total:.0f} bar – {Q100_req:.0f} m³/100 rpm")
+st.write(f"RPM: {rpm}")
 
     # =========================
     # ✅ GRAFICO ARRIBA
