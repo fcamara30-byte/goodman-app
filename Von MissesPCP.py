@@ -977,8 +977,8 @@ bombas_ordenadas = sorted(
     key=lambda x: x[1]   # menor → mayor
 )
 
-# ✅ TOP 7
-top7 = bombas_ordenadas[:7]
+# ✅ TOP 5
+top5 = bombas_ordenadas[:5]
 
 
 # ===============================
