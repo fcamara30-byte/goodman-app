@@ -135,14 +135,14 @@ st.markdown("""
     margin: 0;
 }
 .version {
-    margin: 0;
+    margin: -10;
 }
 </style>
 
 <h1 class="titulo" style="
     font-family: 'Segoe UI';
     font-weight: 600;
-    font-size: 40px;
+    font-size: 45px;
     color: #1f3b5c;
 ">
 10-Rod 🌎
@@ -152,7 +152,7 @@ st.markdown("""
 PCP Design 
 </p>
 
-<p class="version" style="color:#999; font-size:14px;">
+<p class="version" style="color:#999; font-size:16px;">
 Versión Beta
 </p>
 """, unsafe_allow_html=True)
