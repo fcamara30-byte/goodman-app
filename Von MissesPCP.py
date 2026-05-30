@@ -205,7 +205,7 @@ with colL:
 
 
 
-)
+
 
           Q_cap = Q_teorico * eta_usuario
 
