@@ -989,11 +989,12 @@ top5 = bombas_ordenadas[:18]
 # ✅ OUTPUT
 # ===============================
 
-st.markdown("""
-<h3 style="margin-bottom:5px;">
- Sugested pumps (Smallest to Biggest )
-</h3>
-""", unsafe_allow_html=True)
+
+if modo_fallback:
+    st.markdown("### 🔴 Bombas (NO cumplen ΔP)")
+else:
+    st.markdown("### 🟢 Bombas sugeridas (menor → mayor)")
+
 
 html = '<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:6px;">'
 
@@ -1002,7 +1003,7 @@ for nombre, Q, DP in top5:
 
 html += "</div>"
 
-st.markdown(html, unsafe_allow_html=True)
+
 
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
