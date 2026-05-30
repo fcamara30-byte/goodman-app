@@ -55,6 +55,14 @@ st.set_page_config(layout="wide")
 
 st.markdown("""
 <style>
+.block-container {
+    padding-top: 0rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
 div[data-testid="stNumberInput"] {width: 130px;}
 </style>
 """, unsafe_allow_html=True)
