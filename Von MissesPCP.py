@@ -284,15 +284,7 @@ with colL:
         )
         fric_bomba = st.number_input("Pump Friction (lb·ft)", value=20.0, step=5.0)
         
-        eta_usuario = st.number_input(
-            
-             "Volumetric Efficiency (-)",
-             min_value=0.4,
-             max_value=1.0,
-             value=round(eta_sugerida, 3),
-             step=0.01
-        
-    )
+
 
         Q_cap = Q_teorico * eta_usuario    
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
@@ -390,7 +382,7 @@ eta_usuario = st.number_input(
     step=0.01
 )
 
-Q_cap = Q_teorico * eta_usuari
+Q_cap = Q_teorico * eta_usuario
 
 pot_h = Q_real * pres_total * 0.0014
 
