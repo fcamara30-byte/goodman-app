@@ -993,7 +993,7 @@ top5 = bombas_ordenadas[:18]
 if modo_fallback:
     st.markdown("### 🔴 ")
 else:
-    st.markdown("### Suggested Pumps (Smallest to Largest)")
+    st.markdown("### Suggested Pumps")
 
 
 html = '<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:6px;">'
