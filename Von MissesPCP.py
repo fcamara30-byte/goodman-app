@@ -286,7 +286,6 @@ with colL:
         
 
 
-        Q_cap = Q_teorico * eta_usuario    
 RODS={"7/8":{"d":0.875,"peso":2.22},"1":{"d":1.0,"peso":2.67},"1 1/8":{"d":1.125,"peso":3.37}}
 YIELD={"DA 78":100,"HS97":120,"CS Propietary":110,"HS Propietary":135,"D New":95,"DSX75":110,"HA96":115}
 # =========================
