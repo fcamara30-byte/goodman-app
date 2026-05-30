@@ -242,7 +242,7 @@ with colL:
 
 
         densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
-        eficiencia = st.number_input("Efficiency (-)",0.9)
+        eficiencia = st.number_input("Mec Effic. (-)",0.9)
 
     with c2:
         viscosidad = st.number_input("Viscosity (cP)",1,step=40)
@@ -379,7 +379,7 @@ pres_columna = (profundidad * densidad) / 10000
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
 eta_usuario = st.number_input(
-   "Volumetric Efficiency (-)",
+   "Volumetric Effic (-)",
     min_value=0.4,
     max_value=1.0,
     value=round(eta_sugerida, 3),
