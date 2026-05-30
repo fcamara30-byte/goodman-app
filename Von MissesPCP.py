@@ -970,9 +970,9 @@ if len(bombas_validas) == 0:
 
 # ✅ ordenar por cercanía a Q100
 
-  bombas_ordenadas = sorted(
-    bombas_validas,
-    key=lambda x: x[1]   # 👈 ordena por Q (de menor a mayor)
+    bombas_ordenadas = sorted(
+       bombas_validas,
+       key=lambda x: x[1]   # 👈 ordena por Q (de menor a mayor)
 )
 # ✅ top 5
 top5 = bombas_ordenadas[:5]
