@@ -79,6 +79,18 @@ div[data-testid="stNumberInput"] {width: 130px;}
 """, unsafe_allow_html=True)
 
 
+st.markdown("""
+<style>
+[data-testid="stDataFrame"] td {
+    font-size: 11px !important;
+}
+
+[data-testid="stDataFrame"] th {
+    font-size: 12px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 
 st.markdown("""
