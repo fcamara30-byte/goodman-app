@@ -985,29 +985,31 @@ top5 = bombas_ordenadas[:12]
 # ✅ OUTPUT
 # ===============================
 
-st.markdown("### Sugested Pumps (smallest to the biggest)")
 
 
-col1, col2, col3 = st.columns(3)
+st.markdown("""
+<h3 style="margin-bottom:5px;">
+🟢 Bombas sugeridas (menor → mayor)
+</h3>
+""", unsafe_allow_html=True)
 
-for i, (nombre, Q, DP) in enumerate(top5):
+html = '<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:6px;">'
 
-    texto = f"{nombre} | {Q} m³/100rpm | {DP} bar"
+for nombre, Q, DP in top5:
+    html += f"""
+    <div style="
+        font-size:11px;
+        line-height:1.2;
+        padding:2px;
+    ">
+    {nombre} | {Q} m³/100rpm | {DP} bar
+    </div>
+    """
 
-    if i % 3 == 0:
-        with col1:
-            if i == 0:
-                st.success(texto)
-            else:
-                st.write(texto)
+html += "</div>"
 
-    elif i % 3 == 1:
-        with col2:
-            st.write(texto)
+st.markdown(html, unsafe_allow_html=True)
 
-    else:
-        with col3:
-            st.write(texto)
 # =========================
 # ✅ GRAFICO + SLIDERS LADO A LADO
 # =========================
