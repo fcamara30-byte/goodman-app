@@ -965,7 +965,9 @@ for nombre, data in bombas.items():
 
 
 # ✅ fallback
+modo_fallback = False
 if len(bombas_validas) == 0:
+    modo_fallback = True 
     st.warning("⚠ Ninguna bomba cumple ΔP → mostrando alternativas")
     bombas_validas = [
         (nombre, data["Q"], data["DP"])
