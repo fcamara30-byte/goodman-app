@@ -985,8 +985,6 @@ top5 = bombas_ordenadas[:12]
 # ✅ OUTPUT
 # ===============================
 
-
-
 st.markdown("""
 <h3 style="margin-bottom:5px;">
 🟢 Bombas sugeridas (menor → mayor)
@@ -996,15 +994,7 @@ st.markdown("""
 html = '<div style="display:grid; grid-template-columns: repeat(3,1fr); gap:6px;">'
 
 for nombre, Q, DP in top5:
-    html += f"""
-    <div style="
-        font-size:11px;
-        line-height:1.2;
-        padding:2px;
-    ">
-    {nombre} | {Q} m³/100rpm | {DP} bar
-    </div>
-    """
+    html += f'<div style="font-size:11px; line-height:1.2; padding:2px;">{nombre} | {Q} m³/100rpm | {DP} bar</div>'
 
 html += "</div>"
 
