@@ -391,12 +391,37 @@ with c1:
 )
 
 eta = eta_usuario
+# ===============================
+# ✅ BUSQUEDA RPM ÓPTIMA (mínimo torque)
+# ===============================
 
-# ✅ base de diseño (ajustable)
-Q100_base = 200  
+rpm_range = np.arange(40, 351, 5)
 
-# ✅ RPM automática según producción
-rpm_calc = (prod * 100) / (Q100_base * eta)
+mejor_rpm = None
+mejor_torque = 1e12
+mejor_Q100 = None
+
+for r in rpm_range:
+
+    Q100_test = prod / (eta * (r / 100))
+
+    pot_h_test = Q_real * pres_total * 0.0014
+    pot_c_test = pot_h_test / eficiencia
+
+    torque_test = (5252 * pot_c_test) / r
+    torque_test *= (1 + viscosidad/1000) * (1 + solidos/100) * 1.07
+
+    if torque_test < mejor_torque:
+        mejor_torque = torque_test
+        mejor_rpm = r
+        mejor_Q100 = Q100_test
+
+# ✅ resultados óptimos
+rpm_optima_real = mejor_rpm
+Q100_optimo = round(mejor_Q100 / 10) * 10
+
+
+
 
 # ✅ input editable dinámico
 rpm = rpm_manual
