@@ -359,7 +359,7 @@ with c1:
       min_value=0.4,
       max_value=1.0,
       value=round(eta_sugerida, 3),
-      step=0.01
+      step=0.01,
       disabled=True
 )
 
