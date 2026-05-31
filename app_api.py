@@ -265,7 +265,7 @@ Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
 L_total_ft = L1+L78+L34
-
+Depth_ft = L_m * 3.28084
 Ap=np.pi*D**2/4
 Fh = 0.433 * G * Depth_ft * Ap
 
