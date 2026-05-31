@@ -285,12 +285,28 @@ FoSkr = Fo / Skr
 
 # frecuencia natural simplificada
 No = 200000 / L_total_ft
-N_ratio = N / No
+N_ratio = min((N / No) * 2.5, 0.8)
 
 # ✅ dinámica tipo API
 
-Fi = Fo * (0.8 + 1.8 * N_ratio)
-Fz = Fo * (0.6 + 1.2 * N_ratio)
+# =========================
+# ✅ API-LIKE CORRELATION (SIN PARCHE)
+# =========================
+
+# normalizaciones
+x = FoSkr        # carga relativa
+y = N_ratio      # velocidad relativa
+
+# ✅ Fi/Skr (comportamiento tipo Fig 4.2)
+FiSkr = (0.8 * x) * (1 + 2.5 * y) / (1 + 0.5 * x)
+
+# ✅ Fz/Skr (tipo Fig 4.3)
+FzSkr = (0.6 * x) * (1 + 1.8 * y) / (1 + 0.7 * x)
+
+# ✅ fuerzas reales
+Fi = FiSkr * Skr
+Fz = FzSkr * Skr
+
 
 
 # ✅ cargas finales
