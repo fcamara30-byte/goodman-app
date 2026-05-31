@@ -288,14 +288,27 @@ No = 200000 / L_total_ft
 N_ratio = N / No
 
 # ✅ dinámica tipo API
-Fi = Fo * (0.6 + 1.2 * N_ratio)   # carga máxima
-Fz = Fo * (0.4 + 0.8 * N_ratio)   # descarga
+
+Fi = Fo * (0.8 + 1.8 * N_ratio)
+Fz = Fo * (0.6 + 1.2 * N_ratio)
+
 
 # ✅ cargas finales
+# cargas finales
 PPRL = Wr + Fi
-MPRL = max(Wr - Fz, 0)
 
-MPRL = MPRL_base 
+MPRL = max(Wr - 1.2 * Fz, 0)   # 🔺 más dinámica
+MPRL *= 0.85                   # 🔻 pérdidas reales
+
+st.markdown("### 📊 Parámetros dinámicos")
+
+st.write({
+    "Fo (lb)": int(Fo),
+    "Fo/Skr": round(FoSkr, 3),
+    "N/No": round(N_ratio, 3)
+})
+
+
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 
 # ======================
