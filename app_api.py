@@ -1,5 +1,3 @@
-
-
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -57,51 +55,14 @@ c1,c2,c3,c4 = st.columns(4)
 
 L_m = c1.number_input("Longitud pozo (m)",500,5000,1800)
 G   = c2.slider("Gravedad específica",0.6,1.2,0.95)
-# ======================
-
-
-
 D   = c3.selectbox("Bomba (in)",[1.5,1.75,2,2.25,2.5,2.75,3.25])
-N   = c4.slider("SPM",1,10,6)
+N   = c4.slider("SPM",1,20,6)
 
 
 c_slider, _ = st.columns([2, 3])  # controla el ancho
 
 with c_slider:
-    S = st.slider("Carrera (in)", 48, 300, 168)
-
-# ======================
-# PRODUCCIÓN BRUTA
-# ======================
-Q_bpd = 0.1166 * S * N * (D**2)
-Q_m3 = Q_bpd * 0.159 * 0.85  # 
-
-# 👇 lo ubica debajo de "Bomba"
-col1, col2, col3, col4 = st.columns(4)
-
-with col3:
-    st.markdown(f"""
-    <div style="
-        background-color:#cceeff;
-        border-radius:8px;
-        padding:6px 8px;
-        height:52px;
-        display:flex;
-        margin-top:-90px;
-        flex-direction:column;
-        justify-content:center;
-        align-items:center;
-        text-align:center;
-    ">
-        <div style="font-size:12px; color:#333;">
-            Producción (m³/día)
-        </div>
-        <div style="font-size:16px; font-weight:bold;">
-            {Q_m3:.1f}
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
+    S = st.slider("Carrera (in)", 0, 300, 168)
 
 
 # ======================
@@ -117,7 +78,7 @@ materiales={
     "D New":{"uts_a":42.86,"b":0.375}
 }
 
-st.subheader("Material por tramo 📜")
+st.subheader("Material por tramo")
 
 
 col1, col2, col3, _ = st.columns([1,1,1,2])  # mismo criterio que antes
@@ -181,7 +142,7 @@ def FS_material(mat,f):
 # ======================
 # VARILLAS
 # ======================
-st.subheader("Cant. Varillas 📱")
+st.subheader("Cant. Varillas")
 
 c1,c2,c3=st.columns(3)
 
@@ -216,7 +177,7 @@ total=L1+L78+L34
 # ======================
 # CONTROL LONGITUD
 # ======================
-st.subheader("Control de longitud 📐")
+st.subheader("Control de longitud")
 
 long_m = total * 0.3048
 dif = long_m - L_m
@@ -265,76 +226,40 @@ Wr_air = L1*peso["1"] + L78*peso["7/8"] + L34*peso["3/4"]
 Wr = Wr_air*(1-0.128*G)
 
 L_total_ft = L1+L78+L34
-Depth_ft = L_m * 3.28084
+
 Ap=np.pi*D**2/4
+Fh=0.433*G*L_total_ft*Ap
 
+Fd = (S * N) / (2600 + S * N)
 
+PPRL=(Wr+Fh+1.45*Fd*Wr)*0.9
 
-Fo = 0.433 * G * Depth_ft * Ap
-# =========================
-# ✅ PASO 3–5 (MODELO API SIMPLE)
-# =========================
+E=30_000_000
+Aeq=0.58
 
-# rigidez
-E = 30000000
-A_prom = (areas["1"] + areas["7/8"] + areas["3/4"]) / 3
-Skr = (A_prom * E) / (L_total_ft * 12)
+kr=(Aeq*E)/(L_total_ft*12)
 
-# parámetro adimensional
-FoSkr = Fo / Skr
+dx=0.52*S*(Fd**0.78)
 
-# frecuencia natural simplificada
-No = 200000 / L_total_ft
-N_ratio = min((N / No) * 2.5, 0.8)
+prop_L=(L_total_ft/6000)**0.22
+prop_F=(Fh/Wr)**0.08
 
-# ✅ dinámica tipo API
+dF = kr*dx*prop_L*(1+0.35*prop_F)*(1 + 2.5*Fd)
 
-# =========================
-# ✅ API-LIKE CORRELATION (SIN PARCHE)
-# =========================
+limite=Wr*(0.45+0.20*Fd)
+dF=min(dF,limite)
 
-# normalizaciones
-x = FoSkr        # carga relativa
-y = N_ratio      # velocidad relativa
-
-# ✅ Fi/Skr (comportamiento tipo Fig 4.2)
-FiSkr = (0.8 * x) * (1 + 2.5 * y) / (1 + 0.5 * x)
-
-# ✅ Fz/Skr (tipo Fig 4.3)
-FzSkr = (0.6 * x) * (1 + 1.8 * y) / (1 + 0.7 * x)
-
-# ✅ fuerzas reales
-Fi = FiSkr * Skr
-Fz = FzSkr * Skr
-
-
-
-# ✅ cargas finales
-# cargas finales
-PPRL = Wr + Fi
-
-MPRL = max(Wr - 1.2 * Fz, 0)   # 🔺 más dinámica
-MPRL *= 0.85                   # 🔻 pérdidas reales
-
-st.markdown("### 📊 Parámetros dinámicos")
-
-st.write({
-    "Fo (lb)": int(Fo),
-    "Fo/Skr": round(FoSkr, 3),
-    "N/No": round(N_ratio, 3)
-})
-
-
-HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
+MPRL_base=max(Wr-dF,0)
+MPRL = MPRL_base * 1.1
 
 # ======================
 # DISPLAY
 # ======================
-st.subheader("Cargas 🦾")
+st.subheader("Cargas")
 
 
 
-c1, c2, c3, _ = st.columns([1, 1, 1, 4])
+c1, c2, _ = st.columns([1, 1, 5])  # más juntas
 
 def carga_estilo(titulo, valor):
     st.markdown(f"""
@@ -355,14 +280,11 @@ with c2:
     carga_estilo("MPRL (lb)", f"{int(MPRL):,}")
 
 
-with c3:
-    carga_estilo("HP Vástago", f"{HP:.1f}")
-
 
 # ======================
 # RESULTADOS
 # ======================
-st.subheader("Resultados por tramo 📋")
+st.subheader("Resultados por tramo")
 
 pct={"1":L1/total,"7/8":L78/total,"3/4":L34/total}
 
@@ -449,7 +371,7 @@ with col_res:
 # ======================
 # GOODMAN
 # ======================
-st.subheader("Diagrama de Goodman 📈")
+st.subheader("Diagrama de Goodman")
 
 x_max=min([
     materiales[rod_sel[d]]["uts_a"] *
@@ -531,4 +453,5 @@ with col_plot:
 st.markdown("---")
 st.caption("Basada en cálculos APIRP11L, Estudios de Corrosión-Fatiga y Experiencias de Campo..")
 st.caption("Desarrollado por Fcam & Eng.Pro. SP-Brazil May-26")
+
 
