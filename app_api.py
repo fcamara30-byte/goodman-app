@@ -267,28 +267,34 @@ Wr = Wr_air*(1-0.128*G)
 L_total_ft = L1+L78+L34
 Depth_ft = L_m * 3.28084
 Ap=np.pi*D**2/4
-Fh = 0.433 * G * Depth_ft * Ap
 
-Fd = (S * N) / (2600 + S * N)
 
-PPRL=(Wr+Fh+1.45*Fd*Wr)*0.86
 
-E=30_000_000
-Aeq=0.58
+Fo = 0.433 * G * Depth_ft * Ap
+# =========================
+# ✅ PASO 3–5 (MODELO API SIMPLE)
+# =========================
 
-kr=(Aeq*E)/(L_total_ft*12)
+# rigidez
+E = 30000000
+A_prom = (areas["1"] + areas["7/8"] + areas["3/4"]) / 3
+Skr = (A_prom * E) / (L_total_ft * 12)
 
-dx=0.52*S*(Fd**0.78)
+# parámetro adimensional
+FoSkr = Fo / Skr
 
-prop_L=(L_total_ft/6000)**0.22
-prop_F=(Fh/Wr)**0.08
+# frecuencia natural simplificada
+No = 200000 / L_total_ft
+N_ratio = N / No
 
-dF = kr * dx * prop_L * (1 + 0.30 * prop_F) * (1 + 1.4 * Fd)
+# ✅ dinámica tipo API
+Fi = Fo * (0.6 + 1.2 * N_ratio)   # carga máxima
+Fz = Fo * (0.4 + 0.8 * N_ratio)   # descarga
 
-limite=Wr*(0.45)
-dF=min(dF,limite)
+# ✅ cargas finales
+PPRL = Wr + Fi
+MPRL = max(Wr - Fz, 0)
 
-MPRL_base=max(Wr-dF,0)
 MPRL = MPRL_base 
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
 
