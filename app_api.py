@@ -283,7 +283,7 @@ prop_F=(Fh/Wr)**0.08
 
 dF = kr * dx * prop_L * (1 + 0.30 * prop_F) * (1 + 1.4 * Fd)
 
-limite=Wr*(0.6)
+limite=Wr*(0.4)
 dF=min(dF,limite)
 
 MPRL = max(Wr - Fh - 0.6 * dF, 0)
