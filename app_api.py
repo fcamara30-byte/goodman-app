@@ -286,7 +286,7 @@ dF = kr * dx * prop_L * (1 + 0.30 * prop_F) * (1 + 1.4 * Fd)
 limite=Wr*(0.45)
 dF=min(dF,limite)
 
-MPRL = Wr - Fh + 0.35 * dF
+MPRL = Wr - 0.6*Fh + 0.35*dF
 
 
 HP =(L_m * Q_m3 * 0.83 * 0.8) / 2178
