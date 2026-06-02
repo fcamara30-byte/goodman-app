@@ -433,7 +433,7 @@ Q100_req = prod / (eta * (rpm / 100))
 Q100_req = round(Q100_req / 10) * 10
 
 # ✅ caudal coherente
-Q_teorico = Q100_req * (rpm / 100)
+Q_teorico = Q_real/eta
 
 
 
@@ -445,7 +445,7 @@ Q_slip = Q_teorico * (1 - eta)
 
 Q_cap = Q_teorico - Q_slip
 
-pot_h = Q_cap * pres_total * 0.0014
+pot_h = Q_teorico * pres_total * 0.0014
 
 
 pot_c = pot_h / eficiencia
