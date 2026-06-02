@@ -398,7 +398,7 @@ for r in rpm_range:
     eta_test = eficiencia_volumetrica(pres_total, viscosidad, r)
     Q100_test = prod / (eta_test * (r / 100))
 
-    pot_h = Q_cap * pres_total * 0.0014
+    
     pot_c_test = pot_h_test / eficiencia
 
     torque_test = (5252 * pot_c_test) / r
@@ -436,8 +436,8 @@ Q_slip = Q_teorico * (1 - eta)
 
 Q_cap = Q_teorico - Q_slip
 
+pot_h = Q_cap * pres_total * 0.0014
 
-pot_h = Q_real * pres_total * 0.0014
 
 pot_c = pot_h / eficiencia
 
