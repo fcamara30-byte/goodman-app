@@ -357,7 +357,7 @@ pres_columna = (profundidad * densidad) / 10000
 # presión intake correcta
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 # ✅ eficiencia correcta
-eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad)
+eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
 
 
 with c1:
