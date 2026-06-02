@@ -6,7 +6,7 @@ import math# =====================
 def eficiencia_volumetrica(dp, visc, rpm):
 
     # --- SLIP BASE ---
-    k_slip = 0.0008   # coef físico estable
+    k_slip = 0.002   # coef físico estable
 
     # slip aumenta con presión y baja con viscosidad
     slip = k_slip * (dp**1.1) / max(visc, 10)
@@ -365,7 +365,7 @@ pres_columna = (profundidad * densidad) / 10000
 pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 # ✅ eficiencia correcta
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
-
+usar_auto = st.checkbox("Auto η", value=True)
 
 with c1:
 
@@ -379,7 +379,12 @@ with c1:
 
 
 
-eta = eta_usuario
+
+if usar_auto:
+    eta = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
+else:
+    eta = eta_usuario
+
 
 
 
