@@ -379,7 +379,7 @@ with c1:
 
 
 
-eta = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
+eta = eta_usuario
 
 
 
