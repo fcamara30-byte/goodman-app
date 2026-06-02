@@ -12,7 +12,7 @@ def eficiencia_volumetrica(dp, visc, rpm):
     slip = k_slip * (dp**1.1) / max(visc, 10)
 
     # leve mejora por velocidad (menos tiempo para recircular)
-    slip *= (1 - 0.0005 * rpm)
+    slip *= (1 + 0.0008 * rpm)
 
     eta = 1 - slip
 
