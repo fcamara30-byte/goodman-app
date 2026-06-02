@@ -9,7 +9,7 @@ def eficiencia_volumetrica(dp, visc, rpm):
     k_slip = 0.004   # coef físico estable
 
     # slip aumenta con presión y baja con viscosidad
-    slip = k_slip * (dp**1.1) / max(visc, 10)
+    slip = k_slip * dp / (visc + 50)
 
     # leve mejora por velocidad (menos tiempo para recircular)
     slip *= (1 + 0.0008 * rpm)
