@@ -396,9 +396,17 @@ mejor_Q100 = None
 for r in rpm_range:
 
     eta_test = eficiencia_volumetrica(pres_total, viscosidad, r)
-    Q100_test = prod / (eta_test * (r / 100))
 
-    
+    Q100_test = prod / (eta_test * (r / 100))
+    Q_teorico_test = Q100_test * (r / 100)
+
+    Q_slip_test = Q_teorico_test * (1 - eta_test)
+    Q_cap_test = Q_teorico_test - Q_slip_test
+
+    # ✅ ESTA LÍNEA FALTABA
+    pot_h_test = Q_cap_test * pres_total * 0.0014
+
+    # ✅ ahora sí funciona
     pot_c_test = pot_h_test / eficiencia
 
     torque_test = (5252 * pot_c_test) / r
@@ -408,6 +416,7 @@ for r in rpm_range:
         mejor_torque = torque_test
         mejor_rpm = r
         mejor_Q100 = Q100_test
+
 
 # ✅ resultados óptimos
 rpm_optima_real = mejor_rpm
