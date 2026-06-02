@@ -370,7 +370,8 @@ with c1:
       disabled=True
 )
 
-eta = eficiencia_volumetrica(pres_total, viscosidad, rpm)
+eta = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
+
 
 
 # ===============================
