@@ -249,11 +249,11 @@ with colL:
 
 
         densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
-       eficiencia = st.number_input(
+        eficiencia = st.number_input(
        "Mec Effic. (-)",
         min_value=0.0,
         max_value=1.2,
-        value=0.95,
+        value=0.85,
         step=0.03
 )
 
