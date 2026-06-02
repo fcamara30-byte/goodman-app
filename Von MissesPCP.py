@@ -369,7 +369,7 @@ eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
 
 with c1:
 
-eta_usuario = st.number_input(
+    eta_usuario = st.number_input(
     "Volumetric Effic (-)",
     min_value=0.0,
     max_value=1.0,
