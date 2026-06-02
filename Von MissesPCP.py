@@ -6,7 +6,7 @@ import math# =====================
 def eficiencia_volumetrica(dp, visc, rpm):
 
     # --- SLIP BASE ---
-    k_slip = 0.002   # coef físico estable
+    k_slip = 0.004   # coef físico estable
 
     # slip aumenta con presión y baja con viscosidad
     slip = k_slip * (dp**1.1) / max(visc, 10)
