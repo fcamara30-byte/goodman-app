@@ -370,7 +370,8 @@ with c1:
       disabled=True
 )
 
-eta = eficiencia_volumetrica(pres_total, viscosidad)
+eta = eficiencia_volumetrica(pres_total, viscosidad, rpm)
+
 
 # ===============================
 # ✅ BUSQUEDA RPM ÓPTIMA (mínimo torque)
