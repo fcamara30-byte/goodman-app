@@ -16,7 +16,7 @@ def eficiencia_volumetrica(dp, visc, rpm):
 
     eta = 1 - slip
 
-    return max(0.55, min(0.97, eta))
+    return max(0.55, min(0.85, eta))
 
 
 
