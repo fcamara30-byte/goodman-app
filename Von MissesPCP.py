@@ -369,13 +369,16 @@ usar_auto = st.checkbox("Auto η", value=True)
 
 with c1:
 
+
     eta_usuario = st.number_input(
     "Volumetric Effic (-)",
     min_value=0.0,
     max_value=1.0,
-    value=round(eta_sugerida, 3),
-    step=0.01
+    value=float(round(eta_sugerida, 3)) if usar_auto else float(0.85),
+    step=0.01,
+    key="eta_input"
 )
+
 
 
 
