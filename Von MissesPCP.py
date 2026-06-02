@@ -249,7 +249,14 @@ with colL:
 
 
         densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
-        eficiencia = st.number_input("Mec Effic. (-)",0.95)
+       eficiencia = st.number_input(
+       "Mec Effic. (-)",
+        min_value=0.0,
+        max_value=1.2,
+        value=0.95,
+        step=0.03
+)
+
 
     with c2:
         viscosidad = st.number_input("Viscosity (cP)",1,step=40)
