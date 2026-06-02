@@ -3,14 +3,21 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math# =====================
 
-def eficiencia_volumetrica(dp, visc):
-    k = 0.003   # calibración física (ajustable)
+def eficiencia_volumetrica(dp, visc, rpm):
 
-    slip = k * (dp / max(visc, 1))
+    # --- SLIP BASE ---
+    k_slip = 0.0008   # coef físico estable
+
+    # slip aumenta con presión y baja con viscosidad
+    slip = k_slip * (dp**1.1) / max(visc, 10)
+
+    # leve mejora por velocidad (menos tiempo para recircular)
+    slip *= (1 - 0.0005 * rpm)
 
     eta = 1 - slip
 
-    return max(0.6, min(0.95, eta))
+    return max(0.55, min(0.97, eta))
+
 
 
 from bombas import bombas
@@ -377,7 +384,8 @@ mejor_Q100 = None
 
 for r in rpm_range:
 
-    Q100_test = prod / (eta * (r / 100))
+    eta_test = eficiencia_volumetrica(pres_total, viscosidad, r)
+    Q100_test = prod / (eta_test * (r / 100))
 
     pot_h_test = Q_real * pres_total * 0.0014
     pot_c_test = pot_h_test / eficiencia
@@ -409,7 +417,14 @@ Q_teorico = Q100_req * (rpm / 100)
 
 
 
-Q_cap = Q_teorico * eta_usuario
+# ===============================
+# ✅ SLIP REAL (modelo físico)
+# ===============================
+
+Q_slip = Q_teorico * (1 - eta)
+
+Q_cap = Q_teorico - Q_slip
+
 
 pot_h = Q_real * pres_total * 0.0014
 
@@ -418,9 +433,7 @@ pot_c = pot_h / eficiencia
 
 
 rpm_eff = max(rpm, 5)
-torque = (5252 * pot_c) / rpm_eff
 
-torque*= (1+viscosidad/1000)*(1+solidos/100)*1.07
 
 
 # diámetro en metros
@@ -433,6 +446,12 @@ factor_d = d / 0.0254   # relativo a varilla de 1"
 torque = (5252 * pot_c) / rpm_eff
 
 torque *= (1 + viscosidad/1000) * (1 + solidos/100) * 1.07
+# ===============================
+# ✅ TORQUE VISCOSO (C-FER)
+# ===============================
+T_visc = 0.02 * viscosidad * (rpm_eff / 100)
+
+torque += T_visc
 
 # ✅ corregido con diámetro
 torque += (fric_bomba + 20) * factor_d
