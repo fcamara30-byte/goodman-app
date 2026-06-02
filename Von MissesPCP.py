@@ -367,17 +367,21 @@ pres_total = pres_linea + pres_columna + dp_fric - pres_entrada
 eta_sugerida = eficiencia_volumetrica(pres_total, viscosidad, rpm_manual)
 usar_auto = st.checkbox("Auto η", value=True)
 
+if usar_auto:
+    st.session_state["eta_input"] = round(eta_sugerida, 3)
+
 with c1:
+
 
 
     eta_usuario = st.number_input(
     "Volumetric Effic (-)",
     min_value=0.0,
     max_value=1.0,
-    value=float(round(eta_sugerida, 3)) if usar_auto else float(0.85),
     step=0.01,
     key="eta_input"
 )
+
 
 
 
