@@ -234,11 +234,7 @@ with l:
             "Medio (1–2 psi)", "Alto (>2 psi)"
         ])
 
-    with col_btn_h2s:
-        with st.popover("📊"):
-            st.markdown("### Tabla H₂S (ppm vs P parcial bar)")
 
-            df_h2s = pd.DataFrame({
 
 
   
