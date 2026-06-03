@@ -214,22 +214,26 @@ with l:
 # ===== GUÍAS =====
 col_g1, col_g2 = st.columns(2)
 
-
+# ✅ CO2
 with col_g1:
     with st.expander("📘 Guía CO2"):
         st.dataframe(pd.DataFrame({
-            "CO2 (ppm)":  [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,15000,20000],
-            "P_CO2 (psi)": [0.4,1,2,3,5,7,10,15,20,30,50,80,100,120,140]
+            "CO2 (ppm)":  [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000,15000],
+            "P_CO2 (psi)": [0.5,1,2,3,5,7,10,15,20,30,50,80,100,120,120]
         }), use_container_width=True)
 
+        st.caption("Regla rápida: ~75 ppm ≈ 1 psi de CO₂")
 
+
+# ✅ H2S
 with col_g2:
     with st.expander("📗 Guía H2S"):
         st.dataframe(pd.DataFrame({
             "H2S (ppm)": [1,5,10,20,50,100,200,500],
-            "P_H2S (psi)": [0.01,0.04,0.10,0.20,0.50,1.0,2.0,5.0]
+            "P_H2S (psi)": [0.01,0.05,0.1,0.2,0.5,1,2,5]
         }), use_container_width=True)
 
+        st.caption("H₂S es mucho más soluble → menor presión para mismo ppm")
 
 
 st.subheader("Selector de Cargas y Diámetro")
