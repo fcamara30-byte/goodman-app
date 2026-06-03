@@ -214,7 +214,7 @@ with colL:
     with c1:
         
         nombre_pozo = st.text_input("Well Name")
-        profundidad = st.number_input("Pump Seat (m)",600,step=100)                                   
+        profundidad = st.number_input("Pump Seat (m)",100,step=100)                                   
                                  
          # ✅ selección de bomba
         prod = st.number_input("Gross Prod. (m³/d)", value=10.0, step=10.0)
