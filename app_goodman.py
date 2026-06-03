@@ -229,10 +229,11 @@ with l:
     col_h2s, col_btn_h2s = st.columns([5,1])
 
     with col_h2s:
-        h2s = st.selectbox("PPH₂S (psi)", [
-            "Nada (0 psi)", "Bajo (0–1 psi)",
-            "Medio (1–2 psi)", "Alto (>2 psi)"
-        ])
+     h2s = st.selectbox("PPH₂S (psi)", [
+    "Nada (0 psi)", "Bajo (0–1 psi)",
+    "Medio (1–2 psi)", "Alto (>2 psi)"
+     ], key="h2s_input")
+
 
     with col_btn_h2s:
         with st.popover("📊"):
