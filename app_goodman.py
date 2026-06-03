@@ -208,11 +208,11 @@ with l:
     # ===== CO2 =====
     col_co2, col_btn_co2 = st.columns([5,1])
 
-    with col_co2:
-        co2 = st.selectbox("PPCO₂ (psi)", [
-            "Nada (0 psi)", "Bajo (0–20 psi)",
-            "Medio (21–100 psi)", "Alto (>100 psi)"
-        ])
+co2 = st.selectbox("PPCO₂ (psi)", [
+    "Nada (0 psi)", "Bajo (0–20 psi)",
+    "Medio (21–100 psi)", "Alto (>100 psi)"
+], key="co2_input")
+
 
     with col_btn_co2:
         with st.popover("📊"):
