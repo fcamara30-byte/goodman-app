@@ -260,11 +260,11 @@ with colL:
 
     with c2:
        
-     viscosidad = st.number_input(
-    "Viscosity (cP)",
-      min_value=1,
-      value=1,
-      step=10
+        viscosidad = st.number_input(
+         "Viscosity (cP)",
+           min_value=1,
+            value=1,
+            step=10
 )
 
         
