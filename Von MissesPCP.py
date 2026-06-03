@@ -5,18 +5,16 @@ import math# =====================
 
 def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
-    # efecto presión (más dp = peor)
     f_dp = 1 / (1 + dp_bar / 80)
 
-    # efecto viscosidad (más visc = mejor)
-    f_visc = 1 - np.exp(-visc_cp / 200)
+    # 🔥 más sensible
+    f_visc = 1 - np.exp(-visc_cp / 80)
 
-    # efecto rpm (más rpm = peor eficiencia)
     f_rpm = np.exp(-rpm / 400)
 
-    eta = 0.55 + 0.45 * f_visc * f_rpm * f_dp
+    eta = 0.60 + 0.40 * f_visc * f_rpm * f_dp
 
-    return max(0.86, min(0.97, eta))
+    return max(0.86, min(0.92, eta))
 
 
 
