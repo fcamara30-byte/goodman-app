@@ -218,8 +218,8 @@ col_g1, col_g2 = st.columns(2)
 with col_g1:
     with st.expander("📘 Guía CO2"):
         st.dataframe(pd.DataFrame({
-            "CO2 (ppm)":  [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000,15000],
-            "P_CO2 (psi)": [0.5,1,2,3,5,7,10,15,20,30,50,80,100,120,120]
+            "CO2 (ppm)":  [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000],
+            "P_CO2 (psi)": [0.5,1,2,3,5,7,10,15,20,30,50,80,100,120]
         }), use_container_width=True)
 
         st.caption("Regla rápida: ~75 ppm ≈ 1 psi de CO₂")
