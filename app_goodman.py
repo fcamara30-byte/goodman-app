@@ -31,31 +31,7 @@ visitas = contador_visitas()
 
 st.set_page_config(layout="wide")
 
-# ======================
-# TABLAS SUGERIDAS
-# ======================
 
-with st.expander("📊 Tablas sugeridas", expanded=False):
-
-    st.markdown("### CO₂ – ppm vs Presión Parcial (bar)")
-
-    df_co2 = pd.DataFrame({
-        "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000,4000,5000],
-        "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07,2.76,3.45]
-    })
-
-    st.dataframe(df_co2, use_container_width=True)
-
-
-    st.markdown("### H₂S – ppm vs Presión Parcial (bar)")
-
-    # aproximación típica (Henry mucho más fuerte que CO2)
-    df_h2s = pd.DataFrame({
-        "H2S (ppm)": [1,5,10,20,50,100,200,500,1000],
-        "P_H2S (bar)": [0.0007,0.003,0.007,0.014,0.035,0.07,0.14,0.35,0.70]
-    })
-
-    st.dataframe(df_h2s, use_container_width=True)
 # ======================
 # ESTILO
 # ======================
