@@ -3,18 +3,20 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math# =====================
 
+
 def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
     f_dp = 1 / (1 + dp_bar / 80)
 
-    # 🔥 más sensible
-    f_visc = 1 - np.exp(-visc_cp / 80)
+   
+    f_visc = 1 - np.exp(-visc_cp / 40)
 
     f_rpm = np.exp(-rpm / 400)
 
     eta = 0.60 + 0.40 * f_visc * f_rpm * f_dp
 
     return max(0.86, min(0.92, eta))
+
 
 
 
