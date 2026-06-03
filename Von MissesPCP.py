@@ -6,7 +6,7 @@ import math# =====================
 
 def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
-    f_dp = 1 / (1 + dp_bar / 80)
+    f_dp = 1 / (1 + dp_bar / 140)
 
    
     f_visc = 1 - np.exp(-visc_cp / 40)
