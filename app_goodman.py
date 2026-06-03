@@ -383,44 +383,29 @@ with col_der:
         st.markdown(f"{i+1}. {row['Material']}")
 if st.session_state.get("show_co2", False):
 
+    # fondo oscuro
     st.markdown("""
-    <style>
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0,0,0,0.6);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-    .modal-content {
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        width: 420px;
-    }
-    </style>
+        <style>
+        .overlay {
+            position: fixed;
+            top:0; left:0;
+            width:100vw; height:100vh;
+            background: rgba(0,0,0,0.6);
+            z-index:999;
+        }
+        </style>
     """, unsafe_allow_html=True)
 
-    st.markdown('<div class="modal"><div class="modal-content">', unsafe_allow_html=True)
+    st.markdown('<div class="overlay"></div>', unsafe_allow_html=True)
 
-    st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
+    # caja flotante (ESTO ES STREAMLIT, NO HTML)
+    box = st.container()
+    with box:
+        st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
 
-    df_co2 = pd.DataFrame({
-        "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
-        "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
-    })
+        df_co2 = pd.DataFrame({
+            "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
 
-    st.dataframe(df_co2, use_container_width=True)
-
-    if st.button("Cerrar", key="cerrar_co2"):
-        st.session_state["show_co2"] = False
-
-    st.markdown('</div></div>', unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
