@@ -197,66 +197,20 @@ def goodman(x,uts,b,fs):
 # ======================
 # INPUTS
 # ======================
-# ======================
-# INPUTS
-# ======================
-l, r = st.columns([1,2])
+l,r = st.columns([1,2])
 
 with l:
     material = st.selectbox("Material", list(materiales.keys()))
-
-    # ===== CO2 =====
-    col_co2, col_btn_co2 = st.columns([5,1])
-
     co2 = st.selectbox("PPCO₂ (psi)", [
-    "Nada (0 psi)", "Bajo (0–20 psi)",
-    "Medio (21–100 psi)", "Alto (>100 psi)"
-    ], key="co2_input")
-
-
-    with col_btn_co2:
-        with st.popover("📊"):
-            st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
-
-            df_co2 = pd.DataFrame({
-                "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
-                "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
-            })
-
-            st.dataframe(df_co2, use_container_width=True)
-
-    # ===== H2S =====
-    col_h2s, col_btn_h2s = st.columns([5,1])
-
-    with col_h2s:
-     h2s = st.selectbox("PPH₂S (psi)", [
-    "Nada (0 psi)", "Bajo (0–1 psi)",
-    "Medio (1–2 psi)", "Alto (>2 psi)"
-     ], key="h2s_input")
-
-
-    with col_btn_h2s:
-        with st.popover("📊"):
-            st.markdown("### Tabla H₂S (ppm vs P parcial bar)")
-
-            df_h2s = pd.DataFrame({
-                "H2S (ppm)": [1,5,10,20,50,100,200,500],
-                "P_H2S (bar)": [0.0007,0.003,0.007,0.014,0.035,0.07,0.14,0.35]
-            })
-
-            st.dataframe(df_h2s, use_container_width=True)
-
-    # ===== H2S =====
-    col_h2s, col_btn_h2s = st.columns([5,1])
-
-    with col_h2s:
-        h2s = st.selectbox("PPH₂S (psi)", [
-            "Nada (0 psi)", "Bajo (0–1 psi)",
-            "Medio (1–2 psi)", "Alto (>2 psi)"
-        ])
-
-
-
+        "Nada (0 psi)", "Bajo (0–20 psi)",
+        "Medio (21–100 psi)", "Alto (>100 psi)"
+    ])
+    h2s = st.selectbox("PPH₂S (psi)", [
+        "Nada (0 psi)", "Bajo (0–1 psi)",
+        "Medio (1–2 psi)", "Alto (>2 psi)"
+    ])
+    bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
+    cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
 
   
 
@@ -407,34 +361,8 @@ with col_der:
     validos = df[df["Margen"] >= 0]
     for i,row in validos.head(3).iterrows():
         st.markdown(f"{i+1}. {row['Material']}")
-if st.session_state.get("show_co2", False):
-
-    # fondo oscuro
-    st.markdown("""
-        <style>
-        .overlay {
-            position: fixed;
-            top:0; left:0;
-            width:100vw; height:100vh;
-            background: rgba(0,0,0,0.6);
-            z-index:999;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-
-    st.markdown('<div class="overlay"></div>', unsafe_allow_html=True)
-
-    # caja flotante (ESTO ES STREAMLIT, NO HTML)
-    box = st.container()
-    with box:
-        st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
-
-df_co2 = pd.DataFrame({
-    "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
-    "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
-})
-
 
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
 st.markdown('<div class="cursiva">Desarrollado por Fcam & Eng.Pro-Apolo-Apex. SP-Brazil May-26</div>', unsafe_allow_html=True)
+
