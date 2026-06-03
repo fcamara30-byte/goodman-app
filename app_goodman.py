@@ -211,7 +211,22 @@ with l:
     ])
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
+# ===== GUÍAS =====
+col_g1, col_g2 = st.columns(2)
 
+with col_g1:
+    with st.expander("📘 Guía CO2"):
+        st.dataframe(pd.DataFrame({
+            "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
+            "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
+        }), use_container_width=True)
+
+with col_g2:
+    with st.expander("📗 Guía H2S"):
+        st.dataframe(pd.DataFrame({
+            "H2S (ppm)": [1,5,10,20,50,100,200,500],
+            "P_H2S (bar)": [0.0007,0.003,0.007,0.014,0.035,0.07,0.14,0.35]
+        }), use_container_width=True)
   
 
 
