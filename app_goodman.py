@@ -220,7 +220,7 @@ if mostrar_co2:
         "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
     })
     st.dataframe(df_co2, use_container_width=True)
-    ])
+    
     h2s = st.selectbox("PPH₂S (psi)", [
         "Nada (0 psi)", "Bajo (0–1 psi)",
         "Medio (1–2 psi)", "Alto (>2 psi)"
