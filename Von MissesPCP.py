@@ -259,7 +259,14 @@ with colL:
 
 
     with c2:
-        viscosidad = st.number_input("Viscosity (cP)",1,step=40)
+       
+     viscosidad = st.number_input(
+    "Viscosity (cP)",
+      min_value=1,
+      value=1,
+      step=10
+)
+
         
     # ✅ SUMERGENCIA (ACA)
         sumergencia = st.number_input("Submergence TVD (m)", value=50.0,step=10.0)
