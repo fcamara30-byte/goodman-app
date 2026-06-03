@@ -3,20 +3,20 @@ import streamlit as st
 import streamlit.components.v1 as components
 import math# =====================
 
-def eficiencia_volumetrica(dp, visc, rpm):
+def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
-    # --- SLIP BASE ---
-    k_slip = 0.004   # coef físico estable
+    # efecto presión (más dp = peor)
+    f_dp = 1 / (1 + dp_bar / 80)
 
-    # slip aumenta con presión y baja con viscosidad
-    slip = k_slip * dp / (visc + 50)
+    # efecto viscosidad (más visc = mejor)
+    f_visc = 1 - np.exp(-visc_cp / 200)
 
-    # leve mejora por velocidad (menos tiempo para recircular)
-    slip *= (1 + 0.0008 * rpm)
+    # efecto rpm (más rpm = peor eficiencia)
+    f_rpm = np.exp(-rpm / 400)
 
-    eta = 1 - slip
+    eta = 0.55 + 0.45 * f_visc * f_rpm * f_dp
 
-    return max(0.55, min(0.85, eta))
+    return max(0.55, min(0.81, eta))
 
 
 
