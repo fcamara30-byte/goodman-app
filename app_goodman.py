@@ -201,9 +201,25 @@ l,r = st.columns([1,2])
 
 with l:
     material = st.selectbox("Material", list(materiales.keys()))
+# ===== CO2 =====
+col_co2, col_btn_co2 = st.columns([5,1])
+
+with col_co2:
     co2 = st.selectbox("PPCO₂ (psi)", [
         "Nada (0 psi)", "Bajo (0–20 psi)",
         "Medio (21–100 psi)", "Alto (>100 psi)"
+    ])
+
+with col_btn_co2:
+    mostrar_co2 = st.button("📊", key="btn_co2")
+
+if mostrar_co2:
+    st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
+    df_co2 = pd.DataFrame({
+        "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
+        "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
+    })
+    st.dataframe(df_co2, use_container_width=True)
     ])
     h2s = st.selectbox("PPH₂S (psi)", [
         "Nada (0 psi)", "Bajo (0–1 psi)",
