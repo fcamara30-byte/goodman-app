@@ -218,16 +218,16 @@ with col_g1:
     with st.expander("📘 Guía CO2"):
         st.dataframe(pd.DataFrame({
             "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
-            "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
+            "P_CO2 (psi)": [0.43,1.0,2.0,3.0,5.0,7.0,10.0,15.0,20.0,30.0]
         }), use_container_width=True)
 
 with col_g2:
     with st.expander("📗 Guía H2S"):
         st.dataframe(pd.DataFrame({
             "H2S (ppm)": [1,5,10,20,50,100,200,500],
-            "P_H2S (bar)": [0.0007,0.003,0.007,0.014,0.035,0.07,0.14,0.35]
+            "P_H2S (psi)": [0.01,0.04,0.10,0.20,0.50,1.0,2.0,5.0]
         }), use_container_width=True)
-  
+
 
 
 st.subheader("Selector de Cargas y Diámetro")
