@@ -13,7 +13,7 @@ def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
     f_rpm = np.exp(-rpm / 400)
 
-    eta = 0.60 + 0.40 * f_visc * f_rpm * f_dp
+    eta = 0.65 + 0.35 * f_visc * f_rpm * f_dp
 
     return max(0.86, min(0.92, eta))
 
