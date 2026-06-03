@@ -6,14 +6,14 @@ import math# =====================
 
 def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
 
-    f_dp = 1 / (1 + dp_bar / 140)
+    f_dp = 1 / (1 + dp_bar / 40)
 
    
-    f_visc = 1 - np.exp(-visc_cp / 40)
+    f_visc = 1 - np.exp(-visc_cp / 25)
 
-    f_rpm = np.exp(-rpm / 400)
+    f_rpm = np.exp(-rpm / 200)
 
-    eta = 0.65 + 0.35 * f_visc * f_rpm * f_dp
+    eta = 0.6 + 0.5 * f_visc * f_rpm * f_dp
 
     return max(0.86, min(0.92, eta))
 
