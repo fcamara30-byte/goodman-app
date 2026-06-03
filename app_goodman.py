@@ -201,32 +201,36 @@ l,r = st.columns([1,2])
 
 with l:
     material = st.selectbox("Material", list(materiales.keys()))
-# ===== CO2 =====
-col_co2, col_btn_co2 = st.columns([5,1])
 
-with col_co2:
-    co2 = st.selectbox("PPCO₂ (psi)", [
-        "Nada (0 psi)", "Bajo (0–20 psi)",
-        "Medio (21–100 psi)", "Alto (>100 psi)"
-    ])
+    # ===== CO2 =====
+    col_co2, col_btn_co2 = st.columns([5,1])
 
-with col_btn_co2:
-    mostrar_co2 = st.button("📊", key="btn_co2")
+    with col_co2:
+        co2 = st.selectbox("PPCO₂ (psi)", [
+            "Nada (0 psi)", "Bajo (0–20 psi)",
+            "Medio (21–100 psi)", "Alto (>100 psi)"
+        ])
 
-if mostrar_co2:
-    st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
-    df_co2 = pd.DataFrame({
-        "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
-        "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
-    })
-    st.dataframe(df_co2, use_container_width=True)
-    
-    h2s = st.selectbox("PPH₂S (psi)", [
-        "Nada (0 psi)", "Bajo (0–1 psi)",
-        "Medio (1–2 psi)", "Alto (>2 psi)"
-    ])
+    with col_btn_co2:
+        if st.button("📊", key="btn_co2"):
+            st.session_state["show_co2"] = True
+
+    # ===== H2S =====
+    col_h2s, col_btn_h2s = st.columns([5,1])
+
+    with col_h2s:
+        h2s = st.selectbox("PPH₂S (psi)", [
+            "Nada (0 psi)", "Bajo (0–1 psi)",
+            "Medio (1–2 psi)", "Alto (>2 psi)"
+        ])
+
+    with col_btn_h2s:
+        if st.button("📊", key="btn_h2s"):
+            st.session_state["show_h2s"] = True
+
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
+
 
   
 
@@ -377,6 +381,46 @@ with col_der:
     validos = df[df["Margen"] >= 0]
     for i,row in validos.head(3).iterrows():
         st.markdown(f"{i+1}. {row['Material']}")
+if st.session_state.get("show_co2", False):
+
+    st.markdown("""
+    <style>
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.6);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 420px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<div class="modal"><div class="modal-content">', unsafe_allow_html=True)
+
+    st.markdown("### Tabla CO₂ (ppm vs P parcial bar)")
+
+    df_co2 = pd.DataFrame({
+        "CO2 (ppm)": [50,100,200,300,500,700,1000,1500,2000,3000],
+        "P_CO2 (bar)": [0.03,0.07,0.14,0.21,0.34,0.48,0.69,1.03,1.38,2.07]
+    })
+
+    st.dataframe(df_co2, use_container_width=True)
+
+    if st.button("Cerrar", key="cerrar_co2"):
+        st.session_state["show_co2"] = False
+
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
