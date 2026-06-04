@@ -128,7 +128,7 @@ div[data-baseweb="select"] span {
 col1, col2 = st.columns([4,1])
 
 with col1:
-    st.markdown('<div class="titulo">Selector de varillas 🌎</div>', unsafe_allow_html=True)
+    st.markdown('<div class="titulo">Sucker Rod Selection 🌎</div>', unsafe_allow_html=True)
 
 
 
@@ -136,7 +136,7 @@ with col1:
 
 st.markdown("""
 <div class="titulo-main">10 Rod🌎</div>
-<div class="titulo-sub">Solicitaciones de Goodman y efecto de corrosión</div>
+<div class="titulo-sub">Corrosion Fatigue Goodman calc</div>
 """, unsafe_allow_html=True)
 
 st.markdown(f'<div style="text-align: right; color: #777;">Visitas totales: {visitas}</div>', unsafe_allow_html=True)
@@ -144,7 +144,7 @@ st.markdown(f'<div style="text-align: right; color: #777;">Visitas totales: {vis
 # ======================
 # DATOS
 # ======================
-materiales = {
+Grades = {
     "DA78":{"uts_a":42.86,"b":0.375},
     "HS97":{"uts_a":50,"b":0.375},
     "CS propietario":{"uts_a":44.64,"b":0.375},
@@ -162,26 +162,26 @@ BSR = {"0":1,"1":1,"2":0.95,"3":0.9,"4":0.82,"5":0.74,"6":0.65}
 def factor_co2(sel):
     return {
         "Nada (0 psi)":1.0,
-        "Bajo (0–20 psi)":0.98,
-        "Medio (21–100 psi)":0.90,
-        "Alto (>100 psi)":0.80
+        "Low (0–20 psi)":0.98,
+        "Medium (21–100 psi)":0.90,
+        "High (>100 psi)":0.80
     }[sel]
 
 def factor_h2s(sel):
     return {
         "Nada (0 psi)":1.0,
-        "Bajo (0–1 psi)":0.95,
-        "Medio (1–2 psi)":0.80,
-        "Alto (>2 psi)":0.75
+        "Low (0–1 psi)":0.95,
+        "Medium (1–2 psi)":0.80,
+        "High (>2 psi)":0.75
     }[sel]
 
-def factor_cloruros(ppm):
+def factor_Clorhides-(ppm):
     return 1 if ppm < 6000 else (-2e-16)*(ppm**3) + (7e-11)*(ppm**2) - (9e-6)*ppm + 1.0704
 
 # ======================
 # FUNCIONES
 # ======================
-def FS_material(mat,f):
+def FS_Grade(mat,f):
     if f==1: return 1
     if mat=="DA78": return f*0.90
     elif mat=="HS97": return f*0.91
@@ -200,23 +200,23 @@ def goodman(x,uts,b,fs):
 l,r = st.columns([1,2])
 
 with l:
-    material = st.selectbox("Material", list(materiales.keys()))
+    Grade = st.selectbox("Grade", list(Grades.keys()))
     co2 = st.selectbox("PPCO₂ (psi)", [
-        "Nada (0 psi)", "Bajo (0–20 psi)",
-        "Medio (21–100 psi)", "Alto (>100 psi)"
+        "Nada (0 psi)", "Low (0–20 psi)",
+        "Medium (21–100 psi)", "High (>100 psi)"
     ])
     h2s = st.selectbox("PPH₂S (psi)", [
-        "Nada (0 psi)", "Bajo (0–1 psi)",
-        "Medio (1–2 psi)", "Alto (>2 psi)"
+        "Nada (0 psi)", "Low (0–1 psi)",
+        "Medium (1–2 psi)", "High (>2 psi)"
     ])
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
-    cl_ppm = st.number_input("Cloruros (ppm)",0,200000,0, step=1000)
-# ===== GUÍAS =====
+    cl_ppm = st.number_input("Clorhides- (ppm)",0,200000,0, step=1000)
+# ===== GuidesS =====
 col_g1, col_g2 = st.columns(2)
 
 # ✅ CO2
 with col_g1:
-    with st.expander("📘 Guía CO2"):
+    with st.expander("📘 Guides CO2"):
         st.dataframe(pd.DataFrame({
             "CO2 (ppm)":  [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000],
             "P_CO2 (psi)": [0.5,1,2,3,5,7,10,15,20,30,50,80,100,120]
@@ -227,7 +227,7 @@ with col_g1:
 
 # ✅ H2S
 with col_g2:
-    with st.expander("📗 Guía H2S"):
+    with st.expander("📗 Guides H2S"):
         st.dataframe(pd.DataFrame({
             "H2S (ppm)": [1,5,10,20,50,100,200,500],
             "P_H2S (psi)": [0.01,0.05,0.1,0.2,0.5,1,2,5]
@@ -236,7 +236,7 @@ with col_g2:
         st.caption("H₂S es mucho más soluble → menor presión para mismo ppm")
 
 
-st.subheader("Selector de Cargas y Diámetro")
+st.subheader("Load/Diameter Selection")
 
 col_d, col_max, col_min = st.columns([0.3, 0.3, 0.3])
 
@@ -244,10 +244,10 @@ with col_d:
     diam = st.selectbox("Diámetro (in)", ["1", "7/8", "3/4"])
 
 with col_max:
-    Pmax_input = float(st.text_input("Carga máxima (lb)", value="10000"))
+    Pmax_input = float(st.text_input("Max Load (lb)", value="10000"))
 
 with col_min:
-    Pmin_input = float(st.text_input("Carga mínima (lb)", value="2000"))
+    Pmin_input = float(st.text_input("Min Load (lb)", value="2000"))
 
 
 
@@ -267,7 +267,7 @@ Smin = Pmin_input / A / 1000
 # ======================
 # BASE
 # ======================
-f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_cloruros(cl_ppm)
+f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_Clorhides-(cl_ppm)
 x = np.linspace(0,100,200)
 
 # ======================
@@ -277,16 +277,16 @@ with r:
     fig, ax = plt.subplots(figsize=(6,4))
     ranking=[]
 
-    for mat in materiales:
-        fs = FS_material(mat,f_base)
-        y = goodman(x, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+    for mat in Grades:
+        fs = FS_Grade(mat,f_base)
+        y = goodman(x, Grades[mat]["uts_a"], Grades[mat]["b"], fs)
 
-        sadm = goodman(Smin, materiales[mat]["uts_a"], materiales[mat]["b"], fs)
+        sadm = goodman(Smin, Grades[mat]["uts_a"], Grades[mat]["b"], fs)
         margen = sadm - Smax
 
-        ranking.append({"Material":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
+        ranking.append({"Grade":mat,"FS":fs,"Sadm":sadm,"Margen":margen})
 
-        if mat == material:
+        if mat == Grade:
             y_sel = y
             fs_sel = fs
             sadm_user = sadm
@@ -310,8 +310,8 @@ with r:
     if Smax > sadm_user:
         ax.text(
             0.5,0.15,
-            "Seleccione otro tipo de varilla\n"
-            "o utilice revestimiento + tratamiento químico",
+            "Anoter SR grade must be selected"
+            "or Chemical treat/coating",
             transform=ax.transAxes,
             fontsize=10,
             color="red",
@@ -326,7 +326,7 @@ with r:
     ax.set_ylim(0,100)
     ax.set_xlabel("Smin (ksi)")
     ax.set_ylabel("Smax (ksi)")
-    ax.set_title("Diagrama de Goodman Corrosión-Fatiga")
+    ax.set_title("Corrosion Fatigue Goodman Graph")
 
     st.pyplot(fig)
 
@@ -337,9 +337,9 @@ df = pd.DataFrame(ranking)
 df = df.sort_values(by="Margen", ascending=False).reset_index(drop=True)
 
 if abs(f_base - 1.0) < 1e-6:
-    if "HS97" in df["Material"].values:
-        fila = df[df["Material"]=="HS97"]
-        df = df[df["Material"]!="HS97"]
+    if "HS97" in df["Grade"].values:
+        fila = df[df["Grade"]=="HS97"]
+        df = df[df["Grade"]!="HS97"]
         df = pd.concat([fila, df]).reset_index(drop=True)
 
 
@@ -352,7 +352,7 @@ col_tabla, col_der = st.columns([2.7,1.8])
 col_tabla, col_der = st.columns([2.7,1.8])
 
 with col_tabla:
-    st.markdown('<div class="subtitulo">Ranking de Varillas Seleccionadas</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Sucker Rod Ranking</div>', unsafe_allow_html=True)
 
     st.dataframe(
         df.drop(columns=["FS"]).style.format({
@@ -367,7 +367,7 @@ with col_tabla:
 
 
 with col_der:
-    st.markdown('<div class="subtitulo">Resultados</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Results</div>', unsafe_allow_html=True)
 
     c1,c2 = st.columns(2)
     c3,c4 = st.columns(2)
@@ -377,11 +377,11 @@ with col_der:
     c3.metric("Sadm", f"{sadm_user:.1f}")
     c4.metric("%Goodman", f"{((Smax - Smin) / (sadm_user - Smin) * 100):.1f}")
 
-    st.markdown('<div class="subtitulo">Recomendación</div>', unsafe_allow_html=True)
+    st.markdown('<div class="subtitulo">Suggestions</div>', unsafe_allow_html=True)
 
     validos = df[df["Margen"] >= 0]
     for i,row in validos.head(3).iterrows():
-        st.markdown(f"{i+1}. {row['Material']}")
+        st.markdown(f"{i+1}. {row['Grade']}")
 
 st.markdown("---")
 st.markdown('<div class="cursiva">Modelo basado en Criterio de Goodman y corrosión-fatiga</div>', unsafe_allow_html=True)
