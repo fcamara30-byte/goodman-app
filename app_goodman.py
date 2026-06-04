@@ -175,7 +175,7 @@ def factor_h2s(sel):
         "High (>2 psi)":0.75
     }[sel]
 
-def factor_uros(ppm):
+def factor_cloruros(ppm):
     return 1 if ppm < 6000 else (-2e-16)*(ppm**3) + (7e-11)*(ppm**2) - (9e-6)*ppm + 1.0704
 
 # ======================
