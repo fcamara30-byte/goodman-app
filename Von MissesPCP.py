@@ -629,9 +629,9 @@ def generar_pdf():
 
     results = [
         f"Torque: {torque_final:.1f}",
-        f"Von Mises: {von:.2f}",
-        f"Axial: {sigma:.2f}",
-        f"Torsión: {tau:.2f}",
+        f"Von Mises: {von:.1f}",
+        f"Axial: {sigma:.1f}",
+        f"Torsión: {tau:.1f}",
         f"Rod Load: {uso:.1f}"
     ]
 
@@ -952,7 +952,7 @@ with c1:
     st.markdown(f"""
     <div class="metric-box">
         <div class="metric-title">Axial (ksi)</div>
-        <div class="metric-value">{sigma:.2f}</div>
+        <div class="metric-value">{sigma:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -960,7 +960,7 @@ with c2:
     st.markdown(f"""
     <div class="metric-box">
         <div class="metric-title">Torsión (ksi)</div>
-        <div class="metric-value">{tau:.2f}</div>
+        <div class="metric-value">{tau:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -968,7 +968,7 @@ with c3:
     st.markdown(f"""
     <div class="metric-box">
         <div class="metric-title">Von Mises (ksi)</div>
-        <div class="metric-value">{von:.2f}</div>
+        <div class="metric-value">{von:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
 
