@@ -630,7 +630,7 @@ def generar_pdf():
     results = [
         f"Torque: {torque_final:.1f}",
         f"Von Mises: {von:.1f}",
-        f"Axial: {sigma:.1f}",
+        f"Axial: {sigma:.0f}",
         f"Torsión: {tau:.1f}",
         f"Rod Load: {uso:.1f}"
     ]
