@@ -2,7 +2,9 @@ import streamlit as st
 
 import streamlit.components.v1 as components
 import math# =====================
-
+import threading
+import time
+import requests
 
 
 def eficiencia_volumetrica(dp_bar, visc_cp, rpm):
@@ -74,6 +76,16 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import cm
 
 st.set_page_config(layout="wide")
+def keep_alive():
+    while True:
+        try:
+            requests.get("https://pcpsuckerod.streamlit.app/")
+            print("Self ping OK")
+        except:
+            print("Self ping failed")
+        time.sleep(240)  # cada 4 minutos
+
+threading.Thread(target=keep_alive, daemon=True).start()
 
 st.markdown("""
 <style>
