@@ -3,9 +3,20 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-
+import threading
+import time
+import requests
 st.set_page_config(layout="wide")
+def keep_alive():
+    while True:
+        try:
+            requests.get("https://calculoapi.streamlit.app/")
+            print("Self ping OK")
+        except:
+            print("Self ping failed")
+        time.sleep(240)  # cada 4 minutos
 
+threading.Thread(target=keep_alive, daemon=True).start()
 # ======================
 # CONTADOR DE VISITAS
 # ======================
