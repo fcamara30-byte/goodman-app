@@ -3,6 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
+import threading
+import time
+import requests
 
 # ======================
 # CONTADOR DE VISITAS
@@ -30,7 +33,16 @@ def contador_visitas():
 visitas = contador_visitas()
 
 st.set_page_config(layout="wide")
+def keep_alive():
+    while True:
+        try:
+            requests.get("https://selectorvarillas.streamlit.app/")
+            print("Self ping OK")
+        except:
+            print("Self ping failed")
+        time.sleep(240)  # cada 4 minutos
 
+threading.Thread(target=keep_alive, daemon=True).start()
 
 # ======================
 # ESTILO
