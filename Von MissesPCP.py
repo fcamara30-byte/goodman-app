@@ -1001,7 +1001,7 @@ else:
  # =====================================
 # ✅ TUBING LIFE (RL)
 # =====================================
-
+radio = d / 2 if 'radio' not in locals() else radio
 h_fail = 0.005
 
 V = (2 * math.pi * rpm / 60) * radio
