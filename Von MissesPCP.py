@@ -1034,9 +1034,7 @@ t_dias = max(5, min(800, t_dias))
 # =========================
 # RESULTADOS + GRAFICO
 # =========================
-
-
-c1,c2,c3=st.columns(3)
+c1, c2, c3, c6 = st.columns(4)
 
 with c1:
     st.markdown(f"""
@@ -1061,6 +1059,15 @@ with c3:
         <div class="metric-value">{von:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
+
+with c6:
+    st.markdown(f"""
+    <div class="metric-box">
+        <div class="metric-title">Tubing RL (Days)</div>
+        <div class="metric-value">{t_dias:.0f}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 
 c4, c5 = st.columns(2)
