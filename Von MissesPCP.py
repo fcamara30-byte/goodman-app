@@ -1058,12 +1058,7 @@ if t_dias is not None:
 # si no hay contacto → mostrar texto
 valor_rl = "—" if t_dias is None else f"{ "—" if t_dias is None else f"{t_dias:.0f}" }"
 
-st.markdown(f"""
-<div class="metric-box">
-    <div class="metric-title">Tubing RL (Days)</div>
-    <div class="metric-value">{valor_rl}</div>
-</div>
-""", unsafe_allow_html=True)
+
 
 
 
