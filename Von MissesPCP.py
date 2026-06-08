@@ -999,80 +999,68 @@ else:
     torque_final = torque
 
 # =====================================
-# ✅ TUBING LIFE (RL) - MODELO FÍSICO CORRECTO
+# ✅ TUBING LIFE – MODELO LIMPIO
 # =====================================
 
-# diámetro rod (ya lo tenés)
 radio = d / 2
 
-# velocidad tangencial (m/s)
+# velocidad
 V = (2 * math.pi * rpm / 60) * radio
 
 # =========================
-# ✅ CONTACTO REAL SOLO EN CUPLAS
+# CONTACTO REAL
 # =========================
 
 if len(df) > 1 and "N_eff" in df_calc:
 
-    # solo cuplas en contacto
     N_contacto = df_calc[df_calc["N_eff"] > 0]["N_eff"]
 
     if len(N_contacto) > 0:
-        # punto crítico (NO promedio)
-        N_eff = np.percentile(N_contacto, 85)
+
+        # cuplas más desfavorables
+        N_criticas = N_contacto[N_contacto > np.percentile(N_contacto, 80)]
+
+        if len(N_criticas) > 0:
+            N_eff = N_criticas.mean()
+        else:
+            N_eff = N_contacto.mean()
+
     else:
-        N_eff = 150
+        t_dias = None  # sin contacto
+        N_eff = None
 
 else:
-    # pozo vertical → casi sin contacto
-    N_eff = 50
+    # pozo vertical
+    t_dias = None
+    N_eff = None
+
 
 # =========================
-# ✅ ÁREA DE CONTACTO REAL CUELA-TBG
+# SOLO SI HAY CONTACTO
 # =========================
 
-# área contacto estimada (m²)
-# típico: ancho 5 mm, largo 50 mm
-A_c = 2.5e-4
+if N_eff is not None:
 
-# presión real (Pa)
-P = N_eff / A_c
+    # fricción real
+    if liner == "Con liner":
+        mu_rod = 0.08
+        K = 1.5e-11   # ✅ clave calibración
+    else:
+        mu_rod = 0.4
+        K = 3.5e-11   # ✅ clave calibración
 
-# =========================
-# ✅ COEFICIENTES FÍSICOS
-# =========================
+    # sólidos
+    K *= (1 + solidos / 100)
 
-if liner == "Con liner":
-    mu_rod = 0.08
-    K = 3e-11
-else:
-    mu_rod = 0.4
-    K = 1e-10
+    # desgaste
+    wear_rate = K * mu_rod * N_eff * V
 
-# efecto sólidos
-K *= (1 + solidos / 100)
+    h_fail = 0.005
 
-# =========================
-# ✅ DESGASTE (TRIBOLOGÍA REAL)
-# =========================
-
-# tasa de desgaste (m/s)
-wear_rate = K * P * V
-
-# espesor tubing (m)
-h_fail = 0.005
-
-# vida (segundos)
-if wear_rate > 0:
-    t_seg = h_fail / wear_rate
-else:
-    t_seg = 0
-
-# convertir a días
-t_dias = t_seg / 86400
-
-# limitar rango lógico
-t_dias = max(20, min(900, t_dias))
+    if wear_rate > 0:
+        t_dias = (h_fail / wear_rate) / 86400
+    else:
+        t_dias = None
 
 
 
