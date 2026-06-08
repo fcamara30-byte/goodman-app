@@ -999,7 +999,7 @@ else:
     torque_final = torque
 
 # =====================================
-# ✅ TUBING LIFE (MODELO FINAL SIMPLE)
+# ✅ TUBING LIFE (MODELO FINAL)
 # =====================================
 
 # ----------------------
@@ -1007,11 +1007,11 @@ else:
 # ----------------------
 rpm_base = 300
 
-# vida base en días (sin liner)
+# vida base sin liner (tu calibración)
 vida_base_sin = 240
 
-# relación liner (de tu campo)
-factor_liner = 2.0   # ~240 → ~480 días
+# relación liner (campo)
+factor_liner = 2.0   # ~240 → ~480-500 días
 
 # ----------------------
 # VIDA BASE SEGÚN LINER
@@ -1032,14 +1032,14 @@ else:
 # ----------------------
 # EFECTO SÓLIDOS
 # ----------------------
-# incremento proporcional al % (simple y coherente)
-factor_solidos = 1 + solidos / 100
+# aumento simple coherente
+factor_solidos = 1 + (solidos / 100)
 
 if t_dias is not None:
     t_dias = t_dias / factor_solidos
 
 # ----------------------
-# POZO VERTICAL
+# POZO VERTICAL (SIN CONTACTO)
 # ----------------------
 if len(df) <= 1:
     t_dias = None
