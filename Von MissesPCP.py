@@ -1007,11 +1007,11 @@ else:
 # ----------------------
 rpm_base = 300
 
-# vida base sin liner (tu calibración)
+# vida base sin liner (tu referencia real)
 vida_base_sin = 240
 
-# relación liner (campo)
-factor_liner = 2.0   # ~240 → ~480-500 días
+# factor liner (≈ 2x según campo)
+factor_liner = 2.0
 
 # ----------------------
 # VIDA BASE SEGÚN LINER
@@ -1022,7 +1022,7 @@ else:
     t_base = vida_base_sin
 
 # ----------------------
-# EFECTO RPM
+# EFECTO RPM (físico)
 # ----------------------
 if rpm > 0:
     t_dias = t_base * (rpm_base / rpm)
@@ -1032,23 +1032,38 @@ else:
 # ----------------------
 # EFECTO SÓLIDOS
 # ----------------------
-# aumento simple coherente
+# más sólidos → más desgaste
 factor_solidos = 1 + (solidos / 100)
 
 if t_dias is not None:
     t_dias = t_dias / factor_solidos
 
 # ----------------------
-# POZO VERTICAL (SIN CONTACTO)
+# POZO VERTICAL (sin contacto)
 # ----------------------
 if len(df) <= 1:
     t_dias = None
 
 # ----------------------
-# LIMITES RAZONABLES
+# LIMITES
 # ----------------------
 if t_dias is not None:
     t_dias = max(30, min(2000, t_dias))
+
+
+# =====================================
+# ✅ OUTPUT SEGURO (NO ROMPE)
+# =====================================
+
+# si no hay contacto → mostrar texto
+valor_rl = "—" if t_dias is None else f"{t_dias:.0f}"
+
+st.markdown(f"""
+<div class="metric-box">
+    <div class="metric-title">Tubing RL (Days)</div>
+    <div class="metric-value">{valor_rl}</div>
+</div>
+""", unsafe_allow_html=True)
 
 
 
