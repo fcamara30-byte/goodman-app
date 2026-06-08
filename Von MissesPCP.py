@@ -999,35 +999,34 @@ else:
     torque_final = torque
 
  # =====================================
-  # ✅ TUBING LIFE (RL)
-  # =====================================
+# ✅ TUBING LIFE (RL)
+# =====================================
 
-  h_fail = 0.005   # 5 mm
+h_fail = 0.005
 
-  V = (2 * math.pi * rpm / 60) * radio
+V = (2 * math.pi * rpm / 60) * radio
 
-  if "N_eff" in df_calc:
-      N_prom = df_calc["N_eff"].mean()
-  else:
-      N_prom = 2000
+if len(df) > 1 and "N_eff" in df_calc:
+    N_prom = df_calc["N_eff"].mean()
+else:
+    N_prom = 2000
 
-  if liner == "Con liner":
-      K = 3e-11
-  else:
-      K = 1.5e-10
+if liner == "Con liner":
+    K = 3e-11
+else:
+    K = 1.5e-10
 
-  # efecto sólidos
-  K *= (1 + solidos / 100)
+K *= (1 + solidos / 100)
 
-  den = K * mu_rod * N_prom * V
+den = K * mu_rod * N_prom * V
 
-  if den > 0:
-      t_seg = h_fail / den
-  else:
-      t_seg = 0
+if den > 0:
+    t_seg = h_fail / den
+else:
+    t_seg = 0
 
-  t_dias = t_seg / 86400
-  t_dias = max(5, min(800, t_dias))
+t_dias = t_seg / 86400
+t_dias = max(5, min(800, t_dias))
 
 
 
