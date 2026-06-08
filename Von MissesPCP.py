@@ -927,35 +927,64 @@ if len(df) > 1:
 
   # ✅ modelo de contacto realista (reemplazo)
 
- 
+ # =========================
+  # ✅ CONTACTO FÍSICO REAL (COMPLETO Y CORRECTO)
+  # =========================
 
-# =========================
-# ✅ CONTACTO FÍSICO REAL (CORRECTO)
-# =========================
-
-# inclinación en radianes
+  # inclinación en radianes
   inc_rad = np.deg2rad(df_calc["inc"])
 
-# curvatura (DLS en °/100 ft → rad/m)
+  # curvatura
   kappa = np.deg2rad(df_calc["DLS"]) / 30.48
 
-# tensión (por ahora = peso acumulado)
+  # tensión (aprox)
   df_calc["Tension"] = df_calc["W_acum"]
 
-# contacto por gravedad
+  # componentes
   df_calc["N_grav"] = df_calc["W_acum"] * np.sin(inc_rad)
-
-# ✅ CORRECCIÓN IMPORTANTE
   df_calc["N_curv"] = df_calc["Tension"] * kappa
 
- # total
+  # ✅ TOTAL (esto faltaba)
+  df_calc["N"] = df_calc["N_grav"] + df_calc["N_curv"]
 
 
+  # =========================
+  # ✅ CUPLAS
+  # =========================
 
-    
+  spacing = 7.62
 
-  # ✅ torque total
+  df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
+
+  df_calc["es_cupla"] = (
+      df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
+  )
+
+  df_calc["N_cupla"] = 2.5 * df_calc["N"]
+
+  df_calc["N_eff"] = 0.0
+  df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N_cupla"]
+
+
+  # =========================
+  # ✅ TORQUE REAL
+  # =========================
+
+  K_contact = 1.5
+
+  df_calc["dT"] = (
+      mu_rod
+      * df_calc["N_eff"]
+      * radio
+      * K_contact
+  )
+
   T_fric = df_calc["dT"].sum() / 1000
+
+  torque_final = torque + T_fric
+
+
+
 
   torque_final = torque + T_fric
 
