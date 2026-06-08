@@ -927,13 +927,32 @@ if len(df) > 1:
 
   # ✅ modelo de contacto realista (reemplazo)
 
-  factor_contacto = 0.2 + 0.05 * (df_calc["DLS"] / 3)
+ 
 
-  df_calc["N"] = df_calc["W_acum"] * factor_contacto
+# =========================
+# ✅ CONTACTO FÍSICO REAL (CORRECTO)
+# =========================
+
+# inclinación en radianes
+inc_rad = np.deg2rad(df_calc["inc"])
+
+# curvatura (DLS en °/100 ft → rad/m)
+kappa = np.deg2rad(df_calc["DLS"]) / 30.48
+
+# tensión (por ahora = peso acumulado)
+df_calc["Tension"] = df_calc["W_acum"]
+
+# contacto por gravedad
+df_calc["N_grav"] = df_calc["W_acum"] * np.sin(inc_rad)
+
+# ✅ CORRECCIÓN IMPORTANTE
+df_calc["N_curv"] = df_calc["Tension"] * kappa
+
+# total
 
 
-  # ✅ torque incremental
-  df_calc["dT"] = mu_rod * df_calc["N"] * radio
+
+    
 
   # ✅ torque total
   T_fric = df_calc["dT"].sum() / 1000
