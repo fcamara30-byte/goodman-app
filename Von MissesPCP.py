@@ -934,7 +934,7 @@ if len(df) > 1:
 # =========================
 
 # inclinación en radianes
- inc_rad = np.deg2rad(df_calc["inc"])
+  inc_rad = np.deg2rad(df_calc["inc"])
 
 # curvatura (DLS en °/100 ft → rad/m)
   kappa = np.deg2rad(df_calc["DLS"]) / 30.48
