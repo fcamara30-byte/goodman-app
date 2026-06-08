@@ -1097,13 +1097,17 @@ with c3:
     </div>
     """, unsafe_allow_html=True)
 
+
 with c6:
     st.markdown(f"""
     <div class="metric-box">
         <div class="metric-title">Tubing RL (Days)</div>
-        <div class="metric-value">{t_dias:.0f}</div>
+        <div class="metric-value">
+            {"No aplica" if t_dias is None else f"{t_dias:.0f}"}
+        </div>
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
