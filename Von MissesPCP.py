@@ -1001,6 +1001,7 @@ else:
  # =====================================
 # ✅ TUBING LIFE (RL)
 # =====================================
+mu_rod = MU_ROD[liner] if 'mu_rod' not in locals() else mu_rod
 radio = d / 2 if 'radio' not in locals() else radio
 h_fail = 0.005
 
