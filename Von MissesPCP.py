@@ -999,68 +999,56 @@ else:
     torque_final = torque
 
 # =====================================
-# ✅ TUBING LIFE – MODELO LIMPIO
+# ✅ TUBING LIFE (MODELO FINAL SIMPLE)
 # =====================================
 
-radio = d / 2
+# ----------------------
+# BASE CALIBRADA
+# ----------------------
+rpm_base = 300
 
-# velocidad
-V = (2 * math.pi * rpm / 60) * radio
+# vida base en días (sin liner)
+vida_base_sin = 240
 
-# =========================
-# CONTACTO REAL
-# =========================
+# relación liner (de tu campo)
+factor_liner = 2.0   # ~240 → ~480 días
 
-if len(df) > 1 and "N_eff" in df_calc:
-
-    N_contacto = df_calc[df_calc["N_eff"] > 0]["N_eff"]
-
-    if len(N_contacto) > 0:
-
-        # cuplas más desfavorables
-        N_criticas = N_contacto[N_contacto > np.percentile(N_contacto, 80)]
-
-        if len(N_criticas) > 0:
-            N_eff = N_criticas.mean()
-        else:
-            N_eff = N_contacto.mean()
-
-    else:
-        t_dias = None  # sin contacto
-        N_eff = None
-
+# ----------------------
+# VIDA BASE SEGÚN LINER
+# ----------------------
+if liner == "Con liner":
+    t_base = vida_base_sin * factor_liner
 else:
-    # pozo vertical
+    t_base = vida_base_sin
+
+# ----------------------
+# EFECTO RPM
+# ----------------------
+if rpm > 0:
+    t_dias = t_base * (rpm_base / rpm)
+else:
     t_dias = None
-    N_eff = None
 
+# ----------------------
+# EFECTO SÓLIDOS
+# ----------------------
+# incremento proporcional al % (simple y coherente)
+factor_solidos = 1 + solidos / 100
 
-# =========================
-# SOLO SI HAY CONTACTO
-# =========================
+if t_dias is not None:
+    t_dias = t_dias / factor_solidos
 
-if N_eff is not None:
+# ----------------------
+# POZO VERTICAL
+# ----------------------
+if len(df) <= 1:
+    t_dias = None
 
-    # fricción real
-    if liner == "Con liner":
-        mu_rod = 0.08
-        K = 1.5e-11   # ✅ clave calibración
-    else:
-        mu_rod = 0.4
-        K = 3.5e-11   # ✅ clave calibración
-
-    # sólidos
-    K *= (1 + solidos / 100)
-
-    # desgaste
-    wear_rate = K * mu_rod * N_eff * V
-
-    h_fail = 0.005
-
-    if wear_rate > 0:
-        t_dias = (h_fail / wear_rate) / 86400
-    else:
-        t_dias = None
+# ----------------------
+# LIMITES RAZONABLES
+# ----------------------
+if t_dias is not None:
+    t_dias = max(30, min(2000, t_dias))
 
 
 
