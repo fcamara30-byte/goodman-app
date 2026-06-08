@@ -998,26 +998,67 @@ if len(df) > 1:
 else:
     torque_final = torque
 
- # =====================================
-# ✅ TUBING LIFE (RL)
-# =====================================
-mu_rod = MU_ROD[liner] if 'mu_rod' not in locals() else mu_rod
-radio = d / 2 if 'radio' not in locals() else radio
-h_fail = 0.005
 
+# =====================================
+# ✅ TUBING LIFE (RL) - MODELO FÍSICO
+# =====================================
+
+# asegurar variables siempre
+radio = d / 2
+mu_rod = 0.4   # ✅ NUEVO valor realista acero-cupla
+
+# espesor de falla
+h_fail = 0.005  # 5 mm
+
+# velocidad tangencial
 V = (2 * math.pi * rpm / 60) * radio
 
+# =========================
+# ✅ FUERZA DE CONTACTO REAL
+# =========================
+
 if len(df) > 1 and "N_eff" in df_calc:
-    N_prom = df_calc["N_eff"].mean()
+
+    # SOLO cuplas en contacto
+    N_contacto = df_calc[df_calc["N_eff"] > 0]["N_eff"]
+
+    if len(N_contacto) > 0:
+        N_prom = N_contacto.mean()
+    else:
+        N_prom = 500
+
 else:
-    N_prom = 2000
+    # pozo vertical
+    N_prom = 200  # ≈ casi sin contacto
+
+
+# =========================
+# ✅ CONTACTO NO CONTINUO
+# =========================
+
+# factor real de contacto (muy importante)
+if liner == "Con liner":
+    duty = 0.2
+else:
+    duty = 0.1
+
+N_prom *= duty
+
+# =========================
+# ✅ COEFICIENTE DESGASTE
+# =========================
 
 if liner == "Con liner":
     K = 3e-11
 else:
     K = 1.5e-10
 
+# efecto sólidos
 K *= (1 + solidos / 100)
+
+# =========================
+# ✅ CÁLCULO FINAL
+# =========================
 
 den = K * mu_rod * N_prom * V
 
@@ -1026,8 +1067,11 @@ if den > 0:
 else:
     t_seg = 0
 
+# días
 t_dias = t_seg / 86400
-t_dias = max(5, min(800, t_dias))
+
+# límites razonables
+t_dias = max(10, min(900, t_dias))
 
 
 
