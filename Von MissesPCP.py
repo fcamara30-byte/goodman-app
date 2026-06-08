@@ -998,80 +998,82 @@ if len(df) > 1:
 else:
     torque_final = torque
 
-
 # =====================================
-# ✅ TUBING LIFE (RL) - MODELO FÍSICO
+# ✅ TUBING LIFE (RL) - MODELO FÍSICO CORRECTO
 # =====================================
 
-# asegurar variables siempre
+# diámetro rod (ya lo tenés)
 radio = d / 2
-mu_rod = 0.4   # ✅ NUEVO valor realista acero-cupla
 
-# espesor de falla
-h_fail = 0.005  # 5 mm
-
-# velocidad tangencial
+# velocidad tangencial (m/s)
 V = (2 * math.pi * rpm / 60) * radio
 
 # =========================
-# ✅ FUERZA DE CONTACTO REAL
+# ✅ CONTACTO REAL SOLO EN CUPLAS
 # =========================
 
 if len(df) > 1 and "N_eff" in df_calc:
 
-    # SOLO cuplas en contacto
+    # solo cuplas en contacto
     N_contacto = df_calc[df_calc["N_eff"] > 0]["N_eff"]
 
     if len(N_contacto) > 0:
-        N_prom = N_contacto.mean()
+        # punto crítico (NO promedio)
+        N_eff = np.percentile(N_contacto, 85)
     else:
-        N_prom = 500
+        N_eff = 150
 
 else:
-    # pozo vertical
-    N_prom = 200  # ≈ casi sin contacto
-
-
-# =========================
-# ✅ CONTACTO NO CONTINUO
-# =========================
-
-# factor real de contacto (muy importante)
-if liner == "Con liner":
-    duty = 0.2
-else:
-    duty = 0.1
-
-N_prom *= duty
+    # pozo vertical → casi sin contacto
+    N_eff = 50
 
 # =========================
-# ✅ COEFICIENTE DESGASTE
+# ✅ ÁREA DE CONTACTO REAL CUELA-TBG
+# =========================
+
+# área contacto estimada (m²)
+# típico: ancho 5 mm, largo 50 mm
+A_c = 2.5e-4
+
+# presión real (Pa)
+P = N_eff / A_c
+
+# =========================
+# ✅ COEFICIENTES FÍSICOS
 # =========================
 
 if liner == "Con liner":
+    mu_rod = 0.08
     K = 3e-11
 else:
-    K = 1.5e-10
+    mu_rod = 0.4
+    K = 1e-10
 
 # efecto sólidos
 K *= (1 + solidos / 100)
 
 # =========================
-# ✅ CÁLCULO FINAL
+# ✅ DESGASTE (TRIBOLOGÍA REAL)
 # =========================
 
-den = K * mu_rod * N_prom * V
+# tasa de desgaste (m/s)
+wear_rate = K * P * V
 
-if den > 0:
-    t_seg = h_fail / den
+# espesor tubing (m)
+h_fail = 0.005
+
+# vida (segundos)
+if wear_rate > 0:
+    t_seg = h_fail / wear_rate
 else:
     t_seg = 0
 
-# días
+# convertir a días
 t_dias = t_seg / 86400
 
-# límites razonables
-t_dias = max(10, min(900, t_dias))
+# limitar rango lógico
+t_dias = max(20, min(900, t_dias))
+
 
 
 
