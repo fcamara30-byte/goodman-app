@@ -999,30 +999,28 @@ else:
     torque_final = torque
 
 # =====================================
-# ✅ TUBING RUN LIFE (MODELO FÍSICO)
+# ✅ TUBING RUN LIFE (FÍSICO CONSISTENTE)
 # =====================================
 
-if len(df) > 1 and "N_eff" in df_calc:
+if len(df) > 1:
 
     # ----------------------
-    # GEOMETRÍA
+    # PARÁMETROS
     # ----------------------
+    spacing = 7.62  # m
+
+    # peso lineal (N/m)
+    w = peso
+
+    # inclinación
     inc_rad = np.deg2rad(df_calc["inc"])
-    kappa = np.deg2rad(df_calc["DLS"]) / 30.48
-
-    # carga axial
-    T = df_calc["W_acum"]
-
-    # radio varilla
-    r = d / 2
 
     # ----------------------
-    # FUERZA NORMAL (SIN INVENTOS)
+    # FUERZA LOCAL POR TRAMO
     # ----------------------
-    df_calc["N_grav"] = T * np.sin(inc_rad)
-    df_calc["N_curv"] = T * kappa * r
+    W_tramo = w * spacing
 
-    df_calc["N"] = df_calc["N_grav"] + df_calc["N_curv"]
+    df_calc["N"] = W_tramo * np.sin(inc_rad)
 
     # solo cuplas
     df_calc["N_eff"] = 0.0
@@ -1036,23 +1034,24 @@ if len(df) > 1 and "N_eff" in df_calc:
     # ----------------------
     # VELOCIDAD
     # ----------------------
+    r = d / 2
     V = (2 * math.pi * rpm / 60) * r
 
     # ----------------------
-    # PROPIEDADES MATERIAL
+    # MATERIAL
     # ----------------------
     if liner == "Con liner":
-        mu = 0.8
-        K = 2.5e-12
+        mu = 0.08
+        K = 4e-12
     else:
         mu = 0.4
-        K = 5e-12
+        K = 8e-12
 
-    # sólidos afectan desgaste
+    # sólidos
     K *= (1 + solidos / 100)
 
     # ----------------------
-    # DESGASTE
+    # VIDA
     # ----------------------
     h_fail = 0.005
 
@@ -1063,10 +1062,7 @@ if len(df) > 1 and "N_eff" in df_calc:
         t_dias = None
 
 else:
-    # pozo vertical → no hay contacto
     t_dias = None
-
-
 
 
 
