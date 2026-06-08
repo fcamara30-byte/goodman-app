@@ -999,64 +999,72 @@ else:
     torque_final = torque
 
 # =====================================
-# ✅ TUBING LIFE (MODELO FINAL)
+# ✅ TUBING RUN LIFE (MODELO FÍSICO)
 # =====================================
 
-# ----------------------
-# BASE CALIBRADA
-# ----------------------
-rpm_base = 300
+if len(df) > 1 and "N_eff" in df_calc:
 
-# vida base sin liner (tu referencia real)
-vida_base_sin = 240
+    # ----------------------
+    # GEOMETRÍA
+    # ----------------------
+    inc_rad = np.deg2rad(df_calc["inc"])
+    kappa = np.deg2rad(df_calc["DLS"]) / 30.48
 
-# factor liner (≈ 2x según campo)
-factor_liner = 2.0
+    # carga axial
+    T = df_calc["W_acum"]
 
-# ----------------------
-# VIDA BASE SEGÚN LINER
-# ----------------------
-if liner == "Con liner":
-    t_base = vida_base_sin * factor_liner
+    # radio varilla
+    r = d / 2
+
+    # ----------------------
+    # FUERZA NORMAL (SIN INVENTOS)
+    # ----------------------
+    df_calc["N_grav"] = T * np.sin(inc_rad)
+    df_calc["N_curv"] = T * kappa * r
+
+    df_calc["N"] = df_calc["N_grav"] + df_calc["N_curv"]
+
+    # solo cuplas
+    df_calc["N_eff"] = 0.0
+    df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
+
+    # ----------------------
+    # CUPLA CRÍTICA
+    # ----------------------
+    N_crit = df_calc["N_eff"].max()
+
+    # ----------------------
+    # VELOCIDAD
+    # ----------------------
+    V = (2 * math.pi * rpm / 60) * r
+
+    # ----------------------
+    # PROPIEDADES MATERIAL
+    # ----------------------
+    if liner == "Con liner":
+        mu = 0.8
+        K = 2.5e-12
+    else:
+        mu = 0.4
+        K = 5e-12
+
+    # sólidos afectan desgaste
+    K *= (1 + solidos / 100)
+
+    # ----------------------
+    # DESGASTE
+    # ----------------------
+    h_fail = 0.005
+
+    if N_crit > 0 and rpm > 0:
+        wear_rate = K * mu * N_crit * V
+        t_dias = (h_fail / wear_rate) / 86400
+    else:
+        t_dias = None
+
 else:
-    t_base = vida_base_sin
-
-# ----------------------
-# EFECTO RPM (físico)
-# ----------------------
-if rpm > 0:
-    t_dias = t_base * (rpm_base / rpm)
-else:
+    # pozo vertical → no hay contacto
     t_dias = None
-
-# ----------------------
-# EFECTO SÓLIDOS
-# ----------------------
-# más sólidos → más desgaste
-factor_solidos = 1 + (solidos / 100)
-
-if t_dias is not None:
-    t_dias = t_dias / factor_solidos
-
-# ----------------------
-# POZO VERTICAL (sin contacto)
-# ----------------------
-if len(df) <= 1:
-    t_dias = None
-
-# ----------------------
-# LIMITES
-# ----------------------
-if t_dias is not None:
-    t_dias = max(30, min(2000, t_dias))
-
-
-# =====================================
-# ✅ OUTPUT SEGURO (NO ROMPE)
-# =====================================
-
-# si no hay contacto → mostrar texto
-valor_rl = "—" if t_dias is None else f"{ "—" if t_dias is None else f"{t_dias:.0f}" }"
 
 
 
