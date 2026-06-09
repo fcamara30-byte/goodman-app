@@ -999,7 +999,7 @@ df_calc.loc[
 # ---------------------------------
 # TORQUE POR FRICCION
 # ---------------------------------
-
+mu_rod = MU_ROD[liner]
 radio_contacto = d / 2
 
 df_calc["dT"] = (
