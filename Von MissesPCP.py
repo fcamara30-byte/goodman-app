@@ -918,7 +918,7 @@ df["md"] = df["md"].round(0).astype(int) if "md" in df else df.get("md", [])
 # MODELO CONTACTO PCP - FISICO (FINAL)
 # =====================================
 
-
+radio_contacto = d / 2
 
 # ✅ valor base para no romper nunca
 torque_final = torque
