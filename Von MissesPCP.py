@@ -1037,7 +1037,7 @@ if len(df) > 1 and "inc" in df.columns:
     else:
         mu_wear = 0.40
 
-    K = 4.7e-12 * (1 + solidos / 100)
+    K = 1.1e-12 * (1 + solidos / 100)
     h_fail = 0.005
 
     if N_crit is not None and N_crit > 0:
@@ -1051,46 +1051,6 @@ else:
     md_max = None
     md_crit = None
     N_crit = None
-    t_dias = None
-
-# ---------------------------------
-# VELOCIDAD RELATIVA
-# ---------------------------------
-
-V = (
-    2 * np.pi * rpm / 60
-) * radio_contacto
-
-# ---------------------------------
-# VIDA TUBING (ARCHARD)
-# ---------------------------------
-
-if liner == "Con liner":
-    mu_wear = 0.08
-else:
-    mu_wear = 0.40
-
-K = 4.7e-12
-K *= (1 + solidos / 100)
-
-h_fail = 0.005
-
-if N_crit is not None and N_crit > 0:
-
-    wear_rate = (
-        K
-        * mu_wear
-        * N_crit
-        * V
-    )
-
-    t_dias = (
-        h_fail
-        / wear_rate
-    ) / 86400
-
-else:
-
     t_dias = None
 
 
