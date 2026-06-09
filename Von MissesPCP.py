@@ -1035,7 +1035,7 @@ if len(df) > 1 and "inc" in df.columns:
     if liner == "Con liner":
         mu_wear = 0.08
     else:
-        mu_wear = 0.40
+        mu_wear = 0.30
 
     K = 1.1e-12 * (1 + solidos / 100)
     h_fail = 0.005
