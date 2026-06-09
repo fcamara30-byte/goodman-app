@@ -965,28 +965,24 @@ if len(df) > 1:
   df_calc["N_eff"] = 0.0
   df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N_cupla"]
 # =====================================
-# ✅ PROFUNDIDAD DE ROTURA (CUAPLA CRÍTICA)
+# ✅ PROFUNDIDAD DE ROTURA
 # =====================================
 
-if len(df) > 1 and "N_eff" in df_calc:
+df_contacto = df_calc[df_calc["N_eff"] > 0]
 
-    # quedarse solo con cuplas que realmente tienen contacto
-    df_contacto = df_calc[df_calc["N_eff"] > 0]
+if len(df_contacto) > 0:
 
-    if len(df_contacto) > 0:
-        
-        # índice donde la fuerza es máxima
-        idx_crit = df_contacto["N_eff"].idxmax()
+    idx_crit = df_contacto["N_eff"].idxmax()
 
-        # profundidad de rotura
-        md_rotura = df_contacto.loc[idx_crit, "md"]
+    md_rotura = df_contacto.loc[idx_crit, "md"]
 
-        # fuerza en ese punto (opcional)
-        N_crit = df_contacto.loc[idx_crit, "N_eff"]
+    # fuerza en ese punto (opcional)
+    N_crit = df_contacto.loc[idx_crit, "N_eff"]
 
-    else:
-        md_rotura = None
-        N_crit = None
+else:
+    md_rotura = None
+    N_crit = None
+
 
 
 
