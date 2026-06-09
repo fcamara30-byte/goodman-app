@@ -1072,11 +1072,13 @@ else:
 # RESULTADOS + GRAFICO
 # =========================
 c1, c2, c3, c6 = st.columns(4)
-st.write(
-    f"👉 Rotura estimada alrededor de {md_rotura:.0f} m"
+st.markdown(
+    f"<div style='text-align:right;'>👉 Rotura estimada alrededor de {md_rotura:.0f} m</div>"
     if md_rotura is not None
-    else "👉 No aplica (pozo vertical)"
+    else "<div style='text-align:right;'>👉 No aplica (pozo vertical)</div>",
+    unsafe_allow_html=True
 )
+
 with c1:
     st.markdown(f"""
     <div class="metric-box">
