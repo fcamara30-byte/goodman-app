@@ -944,12 +944,27 @@ if len(df) > 1:
 
     df_calc["N_eff"] = 0.0
     df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
+    # =====================================
+# ✅ ZONA DE ALTA INCLINACIÓN
+# =====================================
 
-    # rotura
-    df_contacto = df_calc[df_calc["N_eff"] > 0]
+    inc_max = df_calc["inc"].max()
+
+    threshold = 0.95 * inc_max
+
+    zona_alta = df_calc[df_calc["inc"] >= threshold]
+
+    if len(zona_alta) > 0:
+       md_min = zona_alta["md"].min()
+       md_max = zona_alta["md"].max()
+    else:
+       md_min = None
+       md_max = None
+       # rotura
+       df_contacto = df_calc[df_calc["N_eff"] > 0]
 
     if len(df_contacto) > 0:
-        idx_crit = df_contacto["N_eff"].idxmax()
+       idx_crit = df_contacto["N_eff"].idxmax()
         md_rotura = df_contacto.loc[idx_crit, "md"]
         N_crit = df_contacto.loc[idx_crit, "N_eff"]
     else:
