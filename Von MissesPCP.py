@@ -994,7 +994,7 @@ if len(df) > 1 and "inc" in df.columns:
         * radio_contacto
     )
 
-    T_fric = df_calc["dT"].sum()
+    T_fric = df_calc["dT"].max()
 
     torque_final = torque + T_fric
 
