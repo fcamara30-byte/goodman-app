@@ -1013,8 +1013,6 @@ von = math.sqrt(sigma**2 + 3*tau**2)
 uso = von / YS * 100
 
 
-else:
-    torque_final = torque
 
 # =====================================
 # ✅ TUBING RUN LIFE (FÍSICO CONSISTENTE)
