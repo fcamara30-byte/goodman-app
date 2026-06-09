@@ -884,21 +884,31 @@ if len(df) > 0:
 colores = []
 rec = []
 
+
 for _, row in df.iterrows():
     dls_val = row["DLS"]
+    inc_val = row["inc"]
 
-    if dls_val <= 1.9:
+    if dls_val <= 1.9 and inc_val <= 25:
         colores.append("green")
         rec.append("sin cent.")
+
+    elif inc_val > 30:
+        colores.append("orange")
+        rec.append("2 cent. (Max Inc)")
+
     elif dls_val <= 3:
         colores.append("yellow")
         rec.append("2 cent.")
+
     elif dls_val <= 6:
         colores.append("orange")
         rec.append("3 cent.")
+
     else:
         colores.append("red")
         rec.append(">3 cent o Mamba")
+
 
 df["Recomendación"] = rec
 
