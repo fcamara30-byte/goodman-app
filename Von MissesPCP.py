@@ -826,6 +826,9 @@ if modo=="Desviado" and text:
             "inc":np.interp(md_new,df["md"],df["inc"]),
             "az":np.interp(md_new,df["md"],df["az"])
         })
+       
+        df = df.sort_values("md").reset_index(drop=True)
+        df["md"] = df["md"] - df["md"].iloc[
 
         inc=np.radians(df["inc"])
         az=np.radians(df["az"])
