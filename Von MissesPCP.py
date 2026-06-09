@@ -988,9 +988,7 @@ if len(df) > 1 and "N_eff" in df_calc:
         md_rotura = None
         N_crit = None
 
-else:
-    md_rotura = None
-    N_crit = None
+
 
   # =========================
   # ✅ TORQUE REAL
