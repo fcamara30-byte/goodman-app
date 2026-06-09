@@ -925,93 +925,117 @@ if len(df) > 1:
 # ✅ BLOQUE NUEVO LIMPIO
 # =====================================
 
+# =====================================
+# ✅ MODELO FÍSICO COMPLETO (FINAL)
+# =====================================
+
 if len(df) > 1:
 
+    # ----------------------
+    # BASE
+    # ----------------------
     df_calc = df.copy()
 
+    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
+    df_calc["dW"] = peso * df_calc["dMD"]
+    df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
+
     spacing = 7.62
+
     inc_rad = np.deg2rad(df_calc["inc"])
+    kappa = np.deg2rad(df_calc["DLS"]) / 30.48
 
-    # contacto correcto
+    # ----------------------
+    # CONTACTO FÍSICO REAL
+    # ----------------------
     W_tramo = peso * spacing
-    df_calc["N"] = W_tramo * np.sin(inc_rad)
+    T_local = df_calc["W_acum"]
 
-    # cuplas
-    df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
-    df_calc["es_cupla"] = (
-        df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
+    df_calc["N_grav"] = W_tramo * np.sin(inc_rad)
+    df_calc["N_curv"] = T_local * kappa * spacing
+
+    # ✅ composición correcta (VECTORIAL)
+    df_calc["N"] = np.sqrt(
+        df_calc["N_grav"]**2 +
+        df_calc["N_curv"]**2
     )
+
+    # ----------------------
+    # CUPLAS
+    # ----------------------
+    df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
+    df_calc["es_cupla"] = df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
 
     df_calc["N_eff"] = 0.0
     df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
 
-   # =====================================
-# ✅ ZONA DE ALTA INCLINACIÓN
-# =====================================
+    # ----------------------
+    # ÍNDICE DE DESGASTE (MEJOR CRITERIO)
+    # ----------------------
+    df_calc["wear_index"] = df_calc["N_eff"] * rpm
 
-inc_max = df_calc["inc"].max()
-threshold = 0.95 * inc_max
+    df_contacto = df_calc[df_calc["N_eff"] > 0]
 
-zona_alta = df_calc[df_calc["inc"] >= threshold]
+    if len(df_contacto) > 0:
+        idx_crit = df_contacto["wear_index"].idxmax()
+        md_rotura = df_contacto.loc[idx_crit, "md"]
+        N_crit = df_contacto.loc[idx_crit, "N_eff"]
+    else:
+        md_rotura = None
+        N_crit = None
 
-if len(zona_alta) > 0:
-    md_min = zona_alta["md"].min()
-    md_max = zona_alta["md"].max()
-else:
-    md_min = None
-    md_max = None
+    # ----------------------
+    # ZONA CRÍTICA (RANGO)
+    # ----------------------
+    inc_max = df_calc["inc"].max()
+    threshold = 0.95 * inc_max
 
+    zona_alta = df_calc[df_calc["inc"] >= threshold]
 
-# =====================================
-# ✅ ROTURA (CUAPLA CRÍTICA)
-# =====================================
+    if len(zona_alta) > 0:
+        md_min = zona_alta["md"].min()
+        md_max = zona_alta["md"].max()
+    else:
+        md_min = None
+        md_max = None
 
-df_contacto = df_calc[df_calc["N_eff"] > 0]
+    # ----------------------
+    # TORQUE
+    # ----------------------
+    mu_rod = MU_ROD[liner]
+    radio = d / 2
 
-if len(df_contacto) > 0:
-    idx_crit = df_contacto["N_eff"].idxmax()
-    md_rotura = df_contacto.loc[idx_crit, "md"]
-    N_crit = df_contacto.loc[idx_crit, "N_eff"]
+    df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
+
+    T_fric = df_calc["dT"].sum() / 1000
+    torque_final = torque + T_fric
+
+    # ----------------------
+    # TUBING LIFE
+    # ----------------------
+    V = (2 * math.pi * rpm / 60) * radio
+
+    if liner == "Con liner":
+        mu = 0.08
+        K = 4.7e-12
+    else:
+        mu = 0.4
+        K = 4.7e-12
+
+    h_fail = 0.005
+
+    if N_crit is not None and N_crit > 0:
+        t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
+    else:
+        t_dias = None
+
 else:
     md_rotura = None
     N_crit = None
-
-
-# =====================================
-# ✅ TORQUE REAL
-# =====================================
-
-mu_rod = MU_ROD[liner]
-radio = d / 2
-
-df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
-
-T_fric = df_calc["dT"].sum() / 1000
-torque_final = torque + T_fric
-
-    
-
-# =========================
-# ✅ TUBING LIFE
-# =========================
-
-V = (2 * math.pi * rpm / 60) * radio
-
-if liner == "Con liner":
-    mu = 0.08
-    K = 4.7e-12
-else:
-    mu = 0.4
-    K = 4.7e-12
-
-h_fail = 0.005
-
-if N_crit is not None and N_crit > 0:
-    t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
-else:
+    md_min = None
+    md_max = None
     t_dias = None
-
-
+    torque_final = torque
 
 
 
