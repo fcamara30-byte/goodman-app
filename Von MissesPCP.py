@@ -944,41 +944,52 @@ if len(df) > 1:
 
     df_calc["N_eff"] = 0.0
     df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
-    # =====================================
+
+   # =====================================
 # ✅ ZONA DE ALTA INCLINACIÓN
 # =====================================
 
-      inc_max = df_calc["inc"].max()
+inc_max = df_calc["inc"].max()
+threshold = 0.95 * inc_max
 
-      threshold = 0.95 * inc_max
+zona_alta = df_calc[df_calc["inc"] >= threshold]
 
-      zona_alta = df_calc[df_calc["inc"] >= threshold]
+if len(zona_alta) > 0:
+    md_min = zona_alta["md"].min()
+    md_max = zona_alta["md"].max()
+else:
+    md_min = None
+    md_max = None
 
-    if len(zona_alta) > 0:
-       md_min = zona_alta["md"].min()
-       md_max = zona_alta["md"].max()
-    else:
-       md_min = None
-       md_max = None
-       # rotura
-       df_contacto = df_calc[df_calc["N_eff"] > 0]
 
-    if len(df_contacto) > 0:
-       idx_crit = df_contacto["N_eff"].idxmax()
-        md_rotura = df_contacto.loc[idx_crit, "md"]
-        N_crit = df_contacto.loc[idx_crit, "N_eff"]
-    else:
-        md_rotura = None
-        N_crit = None
+# =====================================
+# ✅ ROTURA (CUAPLA CRÍTICA)
+# =====================================
 
-    # torque
-    mu_rod = MU_ROD[liner]
-    radio = d / 2
+df_contacto = df_calc[df_calc["N_eff"] > 0]
 
-    df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
+if len(df_contacto) > 0:
+    idx_crit = df_contacto["N_eff"].idxmax()
+    md_rotura = df_contacto.loc[idx_crit, "md"]
+    N_crit = df_contacto.loc[idx_crit, "N_eff"]
+else:
+    md_rotura = None
+    N_crit = None
 
-    T_fric = df_calc["dT"].sum() / 1000
-    torque_final = torque + T_fric
+
+# =====================================
+# ✅ TORQUE REAL
+# =====================================
+
+mu_rod = MU_ROD[liner]
+radio = d / 2
+
+df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
+
+T_fric = df_calc["dT"].sum() / 1000
+torque_final = torque + T_fric
+
+    
 
     # tubing life
     V = (2 * math.pi * rpm / 60) * radio
