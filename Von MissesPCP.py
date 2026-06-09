@@ -909,99 +909,74 @@ if len(df) > 1:
   mu_rod = MU_ROD[liner]
   radio = d / 2
 
-  df_calc = df.copy()
-
-  # ✅ asegurar columnas
-  df_calc["dMD"] = df_calc["md"].diff().fillna(0)
-
-  # ✅ calcular peso por tramo
-  df_calc["dW"] = peso * df_calc["dMD"]
-
-  # ✅ peso acumulado (desde fondo)
-  df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
-
-  # ✅ curvatura
-  df_calc["kappa"] = df_calc["DLS"] * (math.pi/180) / 30.48
-
-  # ✅ fuerza normal
-
-  # ✅ modelo de contacto realista (reemplazo)
-
- # =========================
-  # ✅ CONTACTO FÍSICO REAL (COMPLETO Y CORRECTO)
-  # =========================
-
-  # inclinación en radianes
-  inc_rad = np.deg2rad(df_calc["inc"])
-
-  # curvatura
-  kappa = np.deg2rad(df_calc["DLS"]) / 30.48
-
-  # tensión (aprox)
-  df_calc["Tension"] = df_calc["W_acum"]
-
-  # componentes
-  df_calc["N_grav"] = df_calc["W_acum"] * np.sin(inc_rad)
-  df_calc["N_curv"] = df_calc["Tension"] * kappa
-
-  # ✅ TOTAL (esto faltaba)
-  df_calc["N"] = df_calc["N_grav"] + df_calc["N_curv"]
 
 
-  # =========================
-  # ✅ CUPLAS
-  # =========================
-
-  spacing = 7.62
-
-  df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
-
-  df_calc["es_cupla"] = (
-      df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
-  )
-
-  df_calc["N_cupla"] = 2.5 * df_calc["N"]
-
-  df_calc["N_eff"] = 0.0
-  df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N_cupla"]
 # =====================================
-# ✅ PROFUNDIDAD DE ROTURA
+# ✅ BLOQUE NUEVO LIMPIO
 # =====================================
 
-df_contacto = df_calc[df_calc["N_eff"] > 0]
+if len(df) > 1:
 
-if len(df_contacto) > 0:
+    df_calc = df.copy()
 
-    idx_crit = df_contacto["N_eff"].idxmax()
+    spacing = 7.62
+    inc_rad = np.deg2rad(df_calc["inc"])
 
-    md_rotura = df_contacto.loc[idx_crit, "md"]
+    # contacto correcto
+    W_tramo = peso * spacing
+    df_calc["N"] = W_tramo * np.sin(inc_rad)
 
-    # fuerza en ese punto (opcional)
-    N_crit = df_contacto.loc[idx_crit, "N_eff"]
+    # cuplas
+    df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
+    df_calc["es_cupla"] = (
+        df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
+    )
+
+    df_calc["N_eff"] = 0.0
+    df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
+
+    # rotura
+    df_contacto = df_calc[df_calc["N_eff"] > 0]
+
+    if len(df_contacto) > 0:
+        idx_crit = df_contacto["N_eff"].idxmax()
+        md_rotura = df_contacto.loc[idx_crit, "md"]
+        N_crit = df_contacto.loc[idx_crit, "N_eff"]
+    else:
+        md_rotura = None
+        N_crit = None
+
+    # torque
+    mu_rod = MU_ROD[liner]
+    radio = d / 2
+
+    df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
+
+    T_fric = df_calc["dT"].sum() / 1000
+    torque_final = torque + T_fric
+
+    # tubing life
+    V = (2 * math.pi * rpm / 60) * radio
+
+    if liner == "Con liner":
+        mu = 0.08
+        K = 4.7e-12
+    else:
+        mu = 0.4
+        K = 4.7e-12
+
+    h_fail = 0.005
+
+    if N_crit > 0:
+        t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
+    else:
+        t_dias = None
 
 else:
     md_rotura = None
     N_crit = None
-
-
-# =====================================
-# ✅ TORQUE REAL
-# =====================================
-
-K_contact = 1.5
-
-df_calc["dT"] = (
-    mu_rod
-    * df_calc["N_eff"]
-    * radio
-    * K_contact
-)
-
-T_fric = df_calc["dT"].sum() / 1000
-
-torque_final = torque + T_fric
-
-
+    t_dias = None
+    torque_final = torque
 
 
 
