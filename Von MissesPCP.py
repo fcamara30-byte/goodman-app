@@ -1087,7 +1087,11 @@ else:
 # RESULTADOS + GRAFICO
 # =========================
 c1, c2, c3, c6 = st.columns(4)
-
+st.write(
+    f"👉 Rotura estimada alrededor de {md_rotura:.0f} m"
+    if md_rotura is not None
+    else "👉 No aplica (pozo vertical)"
+)
 with c1:
     st.markdown(f"""
     <div class="metric-box">
@@ -1148,11 +1152,7 @@ with c5:
     """, unsafe_allow_html=True)
 st.markdown("### Pump Requirement")
 
-st.write(
-    f"👉 Rotura estimada alrededor de {md_rotura:.0f} m"
-    if md_rotura is not None
-    else "👉 No aplica (pozo vertical)"
-)
+
 
 # ✅ recomendación REAL DE DISEÑO
 Q100_sugerido = Q100_optimo
