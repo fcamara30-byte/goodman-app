@@ -984,22 +984,20 @@ else:
     N_crit = None
 
 
+# =====================================
+# ✅ TORQUE REAL
+# =====================================
 
+K_contact = 1.5
 
-  # =========================
-  # ✅ TORQUE REAL
-  # =========================
+df_calc["dT"] = (
+    mu_rod
+    * df_calc["N_eff"]
+    * radio
+    * K_contact
+)
 
-  K_contact = 1.5
-
-  df_calc["dT"] = (
-      mu_rod
-      * df_calc["N_eff"]
-      * radio
-      * K_contact
-  )
-
-  T_fric = df_calc["dT"].sum() / 1000
+T_fric = df_calc["dT"].sum() / 1000
 
   torque_final = torque + T_fric
 
