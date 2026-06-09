@@ -991,22 +991,26 @@ torque_final = torque + T_fric
 
     
 
-    # tubing life
-    V = (2 * math.pi * rpm / 60) * radio
+# =========================
+# ✅ TUBING LIFE
+# =========================
 
-    if liner == "Con liner":
-        mu = 0.08
-        K = 4.7e-12
-    else:
-        mu = 0.4
-        K = 4.7e-12
+V = (2 * math.pi * rpm / 60) * radio
 
-    h_fail = 0.005
+if liner == "Con liner":
+    mu = 0.08
+    K = 4.7e-12
+else:
+    mu = 0.4
+    K = 4.7e-12
 
-    if N_crit > 0:
-        t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
-    else:
-        t_dias = None
+h_fail = 0.005
+
+if N_crit is not None and N_crit > 0:
+    t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
+else:
+    t_dias = None
+
 
 else:
     md_rotura = None
