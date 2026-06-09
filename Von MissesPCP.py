@@ -1148,6 +1148,12 @@ with c5:
     """, unsafe_allow_html=True)
 st.markdown("### Pump Requirement")
 
+st.write(
+    f"👉 Rotura estimada alrededor de {md_rotura:.0f} m"
+    if md_rotura is not None
+    else "👉 No aplica (pozo vertical)"
+)
+
 # ✅ recomendación REAL DE DISEÑO
 Q100_sugerido = Q100_optimo
 rpm_calc = rpm_optima_real
