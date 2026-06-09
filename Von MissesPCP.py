@@ -1014,6 +1014,11 @@ if len(df) > 1 and "inc" in df.columns:
     else:
         md_crit = None
         N_crit = None
+    
+    if len(df_contacto) > 0:
+     N_min = df_contacto["N_eff"].min()
+    else:
+     N_min = None
 
     # ---------------------------------
     # ZONA CRITICA (USANDO CONTACTO ✅)
