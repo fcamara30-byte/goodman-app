@@ -1012,11 +1012,7 @@ else:
     t_dias = None
 
 
-else:
-    md_rotura = None
-    N_crit = None
-    t_dias = None
-    torque_final = torque
+
 
 
 
