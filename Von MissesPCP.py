@@ -1205,7 +1205,7 @@ if len(bombas_validas) == 0:
 # ✅ ORDEN FUERA DEL LOOP ✅
 bombas_ordenadas = sorted(
     bombas_validas,
-    key=lambda x: x[1]   # menor → mayor
+    key=lambda x: get_diametro(x[0])   # menor → mayor
 )
 
 # ✅ TOP 5
