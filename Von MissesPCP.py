@@ -914,129 +914,162 @@ df["Recomendación"] = rec
 
 df["md"] = df["md"].round(0).astype(int) if "md" in df else df.get("md", [])
 
-if len(df) > 1:
-
-  mu_rod = MU_ROD[liner]
-  radio = d / 2
-
-
-
 # =====================================
-# ✅ BLOQUE NUEVO LIMPIO
+# MODELO CONTACTO PCP - FISICO (FINAL)
 # =====================================
 
-# =====================================
-# ✅ MODELO FÍSICO COMPLETO (FINAL)
-# =====================================
-# =====================================
-# ✅ MODELO FÍSICO (VERSIÓN LIMPIA)
-# =====================================
+df_calc = df.copy()
 
-if len(df) > 1:
+# ---------------------------------
+# GEOMETRIA
+# ---------------------------------
 
-    # ----------------------
-    # BASE
-    # ----------------------
-    df_calc = df.copy()
+spacing = 7.62  # m entre cuplas
 
-    df_calc["dMD"] = df_calc["md"].diff().fillna(0)
-    df_calc["dW"] = peso * df_calc["dMD"]
-    df_calc["W_acum"] = df_calc["dW"].iloc[::-1].cumsum().iloc[::-1]
+inc_rad = np.deg2rad(df_calc["inc"])
 
-    spacing = 7.62
+# DLS °/100ft → rad/m
+kappa = np.deg2rad(df_calc["DLS"]) / 30.48
 
-    inc_rad = np.deg2rad(df_calc["inc"])
-    kappa = np.deg2rad(df_calc["DLS"]) / 30.48
+# ---------------------------------
+# PESO ACUMULADO (TENSION)
+# ---------------------------------
 
-    # ----------------------
-    # CONTACTO REAL
-    # ----------------------
-    W_tramo = peso * spacing
-    T_local = df_calc["W_acum"]
+df_calc["dMD"] = df_calc["md"].diff().fillna(0)
 
-    df_calc["N_grav"] = W_tramo * np.sin(inc_rad)
-    df_calc["N_curv"] = T_local * kappa * spacing
+df_calc["dW"] = peso * df_calc["dMD"]
 
-    # ✅ COMPOSICIÓN FÍSICA CORRECTA
-    df_calc["N"] = np.sqrt(
-        df_calc["N_grav"]**2 +
-        df_calc["N_curv"]**2
-    )
+df_calc["T_local"] = (
+    df_calc["dW"]
+    .iloc[::-1]
+    .cumsum()
+    .iloc[::-1]
+)
 
-    # ----------------------
-    # CUPLAS
-    # ----------------------
-    df_calc["n_cupla"] = (df_calc["md"] / spacing).astype(int)
-    df_calc["es_cupla"] = df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
+# ---------------------------------
+# CONTACTO GRAVITACIONAL
+# ---------------------------------
 
-    df_calc["N_eff"] = 0.0
-    df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
+W_tramo = peso * spacing
 
-    # ----------------------
-    # ROTURA (PUNTO CRÍTICO)
-    # ----------------------
-    df_contacto = df_calc[df_calc["N_eff"] > 0]
+df_calc["N_grav"] = W_tramo * np.sin(inc_rad)
 
-    if len(df_contacto) > 0:
-        idx_crit = df_contacto["N_eff"].idxmax()
-        md_rotura = df_contacto.loc[idx_crit, "md"]
-        N_crit = df_contacto.loc[idx_crit, "N_eff"]
-    else:
-        md_rotura = None
-        N_crit = None
+# ---------------------------------
+# CONTACTO POR CURVATURA (CLAVE)
+# ---------------------------------
 
-    # ----------------------
-    # ZONA CRÍTICA (RANGO)
-    # ----------------------
-    inc_max = df_calc["inc"].max()
-    threshold = 0.95 * inc_max
+df_calc["N_curv"] = (
+    df_calc["T_local"]
+    * kappa
+    * spacing
+)
 
-    zona_alta = df_calc[df_calc["inc"] >= threshold]
+# ---------------------------------
+# CONTACTO TOTAL (VECTORIAL)
+# ---------------------------------
 
-    if len(zona_alta) > 0:
-        md_min = zona_alta["md"].min()
-        md_max = zona_alta["md"].max()
-    else:
-        md_min = None
-        md_max = None
+df_calc["N"] = np.sqrt(
+    df_calc["N_grav"]**2 +
+    df_calc["N_curv"]**2
+)
 
-    # ----------------------
-    # TORQUE
-    # ----------------------
-    mu_rod = MU_ROD[liner]
-    radio = d / 2
+# ---------------------------------
+# POSICION DE CUPLAS
+# ---------------------------------
 
-    df_calc["dT"] = mu_rod * df_calc["N_eff"] * radio
+df_calc["n_cupla"] = (
+    df_calc["md"] / spacing
+).astype(int)
 
-    T_fric = df_calc["dT"].sum() / 1000
-    torque_final = torque + T_fric
+df_calc["es_cupla"] = (
+    df_calc["n_cupla"] != df_calc["n_cupla"].shift(1)
+)
 
-    # ----------------------
-    # TUBING LIFE (PUNTO CRÍTICO)
-    # ----------------------
-    V = (2 * math.pi * rpm / 60) * radio
+# ---------------------------------
+# CONTACTO EFECTIVO
+# ---------------------------------
 
-    if liner == "Con liner":
-        mu = 0.08
-        K = 4.7e-12
-    else:
-        mu = 0.4
-        K = 4.7e-12
+df_calc["N_eff"] = 0.0
 
-    h_fail = 0.005
+df_calc.loc[
+    df_calc["es_cupla"],
+    "N_eff"
+] = df_calc["N"]
 
-    if N_crit is not None and N_crit > 0:
-        t_dias = (h_fail / (K * mu * N_crit * V)) / 86400
-    else:
-        t_dias = None
+# ---------------------------------
+# TORQUE POR FRICCION
+# ---------------------------------
+
+radio_contacto = d / 2
+
+df_calc["dT"] = (
+    mu_rod
+    * df_calc["N_eff"]
+    * radio_contacto
+)
+
+T_fric = df_calc["dT"].sum()
+
+torque_final = torque + T_fric
+
+# ---------------------------------
+# CUPLA CRITICA
+# ---------------------------------
+
+df_contacto = df_calc[df_calc["N_eff"] > 0]
+
+if len(df_contacto) > 0:
+
+    idx_crit = df_contacto["N_eff"].idxmax()
+
+    md_crit = df_contacto.loc[idx_crit, "md"]
+
+    N_crit = df_contacto.loc[idx_crit, "N_eff"]
 
 else:
-    md_rotura = None
+
+    md_crit = None
     N_crit = None
-    md_min = None
-    md_max = None
+
+# ---------------------------------
+# VELOCIDAD RELATIVA
+# ---------------------------------
+
+V = (
+    2 * np.pi * rpm / 60
+) * radio_contacto
+
+# ---------------------------------
+# VIDA TUBING (ARCHARD)
+# ---------------------------------
+
+if liner == "Con liner":
+    mu_wear = 0.08
+else:
+    mu_wear = 0.40
+
+K = 4.7e-12
+K *= (1 + solidos / 100)
+
+h_fail = 0.005
+
+if N_crit is not None and N_crit > 0:
+
+    wear_rate = (
+        K
+        * mu_wear
+        * N_crit
+        * V
+    )
+
+    t_dias = (
+        h_fail
+        / wear_rate
+    ) / 86400
+
+else:
+
     t_dias = None
-    torque_final = torque
 
 
 
