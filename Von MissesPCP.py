@@ -948,11 +948,11 @@ if len(df) > 1:
 # ✅ ZONA DE ALTA INCLINACIÓN
 # =====================================
 
-    inc_max = df_calc["inc"].max()
+      inc_max = df_calc["inc"].max()
 
-    threshold = 0.95 * inc_max
+      threshold = 0.95 * inc_max
 
-    zona_alta = df_calc[df_calc["inc"] >= threshold]
+      zona_alta = df_calc[df_calc["inc"] >= threshold]
 
     if len(zona_alta) > 0:
        md_min = zona_alta["md"].min()
