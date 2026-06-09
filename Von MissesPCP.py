@@ -1160,7 +1160,7 @@ c1, c2, c3, c6 = st.columns(4)
 
 st.markdown(
     f"<div style='text-align:right;'>👉 Zona crítica: {md_min:.0f} – {md_max:.0f} m</div>"
-    if md_min is not None
+    if md_min is not None:
     else "<div style='text-align:right;'>👉 No aplica (pozo vertical)</div>",
     unsafe_allow_html=True
 )
