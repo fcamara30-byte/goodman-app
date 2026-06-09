@@ -999,7 +999,7 @@ df_calc["dT"] = (
 
 T_fric = df_calc["dT"].sum() / 1000
 
-  torque_final = torque + T_fric
+torque_final = torque + T_fric
 
 
 
