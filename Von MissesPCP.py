@@ -915,13 +915,12 @@ df["Recomendación"] = rec
 df["md"] = df["md"].round(0).astype(int) if "md" in df else df.get("md", [])
 
 # =====================================
-# MODELO CONTACTO PCP - FISICO (FINAL)
+# MODELO CONTACTO PCP - FISICO FINAL
 # =====================================
 
-radio_contacto = d / 2
-
-# ✅ valor base para no romper nunca
+# ✅ siempre definido (no rompe en vertical)
 torque_final = torque
+radio_contacto = d / 2
 
 if len(df) > 1 and "inc" in df.columns:
 
@@ -941,7 +940,7 @@ if len(df) > 1 and "inc" in df.columns:
     # ---------------------------------
 
     df_calc["dMD"] = df_calc["md"].diff().fillna(0)
-    df_calc["dW"]  = peso * df_calc["dMD"]
+    df_calc["dW"] = peso * df_calc["dMD"]
 
     df_calc["T_local"] = (
         df_calc["dW"]
@@ -951,7 +950,7 @@ if len(df) > 1 and "inc" in df.columns:
     )
 
     # ---------------------------------
-    # CONTACTO
+    # CONTACTO (SUMA DIRECTA ✅)
     # ---------------------------------
 
     W_tramo = peso * spacing
@@ -964,9 +963,10 @@ if len(df) > 1 and "inc" in df.columns:
         * spacing
     )
 
-    df_calc["N"] = np.sqrt(
-        df_calc["N_grav"]**2 +
-        df_calc["N_curv"]**2
+    # ✅ IMPORTANTE — SUMA (NO VECTORIAL)
+    df_calc["N"] = (
+        df_calc["N_grav"]
+        + df_calc["N_curv"]
     )
 
     # ---------------------------------
@@ -980,7 +980,6 @@ if len(df) > 1 and "inc" in df.columns:
     )
 
     df_calc["N_eff"] = 0.0
-
     df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
 
     # ---------------------------------
@@ -988,7 +987,6 @@ if len(df) > 1 and "inc" in df.columns:
     # ---------------------------------
 
     mu_rod = MU_ROD.get(liner, 0.4)
-    radio_contacto = d / 2
 
     df_calc["dT"] = (
         mu_rod
@@ -1001,7 +999,7 @@ if len(df) > 1 and "inc" in df.columns:
     torque_final = torque + T_fric
 
     # ---------------------------------
-    # CUPLA CRITICA
+    # CUPLA CRITICA (FISICA ✅)
     # ---------------------------------
 
     df_contacto = df_calc[df_calc["N_eff"] > 0]
@@ -1015,15 +1013,13 @@ if len(df) > 1 and "inc" in df.columns:
         N_crit = None
 
     # ---------------------------------
-    # ZONA CRITICA (RANGO)
+    # ZONA CRITICA (USANDO CONTACTO ✅)
     # ---------------------------------
 
-    inc_max = df_calc["inc"].max()
-    threshold = 0.95 * inc_max
+    if len(df_contacto) > 0:
+        umbral = 0.9 * df_contacto["N_eff"].max()
+        zona = df_contacto[df_contacto["N_eff"] >= umbral]
 
-    zona = df_calc[df_calc["inc"] >= threshold]
-
-    if len(zona) > 0:
         md_min = zona["md"].min()
         md_max = zona["md"].max()
     else:
@@ -1031,7 +1027,7 @@ if len(df) > 1 and "inc" in df.columns:
         md_max = None
 
     # ---------------------------------
-    # VIDA (ARCHARD)
+    # VIDA (ARCHARD CON N REAL ✅)
     # ---------------------------------
 
     V = (2 * np.pi * rpm / 60) * radio_contacto
@@ -1056,7 +1052,6 @@ else:
     md_crit = None
     N_crit = None
     t_dias = None
-
 
 # ---------------------------------
 # VELOCIDAD RELATIVA
