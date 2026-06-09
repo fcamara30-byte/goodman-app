@@ -1007,10 +1007,10 @@ torque_final = torque + T_fric
 
   # ✅ AHORA sí tensiones correctas
 
-  tau = ((torque_final*1.35582*r)/J)/6894757
-  von = math.sqrt(sigma**2 + 3*tau**2)
+tau = ((torque_final*1.35582*r)/J)/6894757
+von = math.sqrt(sigma**2 + 3*tau**2)
 
-  uso = von / YS * 100
+uso = von / YS * 100
 
 
 else:
