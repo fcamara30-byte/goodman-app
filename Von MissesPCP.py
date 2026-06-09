@@ -1042,10 +1042,10 @@ if len(df) > 1:
     # ----------------------
     if liner == "Con liner":
         mu = 0.08
-        K = 4e-12
+        K = 4.7e-12
     else:
         mu = 0.4
-        K = 8e-12
+        K = 4.7e-12
 
     # sólidos
     K *= (1 + solidos / 100)
