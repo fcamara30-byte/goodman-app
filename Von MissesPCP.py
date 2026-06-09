@@ -1077,7 +1077,7 @@ uso = von / YS * 100
 # RESULTADOS + GRAFICO
 # =========================
 c1, c2, c3, c6 = st.columns(4)
-
+st.write(f"N crítica (N): {N_crit:.0f}" if N_crit else "N crítica: N/A")
 if md_min is not None:
     st.markdown(
         f"<div style='text-align:right;'>👉 Zona crítica: {md_min:.0f} – {md_max:.0f} m</div>",
