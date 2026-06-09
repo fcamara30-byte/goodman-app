@@ -928,6 +928,9 @@ if len(df) > 1:
 # =====================================
 # ✅ MODELO FÍSICO COMPLETO (FINAL)
 # =====================================
+# =====================================
+# ✅ MODELO FÍSICO (VERSIÓN LIMPIA)
+# =====================================
 
 if len(df) > 1:
 
@@ -946,7 +949,7 @@ if len(df) > 1:
     kappa = np.deg2rad(df_calc["DLS"]) / 30.48
 
     # ----------------------
-    # CONTACTO FÍSICO REAL
+    # CONTACTO REAL
     # ----------------------
     W_tramo = peso * spacing
     T_local = df_calc["W_acum"]
@@ -954,7 +957,7 @@ if len(df) > 1:
     df_calc["N_grav"] = W_tramo * np.sin(inc_rad)
     df_calc["N_curv"] = T_local * kappa * spacing
 
-    # ✅ composición correcta (VECTORIAL)
+    # ✅ COMPOSICIÓN FÍSICA CORRECTA
     df_calc["N"] = np.sqrt(
         df_calc["N_grav"]**2 +
         df_calc["N_curv"]**2
@@ -970,14 +973,12 @@ if len(df) > 1:
     df_calc.loc[df_calc["es_cupla"], "N_eff"] = df_calc["N"]
 
     # ----------------------
-    # ÍNDICE DE DESGASTE (MEJOR CRITERIO)
+    # ROTURA (PUNTO CRÍTICO)
     # ----------------------
-    df_calc["wear_index"] = df_calc["N_eff"] * rpm
-
     df_contacto = df_calc[df_calc["N_eff"] > 0]
 
     if len(df_contacto) > 0:
-        idx_crit = df_contacto["wear_index"].idxmax()
+        idx_crit = df_contacto["N_eff"].idxmax()
         md_rotura = df_contacto.loc[idx_crit, "md"]
         N_crit = df_contacto.loc[idx_crit, "N_eff"]
     else:
@@ -1011,7 +1012,7 @@ if len(df) > 1:
     torque_final = torque + T_fric
 
     # ----------------------
-    # TUBING LIFE
+    # TUBING LIFE (PUNTO CRÍTICO)
     # ----------------------
     V = (2 * math.pi * rpm / 60) * radio
 
@@ -1036,6 +1037,7 @@ else:
     md_max = None
     t_dias = None
     torque_final = torque
+
 
 
 
