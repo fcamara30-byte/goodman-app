@@ -917,13 +917,8 @@ df["Recomendación"] = rec
 
 df["md"] = df["md"].round(0).astype(int) if "md" in df else df.get("md", [])
 
-# ✅ SIEMPRE DEFINIDAS (evita crash)
-N_crit = None
-N_min = None
-md_crit = None
-md_min = None
-md_max = None
-t_dias = None
+
+
 # =====================================
 # MODELO CONTACTO PCP - FISICO FINAL
 # =====================================
@@ -931,6 +926,12 @@ t_dias = None
 # ✅ siempre definido (no rompe en vertical)
 torque_final = torque
 radio_contacto = d / 2
+N_crit = None
+N_min = None
+md_crit = None
+md_min = None
+md_max = None
+t_dias = None
 
 if len(df) > 1 and "inc" in df.columns:
 
