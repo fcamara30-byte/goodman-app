@@ -162,7 +162,7 @@ Grades = {
     "CS propietario":{"uts_a":44.64,"b":0.375},
     "HS propietario":{"uts_a":55.36,"b":0.375},
     "D New":{"uts_a":42.86,"b":0.375},
-    "DSX75":{"uts_a":42.86,"b":0.375},
+    "DSX75":{"uts_a":44.64,"b":0.375},
     "HA96":{"uts_a":50,"b":0.375}
 }
 
