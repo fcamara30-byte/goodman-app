@@ -896,10 +896,6 @@ for _, row in df.iterrows():
         colores.append("green")
         rec.append("sin cent.")
 
-    elif inc_val > 30:
-        colores.append("orange")
-        rec.append("Inc.liner")
-
     elif dls_val <= 3:
         colores.append("yellow")
         rec.append("2 cent.")
@@ -908,9 +904,13 @@ for _, row in df.iterrows():
         colores.append("orange")
         rec.append("3 cent.")
 
+    elif inc_val > 30:
+        colores.append("orange")
+        rec.append("Inc.liner")
+
     else:
         colores.append("red")
-        rec.append(">3 cent o Mamba")
+        rec.append("Mamba")
 
 
 df["Recomendación"] = rec
