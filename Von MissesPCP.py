@@ -898,7 +898,7 @@ for _, row in df.iterrows():
 
     elif inc_val > 30:
         colores.append("orange")
-        rec.append("Inc. cent/liner")
+        rec.append("Inc.liner")
 
     elif dls_val <= 3:
         colores.append("yellow")
