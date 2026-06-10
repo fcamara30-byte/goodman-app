@@ -151,7 +151,7 @@ st.markdown("""
 <div class="titulo-sub">Corrosion Fatigue Goodman calc</div>
 """, unsafe_allow_html=True)
 
-st.markdown(f'<div style="text-align: right; color: #777;">Visitas totales: {visitas}</div>', unsafe_allow_html=True)
+
 
 # ======================
 # DATOS
