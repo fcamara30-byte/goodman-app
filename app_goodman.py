@@ -200,7 +200,7 @@ def FS_Grade(mat,f):
     elif mat=="CS propietario": return f*0.93
     elif mat=="HS propietario": return f*0.75
     elif mat=="D New": return f*0.90
-    elif mat=="DSX75": return f if f < 0.73 else 1
+    elif mat=="DSX75": return f if f < 0.77 else 1
     elif mat=="HA96": return f*0.8
 
 def goodman(x,uts,b,fs):
