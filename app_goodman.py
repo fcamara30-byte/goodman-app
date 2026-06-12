@@ -392,8 +392,8 @@ with r:
     if Smax > sadm_user:
         ax.text(
             0.5,0.15,
-            "Anoter SR grade must be selected"
-            " or Chemical treat/coating",
+            "Anoter SR grade "
+            " or Chemical treat/coating must be selected",
             transform=ax.transAxes,
             fontsize=8,
             color="red",
