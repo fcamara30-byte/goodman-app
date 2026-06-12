@@ -252,28 +252,36 @@ with l:
     
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
-# ===== GuidesS =====
+# ===== Guides =====
 col_g1, col_g2 = st.columns(2)
 
-co2_vals = [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000]
+# ✅ CO2
+with col_g1:
+    with st.expander("📘 Guides CO2"):
 
-df_co2 = pd.DataFrame({
-    "CO2 (ppm)": co2_vals,
-    "P_CO2 (psi)": [ppm_to_psi_CO2(x, cl_ppm) for x in co2_vals]
-})
+        co2_vals = [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000]
 
-st.dataframe(df_co2, width=300, use_container_width=False)
+        df_co2 = pd.DataFrame({
+            "CO2 (ppm)": co2_vals,
+            "P_CO2 (psi)": [ppm_to_psi_CO2(x, cl_ppm) for x in co2_vals]
+        })
 
-        
+        st.dataframe(df_co2, width=300, use_container_width=False)
 
-h2s_vals = [1,5,10,20,50,100,200,500]
 
-df_h2s = pd.DataFrame({
-    "H2S (ppm)": h2s_vals,
-    "P_H2S (psi)": [ppm_to_psi_H2S(x, cl_ppm) for x in h2s_vals]
-})
+# ✅ H2S
+with col_g2:
+    with st.expander("📗 Guides H2S"):
 
-st.dataframe(df_h2s, width=300, use_container_width=False)
+        h2s_vals = [1,5,10,20,50,100,200,500]
+
+        df_h2s = pd.DataFrame({
+            "H2S (ppm)": h2s_vals,
+            "P_H2S (psi)": [ppm_to_psi_H2S(x, cl_ppm) for x in h2s_vals]
+        })
+
+        st.dataframe(df_h2s, width=300, use_container_width=False)
+
 
 
         
