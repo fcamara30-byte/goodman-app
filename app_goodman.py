@@ -45,11 +45,7 @@ def keep_alive():
 threading.Thread(target=keep_alive, daemon=True).start()
 
 # ======================
-# ESTILO
-# ======================
-# ======================
-# ESTILO LIMPIO
-# ======================
+#
 # ======================
 # ESTILO FINAL (LIMPIO)
 # ======================
@@ -263,8 +259,8 @@ h2s = st.selectbox("PPH₂S (psi)", [
 
  
     
-    bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
-    cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
+bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
+cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
 # ===== Guides =====
 col_g1, col_g2 = st.columns(2)
 
