@@ -238,29 +238,28 @@ def goodman(x,uts,b,fs):
 # ======================
 # INPUTS
 # ======================
-l,r = st.columns([1,2])
+l, r = st.columns([1,2])
 
 with l:
     Grade = st.selectbox("Grade", list(Grades.keys()))
 
-co2 = st.selectbox("PPCO₂ (psi)", [
-    "0 (0 psi)",
-    "Low (0–20 psi)",
-    "Medium (21–100 psi)",
-    "High (>100 psi)"
-])
+    co2 = st.selectbox("PPCO₂ (psi)", [
+        "Nada (0 psi)",
+        "Low (0–20 psi)",
+        "Medium (21–100 psi)",
+        "High (>100 psi)"
+    ])
 
-h2s = st.selectbox("PPH₂S (psi)", [
-    "0 (0 psi)",
-    "Low (0–1 psi)",
-    "Medium (1–2 psi)",
-    "High (>2 psi)"
-])
+    h2s = st.selectbox("PPH₂S (psi)", [
+        "Nada (0 psi)",
+        "Low (0–1 psi)",
+        "Medium (1–2 psi)",
+        "High (>2 psi)"
+    ])
 
- 
-    
-bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
-cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
+    bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
+
+    cl_ppm = st.number_input("Clorhides (ppm)", 0, 200000, 0, step=1000)
 # ===== Guides =====
 col_g1, col_g2 = st.columns(2)
 
@@ -342,28 +341,14 @@ Smin = Pmin_input / A / 1000
 
 
 
-def co2_factor_from_psi(p):
-    if p < 20:
-        return 0.98
-    elif p < 100:
-        return 0.90
-    else:
-        return 0.80
-
-def h2s_factor_from_psi(p):
-    if p < 1:
-        return 0.95
-    elif p < 2:
-        return 0.80
-    else:
-        return 0.75
 
 f_base = (
-    co2_factor_from_psi(Pco2) *
-    h2s_factor_from_psi(Ph2s) *
+    factor_co2(co2) *
+    factor_h2s(h2s) *
     BSR[bsr] *
     factor_Clorhides(cl_ppm)
 )
+
 
 x = np.linspace(0,100,200)
 
