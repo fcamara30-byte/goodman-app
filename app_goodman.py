@@ -257,7 +257,7 @@ col_g1, col_g2 = st.columns(2)
 
 # ✅ CO2
 with col_g1:
-    with st.expander("📘 Guides CO2"):
+    with st.expander("🟦 Guides CO2"):
 
         co2_vals = [50,100,200,300,500,700,1000,1500,2000,3000,5000,8000,10000,12000]
 
@@ -266,11 +266,12 @@ with col_g1:
             "P_CO2 (psi)": [ppm_to_psi_CO2(x, cl_ppm) for x in co2_vals]
         })
 
-         st.dataframe(
-             df_co2.style.format({"P_CO2 (psi)": "{:.1f}" }),
-             width=300,
-             use_container_width=False
-)
+        st.dataframe(
+            df_co2.style.format({"P_CO2 (psi)": "{:.1f}"}),
+            width=300,
+            use_container_width=False
+        )
+
 
 
 
