@@ -286,7 +286,11 @@ with col_g2:
             "P_H2S (psi)": [ppm_to_psi_H2S(x, cl_ppm) for x in h2s_vals]
         })
 
-        st.dataframe(df_h2s, width=300, use_container_width=False)
+        st.dataframe(
+            df_h2s.style.format({"P_H2S (psi)": "{:.2f}"}),
+            width=300,
+            use_container_width=False
+        )
 
 
 
