@@ -266,12 +266,9 @@ with col_g1:
             "P_CO2 (psi)": [ppm_to_psi_CO2(x, cl_ppm) for x in co2_vals]
         })
 
-       st.dataframe(
-    df_co2.style.format({
-        "P_CO2 (psi)": "{:.1f}"
-    }),
-    width=300,
-    use_container_width=False
+         st.dataframe(df_co2.style.format({"P_CO2 (psi)": "{:.1f}" }),
+          width=300,
+          use_container_width=False
 )
 
 
