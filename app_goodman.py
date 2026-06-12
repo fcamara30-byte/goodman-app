@@ -266,7 +266,9 @@ with col_g2:
         st.dataframe(pd.DataFrame({
             "H2S (ppm)": [1,5,10,20,50,100,200,500],
             "P_H2S (psi)": [0.01,0.05,0.1,0.2,0.5,1,2,5]
-        }), use_container_width=True)
+             }),
+             width=300,
+             use_container_width=False)
 
         st.caption("H₂S es mucho más soluble → menor presión para mismo ppm")
 
