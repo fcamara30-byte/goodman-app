@@ -194,30 +194,15 @@ def factor_Clorhides(ppm):
 # FUNCIONES
 # ======================
 
-def ppm_to_psi_CO2(ppm, sal_ppm=50000):
-    MW = 44.01
-    C = (ppm / 1000) / MW  # mol/L
-
-    kH = 0.02  # mol/L·atm a 60°C
-
-    sal = sal_ppm / 10000
-    kH *= np.exp(0.02 * sal)
-
-    P_atm = C / kH
-    return P_atm * 14.7
+def ppm_to_psi_CO2(ppm):
+    return ppm / 200
 
 
-def ppm_to_psi_H2S(ppm, sal_ppm=50000):
-    MW = 34.08
-    C = (ppm / 1000) / MW
+def ppm_to_psi_H2S(ppm):
+    return ppm / 500
 
-    kH = 0.08  # más soluble que CO2
 
-    sal = sal_ppm / 10000
-    kH *= np.exp(0.015 * sal)
 
-    P_atm = C / kH
-    return P_atm * 14.7
 def FS_Grade(mat,f):
     if f==1: return 1
     if mat=="DA78": return f*0.90
