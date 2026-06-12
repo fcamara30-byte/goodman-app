@@ -193,9 +193,7 @@ def factor_Clorhides(ppm):
 # ======================
 # FUNCIONES
 # ======================
-def ppm_to_psi_CO2(...)
 
-def ppm_to_psi_H2S(...)
 def ppm_to_psi_CO2(ppm, sal_ppm=50000):
     MW = 44.01
     C = (ppm / 1000) / MW  # mol/L
