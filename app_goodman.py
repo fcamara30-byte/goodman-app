@@ -393,7 +393,7 @@ with r:
         ax.text(
             0.5,0.15,
             "Anoter SR grade must be selected"
-            "or Chemical treat/coating",
+            " or Chemical treat/coating",
             transform=ax.transAxes,
             fontsize=10,
             color="red",
