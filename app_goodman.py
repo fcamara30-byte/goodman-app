@@ -193,6 +193,30 @@ def factor_Clorhides(ppm):
 # ======================
 # FUNCIONES
 # ======================
+def ppm_to_psi_CO2(ppm, sal_ppm=50000):
+    MW = 44.01
+    C = (ppm / 1000) / MW  # mol/L
+
+    kH = 0.02  # mol/L·atm a 60°C
+
+    sal = sal_ppm / 10000
+    kH *= np.exp(0.02 * sal)
+
+    P_atm = C / kH
+    return P_atm * 14.7
+
+
+def ppm_to_psi_H2S(ppm, sal_ppm=50000):
+    MW = 34.08
+    C = (ppm / 1000) / MW
+
+    kH = 0.08  # más soluble que CO2
+
+    sal = sal_ppm / 10000
+    kH *= np.exp(0.015 * sal)
+
+    P_atm = C / kH
+    return P_atm * 14.7
 def FS_Grade(mat,f):
     if f==1: return 1
     if mat=="DA78": return f*0.90
@@ -213,14 +237,10 @@ l,r = st.columns([1,2])
 
 with l:
     Grade = st.selectbox("Grade", list(Grades.keys()))
-    co2 = st.selectbox("PPCO₂ (psi)", [
-        "Nada (0 psi)", "Low (0–20 psi)",
-        "Medium (21–100 psi)", "High (>100 psi)"
-    ])
-    h2s = st.selectbox("PPH₂S (psi)", [
-        "Nada (0 psi)", "Low (0–1 psi)",
-        "Medium (1–2 psi)", "High (>2 psi)"
-    ])
+    co2_ppm = st.number_input("CO2 (ppm)", value=500.0, step=100.0)
+    h2s_ppm = st.number_input("H2S (ppm)", value=50.0, step=10.0)
+    salinidad = st.number_input("Salinity (ppm)", value=50000.0, step=5000.0)
+    
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
 # ===== GuidesS =====
