@@ -276,7 +276,7 @@ df_h2s = pd.DataFrame({
 st.dataframe(df_h2s, width=300, use_container_width=False)
 
 
-        st.caption("H₂S es mucho más soluble → menor presión para mismo ppm")
+        
 
 
 st.subheader("Load/Diameter Selection")
