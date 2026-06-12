@@ -193,6 +193,9 @@ def factor_Clorhides(ppm):
 # ======================
 # FUNCIONES
 # ======================
+def ppm_to_psi_CO2(...)
+
+def ppm_to_psi_H2S(...)
 def ppm_to_psi_CO2(ppm, sal_ppm=50000):
     MW = 44.01
     C = (ppm / 1000) / MW  # mol/L
@@ -299,7 +302,32 @@ Smin = Pmin_input / A / 1000
 # ======================
 # BASE
 # ======================
-f_base = factor_co2(co2)*factor_h2s(h2s)*BSR[bsr]*factor_Clorhides(cl_ppm)
+Pco2 = ppm_to_psi_CO2(co2_ppm, salinidad)
+Ph2s = ppm_to_psi_H2S(h2s_ppm, salinidad)
+
+def co2_factor_from_psi(p):
+    if p < 20:
+        return 0.98
+    elif p < 100:
+        return 0.90
+    else:
+        return 0.80
+
+def h2s_factor_from_psi(p):
+    if p < 1:
+        return 0.95
+    elif p < 2:
+        return 0.80
+    else:
+        return 0.75
+
+f_base = (
+    co2_factor_from_psi(Pco2) *
+    h2s_factor_from_psi(Ph2s) *
+    BSR[bsr] *
+    factor_Clorhides(cl_ppm)
+)
+
 x = np.linspace(0,100,200)
 
 # ======================
