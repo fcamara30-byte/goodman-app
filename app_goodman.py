@@ -193,14 +193,37 @@ def factor_Clorhides(ppm):
 # ======================
 # FUNCIONES
 # ======================
+def cl_to_salinity(cl_ppm):
+    return cl_ppm * 1.65
 
-def ppm_to_psi_CO2(ppm):
-    return ppm / 200
+def ppm_to_psi_CO2(ppm, cl_ppm):
+    MW = 44.0
+    C = ppm / 1000 / MW
+
+    kH = 0.018  # 60°C
+
+    S = (cl_ppm * 1.65) / 10000  # % salinidad
+
+    factor = 10 ** (0.1 * S)
+
+    P_atm = (C / kH) * factor
+
+    return P_atm * 14.7
 
 
-def ppm_to_psi_H2S(ppm):
-    return ppm / 500
+def ppm_to_psi_H2S(ppm, cl_ppm):
+    MW = 34.08
+    C = ppm / 1000 / MW
 
+    kH = 0.09
+
+    S = (cl_ppm * 1.65) / 10000
+
+    factor = 10 ** (0.08 * S)
+
+    P_atm = (C / kH) * factor
+
+    return P_atm * 14.7
 
 
 def FS_Grade(mat,f):
@@ -289,8 +312,10 @@ Smin = Pmin_input / A / 1000
 # ======================
 # BASE
 # ======================
-Pco2 = ppm_to_psi_CO2(co2_ppm)
-Ph2s = ppm_to_psi_H2S(h2s_ppm)
+
+Pco2 = ppm_to_psi_CO2(co2_ppm, cl_ppm)
+Ph2s = ppm_to_psi_H2S(h2s_ppm, cl_ppm)
+
 
 
 def co2_factor_from_psi(p):
