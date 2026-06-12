@@ -395,10 +395,10 @@ with r:
             "Anoter SR grade must be selected"
             " or Chemical treat/coating",
             transform=ax.transAxes,
-            fontsize=10,
+            fontsize=8,
             color="red",
             ha="center",
-            bbox=dict(facecolor='white', alpha=0.85)
+            bbox=dict(facecolor='gray', alpha=0.85)
         )
 
     # ✅ CAMBIO ÚNICO: eje Y pasa por origen
