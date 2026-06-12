@@ -289,8 +289,9 @@ Smin = Pmin_input / A / 1000
 # ======================
 # BASE
 # ======================
-Pco2 = ppm_to_psi_CO2(co2_ppm, salinidad)
-Ph2s = ppm_to_psi_H2S(h2s_ppm, salinidad)
+Pco2 = ppm_to_psi_CO2(co2_ppm)
+Ph2s = ppm_to_psi_H2S(h2s_ppm)
+
 
 def co2_factor_from_psi(p):
     if p < 20:
