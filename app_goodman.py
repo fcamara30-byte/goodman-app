@@ -246,9 +246,22 @@ l,r = st.columns([1,2])
 
 with l:
     Grade = st.selectbox("Grade", list(Grades.keys()))
-    co2_ppm = st.number_input("CO2 (ppm)", value=500.0, step=100.0)
-    h2s_ppm = st.number_input("H2S (ppm)", value=50.0, step=10.0)
-    salinidad = st.number_input("Salinity (ppm)", value=50000.0, step=5000.0)
+
+co2 = st.selectbox("PPCO₂ (psi)", [
+    "0 (0 psi)",
+    "Low (0–20 psi)",
+    "Medium (21–100 psi)",
+    "High (>100 psi)"
+])
+
+h2s = st.selectbox("PPH₂S (psi)", [
+    "0 (0 psi)",
+    "Low (0–1 psi)",
+    "Medium (1–2 psi)",
+    "High (>2 psi)"
+])
+
+ 
     
     bsr = st.selectbox("BSR-caldos+", list(BSR.keys()))
     cl_ppm = st.number_input("Clorhides (ppm)",0,200000,0, step=1000)
