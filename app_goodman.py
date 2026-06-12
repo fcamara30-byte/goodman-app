@@ -398,7 +398,7 @@ with r:
             fontsize=8,
             color="red",
             ha="center",
-            bbox=dict(facecolor='gray', alpha=0.85)
+            bbox=dict(facecolor='white', alpha=0.85)
         )
 
     # ✅ CAMBIO ÚNICO: eje Y pasa por origen
