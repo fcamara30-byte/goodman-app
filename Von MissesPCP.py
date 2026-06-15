@@ -583,6 +583,7 @@ def generar_pdf():
     # CREAR GRAFICO (DENTRO DEL PDF)
     # =========================
     if len(df) > 1:
+        CELESTE_FUERTE = "#d2e3f3"
         fig = plt.figure(figsize=(5,6))
         fig.patch.set_facecolor(CELESTE_FUERTE)
         ax = fig.add_subplot(111, projection='3d')
