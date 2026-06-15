@@ -587,9 +587,9 @@ def generar_pdf():
         fig = plt.figure(figsize=(5,6))
         fig.patch.set_facecolor="#d2e3f3"
         ax = fig.add_subplot(111, projection='3d')
-        ax.set_facecolor(CELESTE_FUERTE)
+        ax.set_facecolor"#d2e3f3"
         
-        ax.xaxis.pane.set_facecolor(CELESTE_FUERTE)
+        ax.xaxis.pane.set_facecolor="#d2e3f3"
         ax.yaxis.pane.set_facecolor(CELESTE_FUERTE)
         ax.zaxis.pane.set_facecolor(CELESTE_FUERTE)
 
