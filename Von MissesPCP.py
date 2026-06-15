@@ -586,6 +586,7 @@ def generar_pdf():
         fig = plt.figure(figsize=(5,6))
         fig.patch.set_facecolor(CELESTE_FUERTE)
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_facecolor(CELESTE_FUERTE)
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
             for t in axis.get_ticklabels():
