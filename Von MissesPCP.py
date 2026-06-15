@@ -1259,7 +1259,7 @@ with colS:
 
     # gráfico
 with colG:
-        st.markdown("####### Well Survey")
+        st.markdown("###### Well Survey")
         if len(df) > 1:
             fig = plt.figure(figsize=(4,6))
             ax = fig.add_subplot(111, projection='3d')
