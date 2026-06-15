@@ -589,6 +589,10 @@ def generar_pdf():
         ax = fig.add_subplot(111, projection='3d')
         ax.set_facecolor(CELESTE_FUERTE)
         
+        ax.xaxis.pane.set_facecolor(CELESTE_FUERTE)
+        ax.yaxis.pane.set_facecolor(CELESTE_FUERTE)
+        ax.zaxis.pane.set_facecolor(CELESTE_FUERTE)
+
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
             for t in axis.get_ticklabels():
                 t.set_fontsize(3)
