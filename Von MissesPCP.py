@@ -1521,8 +1521,8 @@ if len(df) > 1:
 
         height=900,
         
-        paper_bgcolor="#e6eef8",   # ✅ fondo externo
-        plot_bgcolor="#e6eef8",    # ✅ fondo interno
+        paper_bgcolor="#cfe3ff",   # ✅ fondo externo
+        plot_bgcolor="#cfe3ff",    # ✅ fondo interno
 
         uirevision="keep",
 
