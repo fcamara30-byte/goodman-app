@@ -164,7 +164,7 @@ st.markdown("""
 
 <h1 class="titulo" style="
     font-family: 'Segoe UI';
-    font-weight: 600;
+    font-weight: 300;
     font-size: 45px;
     color: #1f3b5c;
 ">
