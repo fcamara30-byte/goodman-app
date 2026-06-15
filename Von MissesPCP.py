@@ -1295,7 +1295,7 @@ with colT:
 
     if len(df) > 1:
 
-        st.markdown("## Guiding Proposal")
+        st.markdown("#### Guiding Proposal")
 
         st.dataframe(
             df[["md","DLS","Recomendación"]]
