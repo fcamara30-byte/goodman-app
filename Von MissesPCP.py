@@ -184,11 +184,7 @@ Versión Beta
 
 visitas = contador_visitas()
 
-st.markdown(f"""
-<div style='text-align:right; font-size:13px; color:gray; margin-top:-10px;'>
-Visitas: {visitas}
-</div>
-""", unsafe_allow_html=True)
+
 
 
 
