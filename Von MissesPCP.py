@@ -79,7 +79,7 @@ st.set_page_config(layout="wide")
 def keep_alive():
     while True:
         try:
-            requests.get("https://pcpsuckerod.streamlit.app/")
+            requests.get("https://pcpsucke.streamlit.app/")
             print("Self ping OK")
         except:
             print("Self ping failed")
@@ -158,13 +158,13 @@ st.markdown("""
     margin: 0;
 }
 .version {
-    margin: -10;
+    margin: -40;
 }
 </style>
 
 <h1 class="titulo" style="
     font-family: 'Segoe UI';
-    font-weight: 300;
+    font-weight: 700;
     font-size: 45px;
     color: #1f3b5c;
 ">
