@@ -158,13 +158,13 @@ st.markdown("""
     margin: 0;
 }
 .version {
-    margin: -40;
+    margin: -70;
 }
 </style>
 
 <h1 class="titulo" style="
     font-family: 'Segoe UI';
-    font-weight: 700;
+    font-weight: 650;
     font-size: 45px;
     color: #1f3b5c;
 ">
