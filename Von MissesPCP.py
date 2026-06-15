@@ -207,7 +207,7 @@ components.html("""
     🖨️ Print
     </button>
 </div>
-""", height=10)
+""", height=12)
 
 
 colL, colR = st.columns([1.1,2.3])
