@@ -158,7 +158,7 @@ st.markdown("""
     margin: 0;
 }
 .version {
-    margin: -70;
+    margin: -120;
 }
 </style>
 
