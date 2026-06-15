@@ -584,6 +584,7 @@ def generar_pdf():
     # =========================
     if len(df) > 1:
         fig = plt.figure(figsize=(5,6))
+        fig.patch.set_facecolor(CELESTE_FUERTE)
         ax = fig.add_subplot(111, projection='3d')
         
         for axis in [ax.xaxis, ax.yaxis, ax.zaxis]:
