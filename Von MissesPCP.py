@@ -1520,6 +1520,10 @@ if len(df) > 1:
     fig.update_layout(
 
         height=900,
+        
+        paper_bgcolor="#e6eef8",   # ✅ fondo externo
+        plot_bgcolor="#e6eef8",    # ✅ fondo interno
+
         uirevision="keep",
 
 
