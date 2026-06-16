@@ -1172,6 +1172,7 @@ with c5:
         <div class="metric-value">{torque_final:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
+st.write(f"ΔP bomba = {pres_total:.1f} bar")
 st.markdown("### Pump Requirement")
 
 
