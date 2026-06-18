@@ -257,16 +257,16 @@ with colL:
 
 
         # gravedad específica del petróleo
-     sg_oil = st.number_input(
-      "Oil Specific Gravity (-)",
-      min_value=0.5,
-      max_value=1.1,
-      value=0.85,
-      step=0.01
+        sg_oil = st.number_input(
+        "Oil Specific Gravity (-)",
+         min_value=0.5,
+         max_value=1.1,
+         value=0.85,
+         step=0.01
 )
 
 # corte de agua
-       wc = st.number_input(
+        wc = st.number_input(
        "Water Cut (%)",
         min_value=0.0,
         max_value=100.0,
