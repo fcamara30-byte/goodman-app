@@ -256,11 +256,27 @@ with colL:
 
 
 
-        
+        # gravedad específica del petróleo
+     sg_oil = st.number_input(
+      "Oil Specific Gravity (-)",
+      min_value=0.5,
+      max_value=1.1,
+      value=0.85,
+      step=0.01
+)
+
+# corte de agua
+       wc = st.number_input(
+       "Water Cut (%)",
+        min_value=0.0,
+        max_value=100.0,
+        value=50.0,
+        step=5.0
+)
 
 
 
-        densidad = st.number_input("Fluid Density (kg/m³)",800.0,step=100.0)
+       
         eficiencia = st.number_input(
        "Mec Effic. (-)",
         min_value=0.0,
@@ -336,6 +352,16 @@ YIELD={"DA 78":100,"HS97":120,"CS Proprietary":110,"HS Proprietary":135,"D New":
 # =========================
 # HIDRÁULICA TUBING
 # =========================
+# =========================
+# ✅ DENSIDAD MEZCLA
+# =========================
+
+rho_water = 1000  # kg/m3
+
+densidad = (
+    (1 - wc/100) * sg_oil * 1000
+    + (wc/100) * rho_water
+)
 
 # caudal
 Q = prod / 86400  # m3/s
