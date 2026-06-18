@@ -557,7 +557,11 @@ dp_pa = pres_total * 98066  # kg/cm2 → Pa
 
 L = Ae * dp_pa  # carga hidráulica (N)
 
-Wr = peso * profundidad  # peso sarta
+rho_steel = 7850  # kg/m3
+
+Wr = peso * profundidad * (1 - densidad / rho_steel)
+
+
 
 F = Wr + L  # carga total real
 
