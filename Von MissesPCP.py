@@ -1303,7 +1303,7 @@ if len(df) > 1:
     fig = plt.figure(figsize=(4,6))
     ax = fig.add_subplot(111, projection='3d')
 
-    # ✅ PLOTEO
+    # ✅ PLOTEO (igual que antes)
     for i in range(len(df)-1):
         ax.plot(
             df["X"].iloc[i:i+2],
@@ -1313,22 +1313,20 @@ if len(df) > 1:
             linewidth=2
         )
 
-    # ✅ LIMITES ORIGINALES (NO TOCAR)
-    X = df["X"].values
-    Y = df["Y"].values
-    Z = df["Z"].values
+    # ✅ LIMITES ORIGINALES (SIN INVENTOS)
+    ax.set_xlim(min(df["X"]), max(df["X"]))
+    ax.set_ylim(min(df["Y"]), max(df["Y"]))
+    ax.set_zlim(min(df["Z"]), max(df["Z"]))
 
-    ax.set_xlim(min(X), max(X))
-    ax.set_ylim(min(Y), max(Y))
-    ax.set_zlim(min(Z), max(Z))
-
-    # ✅ ESTA ES LA CLAVE REAL 👇
+    # ✅ VIEW (igual)
     ax.view_init(elev=elev, azim=azim)
-    ax.set_proj_type('persp')   # ✅ usar perspectiva normal (NO ortho)
 
-    # ✅ ESTÉTICA ORIGINAL (TAMAÑO NORMAL)
+    # ✅ FIX REAL (solo esto cambia)
+    ax.dist = 9   # 👈 controla el “zoom” visual (clave)
+
+    # ✅ ESTÉTICA ORIGINAL
     ax.tick_params(labelsize=6)
-    ax.set_box_aspect([1,1,2])  # 👈 como lo tenías (NO tocar)
+    ax.set_box_aspect([1,1,2])
 
     st.pyplot(fig)
 
@@ -1341,6 +1339,7 @@ if len(df) > 1:
       🔴 **> 6°/100ft** → +3 o Mamba  
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
