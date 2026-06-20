@@ -1328,11 +1328,20 @@ with colG:
         mid_y = (max(Y) + min(Y)) / 2
         mid_z = (max(Z) + min(Z)) / 2
 
-        scale_xy = 0.5   # 👈 achica 50% en X e Y
+X = df["X"].values
+Y = df["Y"].values
+Z = df["Z"].values
 
-        ax.set_xlim(mid_x - max_range*scale_xy/2, mid_x + max_range*scale_xy/2)
-        ax.set_ylim(mid_y - max_range*scale_xy/2, mid_y + max_range*scale_xy/2)
-        ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)  # 👈 Z queda igual
+scale_xy = 0.5  # 👈 ahora sí funciona
+
+ax.set_xlim(mid_x - (max(X)-min(X))*scale_xy/2,
+            mid_x + (max(X)-min(X))*scale_xy/2)
+
+ax.set_ylim(mid_y - (max(Y)-min(Y))*scale_xy/2,
+            mid_y + (max(Y)-min(Y))*scale_xy/2)
+
+# 👇 Z queda independiente (CLAVE)
+ax.set_zlim(min(Z), max(Z))
 
 
         # ✅ VIEW (igual)
