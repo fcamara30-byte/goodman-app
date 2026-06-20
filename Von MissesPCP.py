@@ -1313,31 +1313,21 @@ if len(df) > 1:
             linewidth=2
         )
 
-    # ✅ ESCALA CORRECTA (ROBUSTA)
+    # ✅ LIMITES REALES (SIN SCALING)
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
 
-    scale_xy = 3
-
-    # centro
-    mid_x = (max(X) + min(X)) / 2
-    mid_y = (max(Y) + min(Y)) / 2
-
-    # rango
-    range_x = (max(X) - min(X)) * scale_xy
-    range_y = (max(Y) - min(Y)) * scale_xy
-
-    ax.set_xlim(mid_x - range_x/2, mid_x + range_x/2)
-    ax.set_ylim(mid_y - range_y/2, mid_y + range_y/2)
+    ax.set_xlim(min(X), max(X))
+    ax.set_ylim(min(Y), max(Y))
     ax.set_zlim(min(Z), max(Z))
 
-    # ✅ VIEW
+    # ✅ SOLO ESTÉTICA (acá está la magia)
     ax.view_init(elev=elev, azim=azim)
-
-    # ✅ ESTÉTICA
     ax.tick_params(labelsize=6)
-    ax.set_box_aspect((1,1,2.5))
+
+    # 👇 ESTO DA LA FORMA CORRECTA
+    ax.set_box_aspect((1,1,3))
 
     st.pyplot(fig)
 
