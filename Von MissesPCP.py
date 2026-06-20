@@ -1328,9 +1328,12 @@ with colG:
         mid_y = (max(Y) + min(Y)) / 2
         mid_z = (max(Z) + min(Z)) / 2
 
-        ax.set_xlim(mid_x - max_range/2, mid_x + max_range/2)
-        ax.set_ylim(mid_y - max_range/2, mid_y + max_range/2)
-        ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
+        scale = 0.7   # 👈 70% = reduce 30%
+
+        ax.set_xlim(mid_x - max_range*scale/2, mid_x + max_range*scale/2)
+        ax.set_ylim(mid_y - max_range*scale/2, mid_y + max_range*scale/2)
+        ax.set_zlim(mid_z - max_range*scale/2, mid_z + max_range*scale/2)
+
 
         # ✅ VIEW (igual)
         ax.view_init(elev=elev, azim=azim)
