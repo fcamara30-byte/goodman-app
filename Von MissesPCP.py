@@ -1337,7 +1337,7 @@ with colG:
 
         # ✅ ESTÉTICA
         ax.tick_params(labelsize=6)
-        ax.set_box_aspect([1,1,1])
+        ax.set_box_aspect([1,1,2])
 
         st.pyplot(fig)
 
