@@ -1310,7 +1310,7 @@ with colG:
                 df["Y"].iloc[i:i+2],
                 df["Z"].iloc[i:i+2],
                 color=colores[i],
-                linewidth=1.5   # 👈 evita “engrosamiento”
+                linewidth=3   # 👈 evita “engrosamiento”
             )
 
         # ✅ ESCALA ORIGINAL (como tenías)
