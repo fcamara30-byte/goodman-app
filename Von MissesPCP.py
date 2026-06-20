@@ -1299,52 +1299,59 @@ with colS:
 with colG:
     st.markdown("###### Well Survey")
 
-if len(df) > 1:
-    fig = plt.figure(figsize=(4,6))
-    ax = fig.add_subplot(111, projection='3d')
+    if len(df) > 1:
+        fig = plt.figure(figsize=(4,6))
+        ax = fig.add_subplot(111, projection='3d')
 
-    # ✅ PLOTEO (igual que antes)
-    for i in range(len(df)-1):
-        ax.plot(
-            df["X"].iloc[i:i+2],
-            df["Y"].iloc[i:i+2],
-            df["Z"].iloc[i:i+2],
-            color=colores[i],
-            linewidth=2
+        # ✅ PLOTEO
+        for i in range(len(df)-1):
+            ax.plot(
+                df["X"].iloc[i:i+2],
+                df["Y"].iloc[i:i+2],
+                df["Z"].iloc[i:i+2],
+                color=colores[i],
+                linewidth=2
+            )
+
+        # ✅ FIJAR ESCALA (EVITA ZOOM)
+        X = df["X"].values
+        Y = df["Y"].values
+        Z = df["Z"].values
+
+        max_range = max(
+            max(X) - min(X),
+            max(Y) - min(Y),
+            max(Z) - min(Z)
         )
 
-    # ✅ LIMITES ORIGINALES (SIN INVENTOS)
-    ax.set_xlim(min(df["X"]), max(df["X"]))
-    ax.set_ylim(min(df["Y"]), max(df["Y"]))
-    ax.set_zlim(min(df["Z"]), max(df["Z"]))
+        mid_x = (max(X) + min(X)) / 2
+        mid_y = (max(Y) + min(Y)) / 2
+        mid_z = (max(Z) + min(Z)) / 2
 
-    # ✅ VIEW (igual)
-    ax.view_init(elev=elev, azim=azim)
+        ax.set_xlim(mid_x - max_range/2, mid_x + max_range/2)
+        ax.set_ylim(mid_y - max_range/2, mid_y + max_range/2)
+        ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
 
-    # ✅ FIX REAL (solo esto cambia)
-    ax.dist = 9   # 👈 controla el “zoom” visual (clave)
+        # ✅ VIEW
+        ax.view_init(elev=elev, azim=azim)
 
-    # ✅ ESTÉTICA ORIGINAL
-    ax.tick_params(labelsize=6)
-    ax.set_box_aspect([1,1,2])
+        # ✅ ESTÉTICA
+        ax.tick_params(labelsize=6)
+        ax.set_box_aspect([1,1,2])
 
-    st.pyplot(fig)
+        st.pyplot(fig)
 
-    # ✅ LEYENDA
-    st.markdown("""
-    <div style="margin-left:90px">
-      🟢 **< 2°/100ft** → sin cent.<br>  
-      🟡 **2 – 3°/100ft** → 2 cent.<br>  
-      🟠 **3 – 6°/100ft** → 3 cent.<br>  
-      🔴 **> 6°/100ft** → +3 o Mamba  
-    </div>
-    """, unsafe_allow_html=True)
+        # ✅ LEYENDA (MISMA INDENTACIÓN)
+        st.markdown("""
+        <div style="margin-left:90px">
+          🟢 **< 2°/100ft** → sin cent.<br>  
+          🟡 **2 – 3°/100ft** → 2 cent.<br>  
+          🟠 **3 – 6°/100ft** → 3 cent.<br>  
+          🔴 **> 6°/100ft** → +3 o Mamba  
+        </div>
+        """, unsafe_allow_html=True)
 
-
-
-
-
-    fig.savefig("grafico.png", bbox_inches="tight")
+        fig.savefig("grafico.png", bbox_inches="tight")
 
 
     # tabla derecha
@@ -1687,4 +1694,3 @@ st.markdown("""
 Desarrollado por Fcam & Eng.Pro-Apolo-Apex. SP-Brazil May-26
 </div>
 """, unsafe_allow_html=True)
-
