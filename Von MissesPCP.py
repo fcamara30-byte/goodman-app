@@ -1313,7 +1313,7 @@ with colG:
                 linewidth=2
             )
 
-        # ✅ FIJAR ESCALA (EVITA ZOOM)
+        # ✅ ESCALA ORIGINAL (NO TOCAR)
         X = df["X"].values
         Y = df["Y"].values
         Z = df["Z"].values
@@ -1332,16 +1332,19 @@ with colG:
         ax.set_ylim(mid_y - max_range/2, mid_y + max_range/2)
         ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)
 
-        # ✅ VIEW
+        # ✅ VIEW (igual)
         ax.view_init(elev=elev, azim=azim)
+
+        # ✅ 🔥 MEJORA MÍNIMA (ACÁ ESTÁ LA DIFERENCIA)
+        ax.dist = 10              # controla el zoom visual (clave)
+        ax.set_box_aspect([1,1,2.2])  # un poco mejor profundidad
 
         # ✅ ESTÉTICA
         ax.tick_params(labelsize=6)
-        ax.set_box_aspect([1,1,2])
 
         st.pyplot(fig)
 
-        # ✅ LEYENDA (MISMA INDENTACIÓN)
+        # ✅ LEYENDA
         st.markdown("""
         <div style="margin-left:90px">
           🟢 **< 2°/100ft** → sin cent.<br>  
