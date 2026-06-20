@@ -1609,7 +1609,7 @@ if len(df) > 1:
           aspectmode='cube',
 
           camera=dict(
-          eye=dict(x=1.8, y=1.6, z=0.7),
+          eye=dict(x=1, y=1, z=0.7),
           center=dict(x=0, y=0, z=0.1)
     ),
 
