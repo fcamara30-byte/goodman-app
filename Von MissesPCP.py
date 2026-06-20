@@ -1313,7 +1313,7 @@ if len(df) > 1:
             linewidth=2
         )
 
-    # ✅ LIMITES REALES (SIN SCALING)
+    # ✅ LIMITES ORIGINALES (NO TOCAR)
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
@@ -1322,12 +1322,13 @@ if len(df) > 1:
     ax.set_ylim(min(Y), max(Y))
     ax.set_zlim(min(Z), max(Z))
 
-    # ✅ SOLO ESTÉTICA (acá está la magia)
+    # ✅ ESTA ES LA CLAVE REAL 👇
     ax.view_init(elev=elev, azim=azim)
-    ax.tick_params(labelsize=6)
+    ax.set_proj_type('persp')   # ✅ usar perspectiva normal (NO ortho)
 
-    # 👇 ESTO DA LA FORMA CORRECTA
-    ax.set_box_aspect((1,1,3))
+    # ✅ ESTÉTICA ORIGINAL (TAMAÑO NORMAL)
+    ax.tick_params(labelsize=6)
+    ax.set_box_aspect([1,1,2])  # 👈 como lo tenías (NO tocar)
 
     st.pyplot(fig)
 
@@ -1340,6 +1341,7 @@ if len(df) > 1:
       🔴 **> 6°/100ft** → +3 o Mamba  
     </div>
     """, unsafe_allow_html=True)
+
 
 
 
