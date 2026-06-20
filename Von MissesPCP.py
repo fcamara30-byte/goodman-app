@@ -1620,8 +1620,8 @@ div[data-testid="stPlotlyChart"] {
 
     fig.write_html("animacion.html")
     
-with open("animacion.html", "r", encoding="utf-8") as f:
-    html_bytes = f.read()
+if os.path.exists("animacion.html"):
+    with open("animacion.html", "r", encoding="utf-8") as f:
 
 # ✅ botón descarga
 st.download_button(
