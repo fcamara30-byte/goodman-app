@@ -1622,14 +1622,15 @@ div[data-testid="stPlotlyChart"] {
     
 if os.path.exists("animacion.html"):
     with open("animacion.html", "r", encoding="utf-8") as f:
+        html_bytes = f.read()
 
-# ✅ botón descarga
-st.download_button(
-    label="⬇ Download Media Graph",
-    data=html_bytes,
-    file_name="animacion.html",
-    mime="text/html"
-)
+    # ✅ botón descarga
+    st.download_button(
+        label="⬇ Download Media Graph",
+        data=html_bytes,
+        file_name="animacion.html",
+        mime="text/html"
+    )
 
 
 
