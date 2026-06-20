@@ -1344,7 +1344,7 @@ if len(df) > 1:
     """, unsafe_allow_html=True)
 
 
-        fig.savefig("grafico.png", bbox_inches="tight")
+    fig.savefig("grafico.png", bbox_inches="tight")
 
 
     # tabla derecha
