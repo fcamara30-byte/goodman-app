@@ -1313,15 +1313,23 @@ if len(df) > 1:
             linewidth=2
         )
 
-    # ✅ ESCALA CORRECTA (REEMPLAZA max_range)
+    # ✅ ESCALA CORRECTA (ROBUSTA)
     X = df["X"].values
     Y = df["Y"].values
     Z = df["Z"].values
 
-    scale_xy = 3  # 👈 probá 2–4 si querés ajustar
+    scale_xy = 3
 
-    ax.set_xlim(min(X)*scale_xy, max(X)*scale_xy)
-    ax.set_ylim(min(Y)*scale_xy, max(Y)*scale_xy)
+    # centro
+    mid_x = (max(X) + min(X)) / 2
+    mid_y = (max(Y) + min(Y)) / 2
+
+    # rango
+    range_x = (max(X) - min(X)) * scale_xy
+    range_y = (max(Y) - min(Y)) * scale_xy
+
+    ax.set_xlim(mid_x - range_x/2, mid_x + range_x/2)
+    ax.set_ylim(mid_y - range_y/2, mid_y + range_y/2)
     ax.set_zlim(min(Z), max(Z))
 
     # ✅ VIEW
@@ -1342,6 +1350,7 @@ if len(df) > 1:
       🔴 **> 6°/100ft** → +3 o Mamba  
     </div>
     """, unsafe_allow_html=True)
+
 
 
     fig.savefig("grafico.png", bbox_inches="tight")
