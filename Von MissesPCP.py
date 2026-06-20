@@ -1328,11 +1328,11 @@ with colG:
         mid_y = (max(Y) + min(Y)) / 2
         mid_z = (max(Z) + min(Z)) / 2
 
-        scale = 0.7   # 👈 70% = reduce 30%
+        scale_xy = 0.5   # 👈 achica 50% en X e Y
 
-        ax.set_xlim(mid_x - max_range*scale/2, mid_x + max_range*scale/2)
-        ax.set_ylim(mid_y - max_range*scale/2, mid_y + max_range*scale/2)
-        ax.set_zlim(mid_z - max_range*scale/2, mid_z + max_range*scale/2)
+        ax.set_xlim(mid_x - max_range*scale_xy/2, mid_x + max_range*scale_xy/2)
+        ax.set_ylim(mid_y - max_range*scale_xy/2, mid_y + max_range*scale_xy/2)
+        ax.set_zlim(mid_z - max_range/2, mid_z + max_range/2)  # 👈 Z queda igual
 
 
         # ✅ VIEW (igual)
